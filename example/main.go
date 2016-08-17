@@ -41,4 +41,14 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(p.Name)
+
+	q = db.Query(&Person{})
+	if err := q.One(p); err == nil {
+		panic("Should get a TooManyResultsError")
+	}
+
+	q = q.Where(db.Metadata.GetMapper(&Person{}).Table().C("name").Eq("Plouf"))
+	if err := q.One(p); err == nil {
+		panic("Should get a NoResultError")
+	}
 }
