@@ -104,3 +104,8 @@ func (mapper PersonMapper) Scan(rows *sql.Rows, instance yagorm.MappedStruct) er
 	}
 	return rows.Scan(&s.ID, &s.Name, &s.Email, &s.CreatedAt, &s.UpdatedAt)
 }
+
+// PKeyClause returns a clause that matches the instance primary key
+func (mapper PersonMapper) PKeyClause(instance yagorm.MappedStruct) qb.Clause {
+	return personTable.C("id").Eq(instance.(*Person).ID)
+}

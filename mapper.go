@@ -12,8 +12,10 @@ type Mapper interface {
 	Name() string
 	Table() *qb.TableElem
 	StructType() reflect.Type
-	Values(instance MappedStruct) map[string]interface{}
 	FieldList() []qb.Clause
+
+	PKeyClause(instance MappedStruct) qb.Clause
+	Values(instance MappedStruct) map[string]interface{}
 
 	Scan(rows *sql.Rows, instance MappedStruct) error
 }
