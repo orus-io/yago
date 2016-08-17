@@ -16,4 +16,5 @@ type Mapper interface {
 // MappedStruct is implemented by all mapped structures
 type MappedStruct interface {
 	StructType() reflect.Type
+	Values() map[string]interface{}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/aacanakin/qb"
 )
@@ -17,6 +18,24 @@ var personTable = qb.Table(
 )
 
 var personType = reflect.TypeOf(Person{})
+
+// NewPerson instanciate a Person with sensible default values
+func NewPerson() *Person {
+	return &Person{
+		CreatedAt: time.Now(),
+	}
+}
+
+// Values returns the struct values as a map
+func (p Person) Values() map[string]interface{} {
+	return map[string]interface{}{
+		"id":         p.ID,
+		"name":       p.Name,
+		"email":      p.Email,
+		"created_at": p.CreatedAt,
+		"updated_at": p.UpdatedAt,
+	}
+}
 
 // StructType returns the reflect.Type of the struct
 // It is used for indexing mappers (and only that I guess, so
