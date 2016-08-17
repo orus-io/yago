@@ -1,6 +1,7 @@
 package yagorm
 
 import (
+	"database/sql"
 	"reflect"
 
 	"github.com/aacanakin/qb"
@@ -12,6 +13,9 @@ type Mapper interface {
 	Table() *qb.TableElem
 	StructType() reflect.Type
 	Values(instance MappedStruct) map[string]interface{}
+	FieldList() []qb.Clause
+
+	Scan(rows *sql.Rows, instance MappedStruct) error
 }
 
 // MappedStruct is implemented by all mapped structures
