@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bitbucket.org/cdevienne/yagorm"
-
 	"github.com/aacanakin/qb"
+
+	"bitbucket.org/cdevienne/yagorm"
 )
 
 func main() {
@@ -20,4 +20,8 @@ func main() {
 	engine.SetDialect(qb.NewDialect("sqlite3"))
 
 	meta.GetQbMetadata().CreateAll(engine)
+
+	sess := yagorm.New(meta, engine)
+
+	sess.Save(NewPerson())
 }

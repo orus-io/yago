@@ -5,10 +5,10 @@ import (
 )
 
 // New initialise a new PseudoSession
-func New(session *qb.Session) *PseudoSession {
+func New(metadata *Metadata, engine *qb.Engine) *PseudoSession {
 	return &PseudoSession{
-		session,
-		NewMetadata(),
+		metadata,
+		engine,
 	}
 }
 
@@ -16,16 +16,23 @@ func New(session *qb.Session) *PseudoSession {
 // It provides a SQLA session like API, but has no
 // instance cache, change tracking or unit-of-work
 type PseudoSession struct {
-	qbSession *qb.Session
-	Metadata  *Metadata
+	Metadata *Metadata
+	Engine   *qb.Engine
 }
 
-// QbSession returns the underlying qb.session
-func (ps *PseudoSession) QbSession() *qb.Session {
-	return ps.qbSession
-}
+// Save insert a struct in the database
+func (ps *PseudoSession) Save(s MappedStruct) {
+	insert := ps.Metadata.GetMapper(s).Table().Insert().Values(s.Values())
 
-// Close things
-func (ps *PseudoSession) Close() {
-	ps.qbSession.Close()
+	res, err := ps.Engine.Exec(insert)
+	if err != nil {
+		panic(err)
+	}
+	ra, err := res.RowsAffected()
+	if err != nil {
+		panic(err)
+	}
+	if ra != 1 {
+		panic("Insert failed")
+	}
 }
