@@ -22,7 +22,8 @@ type PseudoSession struct {
 
 // Save insert a struct in the database
 func (ps *PseudoSession) Save(s MappedStruct) {
-	insert := ps.Metadata.GetMapper(s).Table().Insert().Values(s.Values())
+	mapper := ps.Metadata.GetMapper(s)
+	insert := mapper.Table().Insert().Values(mapper.Values(s))
 
 	res, err := ps.Engine.Exec(insert)
 	if err != nil {

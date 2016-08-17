@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/aacanakin/qb"
+
+	"bitbucket.org/cdevienne/yagorm"
 )
 
 var personTable = qb.Table(
@@ -26,27 +28,15 @@ func NewPerson() *Person {
 	}
 }
 
-// Values returns the struct values as a map
-func (p Person) Values() map[string]interface{} {
-	return map[string]interface{}{
-		"id":         p.ID,
-		"name":       p.Name,
-		"email":      p.Email,
-		"created_at": p.CreatedAt,
-		"updated_at": p.UpdatedAt,
-	}
-}
-
 // StructType returns the reflect.Type of the struct
 // It is used for indexing mappers (and only that I guess, so
 // it could be replaced with a unique identifier).
-func (*Person) StructType() reflect.Type {
+func (Person) StructType() reflect.Type {
 	return personType
 }
 
 // PersonMapper is the Person mapper
-type PersonMapper struct {
-}
+type PersonMapper struct{}
 
 // Name returns the mapper name
 func (*PersonMapper) Name() string {
@@ -61,4 +51,19 @@ func (*PersonMapper) Table() *qb.TableElem {
 // StructType returns the reflect.Type of the mapped structure
 func (PersonMapper) StructType() reflect.Type {
 	return personType
+}
+
+// Values returns the struct values as a map
+func (mapper PersonMapper) Values(instance yagorm.MappedStruct) map[string]interface{} {
+	s := instance.(*Person)
+	if s == nil {
+		panic("Wrong struct type passed to the mapper")
+	}
+	return map[string]interface{}{
+		"id":         s.ID,
+		"name":       s.Name,
+		"email":      s.Email,
+		"created_at": s.CreatedAt,
+		"updated_at": s.UpdatedAt,
+	}
 }
