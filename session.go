@@ -8,7 +8,7 @@ import (
 func New(session *qb.Session) *PseudoSession {
 	return &PseudoSession{
 		session,
-		NewMetadata(session.Metadata()),
+		NewMetadata(),
 	}
 }
 

@@ -7,20 +7,17 @@ import (
 )
 
 func main() {
-	db, err := qb.New("sqlite3", ":memory:")
-	if err != nil {
-		panic(err)
-	}
-	session := yagorm.New(db)
-	defer session.Close()
-	meta := yagorm.NewMetadata(db.Metadata())
-
+	meta := yagorm.NewMetadata()
 	meta.AddMapper(&PersonMapper{})
-
-	if err := db.CreateAll(); err != nil {
-		panic(err)
-	}
 
 	s := yagorm.Select(meta, &Person{})
 	s.GroupBy()
+
+	engine, err := qb.NewEngine("sqlite3", ":memory:")
+	if err != nil {
+		panic(err)
+	}
+	engine.SetDialect(qb.NewDialect("sqlite3"))
+
+	meta.GetQbMetadata().CreateAll(engine)
 }

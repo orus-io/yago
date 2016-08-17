@@ -14,7 +14,12 @@ type Metadata struct {
 }
 
 // NewMetadata instanciate a Metadata
-func NewMetadata(qbMeta *qb.MetaDataElem) *Metadata {
+func NewMetadata() *Metadata {
+	return NewMetadataFromQbMetadata(qb.MetaData())
+}
+
+// NewMetadataFromQbMetadata returns a Metadata from a qb.Metadata
+func NewMetadataFromQbMetadata(qbMeta *qb.MetaDataElem) *Metadata {
 	return &Metadata{
 		qbMeta:  qbMeta,
 		mappers: make(map[reflect.Type]Mapper),
@@ -30,4 +35,9 @@ func (m *Metadata) AddMapper(mapper Mapper) {
 // GetMapper returns the default mapper of a mapped struct
 func (m *Metadata) GetMapper(s MappedStruct) Mapper {
 	return m.mappers[s.StructType()]
+}
+
+// GetQbMetadata returns the underlying
+func (m *Metadata) GetQbMetadata() *qb.MetaDataElem {
+	return m.qbMeta
 }
