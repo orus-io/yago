@@ -20,8 +20,8 @@ type DB struct {
 	Engine   *qb.Engine
 }
 
-// Save insert a struct in the database
-func (db *DB) Save(s MappedStruct) {
+// Add insert a struct in the database
+func (db *DB) Add(s MappedStruct) {
 	mapper := db.Metadata.GetMapper(s)
 	insert := mapper.Table().Insert().Values(mapper.Values(s))
 

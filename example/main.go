@@ -27,11 +27,11 @@ func main() {
 
 	p := NewPerson()
 	p.Name = "Toto"
-	db.Save(p)
+	db.Add(p)
 
 	p = NewPerson()
 	p.Name = "Titi"
-	db.Save(p)
+	db.Add(p)
 
 	q := db.Query(&Person{})
 	q = q.Where(db.Metadata.GetMapper(&Person{}).Table().C("name").Eq("Titi"))
