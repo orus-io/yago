@@ -27,7 +27,6 @@ func (*Person) StructType() reflect.Type {
 
 // PersonMapper is the Person mapper
 type PersonMapper struct {
-	structType reflect.Type
 }
 
 // Name returns the mapper name
