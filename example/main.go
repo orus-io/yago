@@ -21,7 +21,7 @@ func main() {
 
 	meta.GetQbMetadata().CreateAll(engine)
 
-	sess := yagorm.New(meta, engine)
+	db := yagorm.New(meta, engine)
 
-	sess.Save(NewPerson())
+	db.Save(NewPerson())
 }

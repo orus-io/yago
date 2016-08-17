@@ -4,28 +4,28 @@ import (
 	"github.com/aacanakin/qb"
 )
 
-// New initialise a new PseudoSession
-func New(metadata *Metadata, engine *qb.Engine) *PseudoSession {
-	return &PseudoSession{
+// New initialise a new DB
+func New(metadata *Metadata, engine *qb.Engine) *DB {
+	return &DB{
 		metadata,
 		engine,
 	}
 }
 
-// PseudoSession is a session-looking thing.
+// DB is a session-looking thing.
 // It provides a SQLA session like API, but has no
 // instance cache, change tracking or unit-of-work
-type PseudoSession struct {
+type DB struct {
 	Metadata *Metadata
 	Engine   *qb.Engine
 }
 
 // Save insert a struct in the database
-func (ps *PseudoSession) Save(s MappedStruct) {
-	mapper := ps.Metadata.GetMapper(s)
+func (db *DB) Save(s MappedStruct) {
+	mapper := db.Metadata.GetMapper(s)
 	insert := mapper.Table().Insert().Values(mapper.Values(s))
 
-	res, err := ps.Engine.Exec(insert)
+	res, err := db.Engine.Exec(insert)
 	if err != nil {
 		panic(err)
 	}
