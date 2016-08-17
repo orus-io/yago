@@ -37,3 +37,14 @@ func (db *DB) Save(s MappedStruct) {
 		panic("Insert failed")
 	}
 }
+
+// Query returns a new Query for the struct
+func (db *DB) Query(s MappedStruct) Query {
+	mapper := db.Metadata.GetMapper(s)
+	return db.QueryFromMapper(mapper)
+}
+
+// QueryFromMapper returns a new Query for the mapper
+func (db *DB) QueryFromMapper(m Mapper) Query {
+	return NewQuery(db, m)
+}

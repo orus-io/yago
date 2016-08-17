@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/aacanakin/qb"
 
 	"bitbucket.org/cdevienne/yagorm"
@@ -23,5 +25,20 @@ func main() {
 
 	db := yagorm.New(meta, engine)
 
-	db.Save(NewPerson())
+	p := NewPerson()
+	p.Name = "Toto"
+	db.Save(p)
+
+	p = NewPerson()
+	p.Name = "Titi"
+	db.Save(p)
+
+	q := db.Query(&Person{})
+	q = q.Where(db.Metadata.GetMapper(&Person{}).Table().C("name").Eq("Titi"))
+
+	p = &Person{}
+	if err := q.One(p); err != nil {
+		panic(err)
+	}
+	fmt.Println(p.Name)
 }
