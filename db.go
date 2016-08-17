@@ -1,6 +1,8 @@
 package yagorm
 
 import (
+	"fmt"
+
 	"github.com/aacanakin/qb"
 )
 
@@ -47,4 +49,22 @@ func (db *DB) Query(s MappedStruct) Query {
 // QueryFromMapper returns a new Query for the mapper
 func (db *DB) QueryFromMapper(m Mapper) Query {
 	return NewQuery(db, m)
+}
+
+// Delete a struct from the database
+func (db *DB) Delete(s MappedStruct) error {
+	mapper := db.Metadata.GetMapper(s)
+	del := mapper.Table().Delete().Where(mapper.PKeyClause(s))
+	res, err := db.Engine.Exec(del)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected != 1 {
+		return fmt.Errorf("Wrong number of rows affected. Expected 1, got %v", rowsAffected)
+	}
+	return err
 }

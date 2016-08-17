@@ -34,6 +34,16 @@ func main() {
 	db.Add(p)
 
 	q := db.Query(&Person{})
+	if err := q.One(p); err == nil {
+		panic("Should get a TooManyResultsError")
+	}
+
+	q = q.Where(db.Metadata.GetMapper(&Person{}).Table().C("name").Eq("Plouf"))
+	if err := q.One(p); err == nil {
+		panic("Should get a NoResultError")
+	}
+
+	q = db.Query(&Person{})
 	q = q.Where(db.Metadata.GetMapper(&Person{}).Table().C("name").Eq("Titi"))
 
 	p = &Person{}
@@ -42,13 +52,8 @@ func main() {
 	}
 	fmt.Println(p.Name)
 
-	q = db.Query(&Person{})
+	db.Delete(p)
 	if err := q.One(p); err == nil {
-		panic("Should get a TooManyResultsError")
-	}
-
-	q = q.Where(db.Metadata.GetMapper(&Person{}).Table().C("name").Eq("Plouf"))
-	if err := q.One(p); err == nil {
-		panic("Should get a NoResultError")
+		panic("Should get a 'NoResultError'")
 	}
 }
