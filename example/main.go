@@ -21,7 +21,9 @@ func main() {
 	}
 	engine.SetDialect(qb.NewDialect("sqlite3"))
 
-	meta.GetQbMetadata().CreateAll(engine)
+	if err := meta.GetQbMetadata().CreateAll(engine); err != nil {
+		panic(err)
+	}
 
 	db := yagorm.New(meta, engine)
 
