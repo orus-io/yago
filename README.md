@@ -13,8 +13,6 @@ Yagorm is an attempt to create an ORM for Go.
 
 - Very experimental.
 - Current focus is on finding the right API.
-- Code generation is far from complete for now (the would-be-generated code is
-  written by hand in the example).
 
 In no way using this code in production is a good idea.
 
