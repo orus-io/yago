@@ -20,6 +20,7 @@ type FieldData struct {
 	Tags            ColumnTags
 	Name            string
 	Type            string
+	EmptyValue      string
 	ColumnName      string
 	ColumnType      string
 	ColumnModifiers string
@@ -27,9 +28,13 @@ type FieldData struct {
 
 // StructData describes a struct to be mapped
 type StructData struct {
-	Name      string
-	TableName string
-	Fields    []FieldData
+	Name            string
+	PrivateBasename string
+	TableName       string
+	Fields          []FieldData
+	PKeyFields      []*FieldData
+
+	File FileData
 }
 
 var (
@@ -50,11 +55,90 @@ import (
 `))
 
 	structTemplate = template.Must(template.New("struct").Parse(`
-var {{ .TableName }}Table = qb.Table(
+{{ $Struct := .Name }}{{ $Table := printf "%s%s" .PrivateBasename "Table" }}
+var {{ $Table }} = qb.Table(
 	"{{ .TableName }}",
-	{{- range $_, $fd := .Fields }}
-	qb.Column("{{ $fd.ColumnName }}", {{ $fd.ColumnType }}){{ .ColumnModifiers }},
+	{{- range .Fields }}
+	qb.Column("{{ .ColumnName }}", {{ .ColumnType }}){{ .ColumnModifiers }},
 	{{- end }}
+
 )
+
+var {{ .PrivateBasename }}Type = reflect.TypeOf({{ .Name }}{})
+
+// StructType returns the reflect.Type of the struct
+// It is used for indexing mappers (and only that I guess, so
+// it could be replaced with a unique identifier).
+func ({{ .Name }}) StructType() reflect.Type {
+	return {{ .PrivateBasename }}Type
+}
+
+// {{ .Name }}Mapper is the {{ .Name }} mapper
+type {{ .Name }}Mapper struct{}
+
+// Name returns the mapper name
+func (*{{ .Name }}Mapper) Name() string {
+	return "{{ .File.Package }}/{{ .Name }}"
+}
+
+// Table returns the mapper table
+func (*{{ .Name }}Mapper) Table() *qb.TableElem {
+	return &{{ $Table }}
+}
+
+// StructType returns the reflect.Type of the mapped structure
+func ({{ .Name }}Mapper) StructType() reflect.Type {
+	return {{ .PrivateBasename }}Type
+}
+
+// Values returns non-default values as a map
+func (mapper {{ .Name }}Mapper) Values(instance yagorm.MappedStruct) map[string]interface{} {
+	s, ok := instance.(*{{ .Name }})
+	if !ok {
+		 panic("Wrong struct type passed to the mapper")
+	}
+	m := make(map[string]interface{})
+	{{- range .Fields }}
+	if s.{{ .Name }} != {{ .EmptyValue }} {
+		m["{{ .ColumnName }}"] = s.{{ .Name }}
+	}
+	{{- end }}
+	return m
+}
+
+// FieldList returns the list of fields for a select
+func (mapper {{ .Name }}Mapper) FieldList() []qb.Clause {
+	return []qb.Clause{
+		{{- range .Fields }}
+		{{ $Table }}.C("{{ .ColumnName }}"),
+		{{- end }}
+	}
+}
+
+// Scan a struct
+func (mapper {{ .Name }}Mapper) Scan(rows *sql.Rows, instance yagorm.MappedStruct) error {
+	s, ok := instance.(*{{ .Name }})
+	if !ok {
+		panic("Wrong struct type passed to the mapper")
+	}
+	return rows.Scan(
+	{{- range $_, $fd := .Fields }}
+		&s.{{ $fd.Name }},
+	{{- end }}
+	)
+}
+
+// PKeyClause returns a clause that matches the instance primary key
+func (mapper {{ .Name }}Mapper) PKeyClause(instance yagorm.MappedStruct) qb.Clause {
+	{{- if eq 1 (len .PKeyFields) }}
+	return {{ $Table }}.C("{{ (index .PKeyFields 0).ColumnName }}").Eq(instance.(*{{ .Name }}).{{ (index .PKeyFields 0).Name }})
+	{{- else }}
+	return qb.And(
+		{{- range .PKeyFields }}
+		{{ $Table }}.C("{{ .ColumnName }}").Eq(instance.(*{{ $Struct }}).{{ .Name }}),
+		{{- end }}
+	)
+	{{- end }}
+}
 `))
 )

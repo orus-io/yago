@@ -27,6 +27,20 @@ func makeColumnName(name string) string {
 	return ToDBName(name)
 }
 
+func getEmptyValue(goType string) string {
+	if goType[0] == '*' {
+		return "nil"
+	} else if goType == "string" {
+		return `""`
+	} else if goType[0:3] == "int" {
+		return "0"
+	} else if goType == "time.Time" {
+		return "(time.Time{})"
+	} else {
+		panic(fmt.Sprintf("I have no empty value for type '%v'", goType))
+	}
+}
+
 func prepareFieldData(f *FieldData) {
 	if f.ColumnName == "" {
 		f.ColumnName = makeColumnName(f.Name)
@@ -42,11 +56,19 @@ func prepareFieldData(f *FieldData) {
 			f.ColumnModifiers += ".AutoIncrement()"
 		}
 	}
+	if f.EmptyValue == "" {
+		f.EmptyValue = getEmptyValue(f.Type)
+	}
 }
 
-func prepareStructData(str *StructData) {
+func prepareStructData(str *StructData, fd FileData) {
+	str.File = fd
+	str.PrivateBasename = strings.ToLower(str.Name[0:1]) + str.Name[1:]
 	for i := range str.Fields {
 		prepareFieldData(&str.Fields[i])
+		if str.Fields[i].Tags.PrimaryKey {
+			str.PKeyFields = append(str.PKeyFields, &str.Fields[i])
+		}
 	}
 }
 
@@ -74,7 +96,7 @@ func ProcessFile(logger *log.Logger, path string, file string, pack string) erro
 		return err
 	}
 	for _, str := range structs {
-		prepareStructData(str)
+		prepareStructData(str, fd)
 		if err := structTemplate.Execute(outf, &str); err != nil {
 			return err
 		}
