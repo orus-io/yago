@@ -12,25 +12,18 @@ import (
 
 var personTable = qb.Table(
 	"person",
-	qb.Column("id", qb.Int().AutoIncrement()),
+	qb.Column("id", qb.Int()).AutoIncrement(),
 	qb.Column("name", qb.Varchar().NotNull()),
 	qb.Column("email", qb.Varchar()),
 	qb.Column("created_at", qb.Timestamp().NotNull()),
 	qb.Column("updated_at", qb.Timestamp()),
-	qb.PrimaryKey("id"),
 )
 
 var personType = reflect.TypeOf(Person{})
 
-// Dirty workaround for qb not supporting auto increment on sqlite.
-// VERY temporary
-var personLastID int64
-
 // NewPerson instanciate a Person with sensible default values
 func NewPerson() *Person {
-	personLastID++
 	return &Person{
-		ID:        personLastID,
 		CreatedAt: time.Now(),
 	}
 }
