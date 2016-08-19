@@ -39,8 +39,9 @@ type StructData struct {
 
 var (
 	prologTemplate = template.Must(template.New("prolog").Parse(
-		`// generated with yagorm
-package {{ .Package }}
+		`package {{ .Package }}
+
+// generated with yagorm. Better NOT to edit!
 
 import (
 	"database/sql"

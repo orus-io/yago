@@ -1,5 +1,6 @@
-// generated with yagorm
 package main
+
+// generated with yagorm. Better NOT to edit!
 
 import (
 	"database/sql"
