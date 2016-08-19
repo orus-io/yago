@@ -7,9 +7,9 @@ import (
 //go:generate yagorm
 
 // Person is a person record in the database
-//yagorm:
+//yagorm:autoattrs
 type Person struct {
-	ID        int64 `yagorm:"primary_key"`
+	ID        int64 `yagorm:"primary_key,auto_increment"`
 	Name      string
 	Email     *string
 	CreatedAt time.Time
