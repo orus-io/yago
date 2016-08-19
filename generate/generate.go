@@ -23,9 +23,13 @@ func guessColumnType(goType string) string {
 	panic(fmt.Sprintf("Cannot guess column type for go type %s", goType))
 }
 
+func makeColumnName(name string) string {
+	return ToDBName(name)
+}
+
 func prepareFieldData(f *FieldData) {
 	if f.ColumnName == "" {
-		f.ColumnName = f.Name
+		f.ColumnName = makeColumnName(f.Name)
 	}
 	if f.ColumnType == "" {
 		f.ColumnType = guessColumnType(f.Type)

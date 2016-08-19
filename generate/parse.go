@@ -111,10 +111,9 @@ func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool)
 		goType := getGoType(f.Type)
 
 		res.Fields = append(res.Fields, FieldData{
-			Tags:       tags,
-			Name:       name.Name,
-			Type:       goType,
-			ColumnName: name.Name,
+			Tags: tags,
+			Name: name.Name,
+			Type: goType,
 		})
 	}
 
