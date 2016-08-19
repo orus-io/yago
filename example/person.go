@@ -15,3 +15,10 @@ type Person struct {
 	CreatedAt time.Time
 	UpdatedAt *time.Time
 }
+
+// NewPerson instanciate a Person with sensible default values
+func NewPerson() *Person {
+	return &Person{
+		CreatedAt: (time.Now()),
+	}
+}

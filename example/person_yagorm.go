@@ -1,3 +1,4 @@
+// generated with yagorm
 package main
 
 import (
@@ -10,23 +11,19 @@ import (
 	"bitbucket.org/cdevienne/yagorm"
 )
 
+
+
 var personTable = qb.Table(
 	"person",
-	qb.Column("id", qb.Int()).AutoIncrement(),
+	qb.Column("id", qb.BigInt()).PrimaryKey().AutoIncrement(),
 	qb.Column("name", qb.Varchar().NotNull()),
 	qb.Column("email", qb.Varchar()),
 	qb.Column("created_at", qb.Timestamp().NotNull()),
 	qb.Column("updated_at", qb.Timestamp()),
+
 )
 
 var personType = reflect.TypeOf(Person{})
-
-// NewPerson instanciate a Person with sensible default values
-func NewPerson() *Person {
-	return &Person{
-		CreatedAt: time.Now(),
-	}
-}
 
 // StructType returns the reflect.Type of the struct
 // It is used for indexing mappers (and only that I guess, so
@@ -40,7 +37,7 @@ type PersonMapper struct{}
 
 // Name returns the mapper name
 func (*PersonMapper) Name() string {
-	return "example/person"
+	return "main/Person"
 }
 
 // Table returns the mapper table
@@ -55,9 +52,9 @@ func (PersonMapper) StructType() reflect.Type {
 
 // Values returns non-default values as a map
 func (mapper PersonMapper) Values(instance yagorm.MappedStruct) map[string]interface{} {
-	s := instance.(*Person)
-	if s == nil {
-		panic("Wrong struct type passed to the mapper")
+	s, ok := instance.(*Person)
+	if !ok {
+		 panic("Wrong struct type passed to the mapper")
 	}
 	m := make(map[string]interface{})
 	if s.ID != 0 {
@@ -91,11 +88,17 @@ func (mapper PersonMapper) FieldList() []qb.Clause {
 
 // Scan a struct
 func (mapper PersonMapper) Scan(rows *sql.Rows, instance yagorm.MappedStruct) error {
-	s := instance.(*Person)
-	if s == nil {
+	s, ok := instance.(*Person)
+	if !ok {
 		panic("Wrong struct type passed to the mapper")
 	}
-	return rows.Scan(&s.ID, &s.Name, &s.Email, &s.CreatedAt, &s.UpdatedAt)
+	return rows.Scan(
+		&s.ID,
+		&s.Name,
+		&s.Email,
+		&s.CreatedAt,
+		&s.UpdatedAt,
+	)
 }
 
 // PKeyClause returns a clause that matches the instance primary key
