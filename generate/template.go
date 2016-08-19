@@ -9,12 +9,20 @@ type FileData struct {
 	Package string
 }
 
+// ColumnTags contains tags set on the fields
+type ColumnTags struct {
+	PrimaryKey    bool
+	AutoIncrement bool
+}
+
 // FieldData describes a field to be mapped
 type FieldData struct {
-	Name       string
-	Type       string
-	ColumnName string
-	ColumnType string
+	Tags            ColumnTags
+	Name            string
+	Type            string
+	ColumnName      string
+	ColumnType      string
+	ColumnModifiers string
 }
 
 // StructData describes a struct to be mapped
@@ -45,7 +53,7 @@ import (
 var {{ .TableName }}Table = qb.Table(
 	"{{ .TableName }}",
 	{{- range $_, $fd := .Fields }}
-	qb.Column("{{ $fd.ColumnName }}", {{ $fd.ColumnType }}),
+	qb.Column("{{ $fd.ColumnName }}", {{ $fd.ColumnType }}){{ .ColumnModifiers }},
 	{{- end }}
 )
 `))

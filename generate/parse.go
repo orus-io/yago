@@ -13,21 +13,48 @@ import (
 	"strings"
 )
 
-var magicYagormComment = regexp.MustCompile(`yagorm:([0-9A-Za-z_\.]+)?`)
+var magicYagormComment = regexp.MustCompile(`yagorm:([0-9A-Za-z_\.,]+)?`)
 
-func guessColumnType(goType string) string {
-	if goType == "int64" {
-		return "qb.BigInt()"
-	} else if goType == "string" {
-		return "qb.Varchar().NotNull()"
-	} else if goType == "*string" {
-		return "qb.Varchar()"
-	} else if goType == "time.Time" {
-		return "qb.Timestamp().NotNull()"
-	} else if goType == "*time.Time" {
-		return "qb.Timestamp()"
+type structDefArgs struct {
+	TableName string
+	AutoAttrs bool
+}
+
+func magicYagormCommentArgs(doc string) (args structDefArgs, ok bool) {
+	sm := magicYagormComment.FindStringSubmatch(doc)
+	if len(sm) == 0 {
+		return
 	}
-	panic(fmt.Sprintf("Cannot guess column type for go type %s", goType))
+
+	if len(sm) > 1 && sm[1] != "" {
+		splitted := strings.Split(sm[1], ",")
+		for _, arg := range splitted {
+			if arg == "autoattrs" {
+				args.AutoAttrs = true
+			} else {
+				args.TableName = arg
+			}
+		}
+	}
+
+	ok = true
+
+	return
+}
+
+func readColumnTags(tag string) (tags ColumnTags) {
+	splitted := strings.Split(tag, ",")
+	for _, value := range splitted {
+		if value == "primary_key" {
+			tags.PrimaryKey = true
+		} else if value == "auto_increment" {
+			tags.AutoIncrement = true
+		} else if value == "." {
+		} else {
+			panic(fmt.Sprintf("Unknown tag %v", value))
+		}
+	}
+	return
 }
 
 func getGoType(x ast.Expr) string {
@@ -43,23 +70,30 @@ func getGoType(x ast.Expr) string {
 	}
 }
 
-func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType) (*StructData, error) {
+func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool) (*StructData, error) {
 	res := &StructData{
 		Name:   ts.Name.Name,
 		Fields: nil,
 	}
 
 	for _, f := range str.Fields.List {
-		tag := ""
+		hasTags := false
+		tags := ColumnTags{}
 		if f.Tag != nil && len(f.Tag.Value) > 2 {
-			tag = f.Tag.Value
+			tag := f.Tag.Value
 			tag = reflect.StructTag(tag[1 : len(tag)-1]).Get("yagorm")
+			if tag != "" {
+				hasTags = true
+				tags = readColumnTags(tag)
+			}
 		}
 		if len(f.Names) == 0 {
-			if tag == "" {
-				continue
+			if hasTags {
+				return nil, fmt.Errorf(
+					`yagorm: %s has anonymous field %s with "yagorm:" tag, it is not allowed`,
+					res.Name, f.Type)
 			}
-			return nil, fmt.Errorf(`yagorm: %s has anonymous field %s with "yagorm:" tag, it is not allowed`, res.Name, f.Type)
+			continue
 		}
 		if len(f.Names) != 1 {
 			panic(fmt.Sprintf("yagorm: %d names: %#v. Don't know what to do.", len(f.Names), f.Names))
@@ -67,20 +101,20 @@ func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType) (*StructData, e
 
 		name := f.Names[0]
 
-		if !name.IsExported() {
-			if tag == "" {
-				continue
-			}
+		if hasTags && !name.IsExported() {
 			return nil, fmt.Errorf(`yagorm: %s has non-exported field %s with "yagorm:" tag, it is not allowed`, res.Name, name)
+		}
+		if !(hasTags || autoattrs && name.IsExported()) {
+			continue
 		}
 
 		goType := getGoType(f.Type)
 
 		res.Fields = append(res.Fields, FieldData{
+			Tags:       tags,
 			Name:       name.Name,
 			Type:       goType,
 			ColumnName: name.Name,
-			ColumnType: guessColumnType(goType),
 		})
 	}
 
@@ -119,14 +153,16 @@ func ParseFile(path string) ([]*StructData, error) {
 				continue
 			}
 
-			sm := magicYagormComment.FindStringSubmatch(doc.Text())
-			if len(sm) == 0 {
+			args, ok := magicYagormCommentArgs(doc.Text())
+
+			if !ok {
 				continue
 			}
 
 			tablename := strings.ToLower(ts.Name.Name)
-			if len(sm) > 1 && sm[1] != "" {
-				tablename = sm[1]
+
+			if args.TableName != "" {
+				tablename = args.TableName
 			}
 
 			str, ok := ts.Type.(*ast.StructType)
@@ -134,7 +170,7 @@ func ParseFile(path string) ([]*StructData, error) {
 				continue
 			}
 
-			sd, err := parseStructTypeSpecs(ts, str)
+			sd, err := parseStructTypeSpecs(ts, str, args.AutoAttrs)
 			if err != nil {
 				return nil, err
 			}
