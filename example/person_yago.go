@@ -21,7 +21,6 @@ var personTable = qb.Table(
 	qb.Column("email", qb.Varchar()),
 	qb.Column("created_at", qb.Timestamp().NotNull()),
 	qb.Column("updated_at", qb.Timestamp()),
-
 )
 
 var personType = reflect.TypeOf(Person{})
@@ -33,8 +32,30 @@ func (Person) StructType() reflect.Type {
 	return personType
 }
 
+// PersonFields
+type PersonFields struct {
+	ID qb.ColumnElem
+	Name qb.ColumnElem
+	Email qb.ColumnElem
+	CreatedAt qb.ColumnElem
+	UpdatedAt qb.ColumnElem
+}
+
+// NewPersonMapper initialize a NewPersonMapper
+func NewPersonMapper() *PersonMapper {
+	m := &PersonMapper{}
+	m.Fields.ID = m.Table().C("id")
+	m.Fields.Name = m.Table().C("name")
+	m.Fields.Email = m.Table().C("email")
+	m.Fields.CreatedAt = m.Table().C("created_at")
+	m.Fields.UpdatedAt = m.Table().C("updated_at")
+	return m
+}
+
 // PersonMapper is the Person mapper
-type PersonMapper struct{}
+type PersonMapper struct{
+	Fields PersonFields
+}
 
 // Name returns the mapper name
 func (*PersonMapper) Name() string {

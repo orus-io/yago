@@ -8,11 +8,27 @@ import (
 	"bitbucket.org/cdevienne/yago"
 )
 
-func main() {
-	meta := yago.NewMetadata()
-	meta.AddMapper(&PersonMapper{})
+// Model gives easy access to various things
+type Model struct {
+	Meta *yago.Metadata
 
-	s := yago.Select(meta, &Person{})
+	Person *PersonMapper
+}
+
+// NewModel initialize a model
+func NewModel() *Model {
+	model := &Model{
+		Meta: yago.NewMetadata(),
+	}
+	model.Person = NewPersonMapper()
+	model.Meta.AddMapper(model.Person)
+	return model
+}
+
+func main() {
+	model := NewModel()
+
+	s := yago.Select(model.Meta, &Person{})
 	s.GroupBy()
 
 	engine, err := qb.NewEngine("sqlite3", ":memory:")
@@ -21,11 +37,11 @@ func main() {
 	}
 	engine.SetDialect(qb.NewDialect("sqlite3"))
 
-	if err := meta.GetQbMetadata().CreateAll(engine); err != nil {
+	if err := model.Meta.GetQbMetadata().CreateAll(engine); err != nil {
 		panic(err)
 	}
 
-	db := yago.New(meta, engine)
+	db := yago.New(model.Meta, engine)
 
 	p := NewPerson()
 	p.Name = "Toto"
@@ -40,13 +56,13 @@ func main() {
 		panic("Should get a TooManyResultsError")
 	}
 
-	q = q.Where(db.Metadata.GetMapper(&Person{}).Table().C("name").Eq("Plouf"))
+	q = q.Where(model.Person.Fields.Name.Eq("Plouf"))
 	if err := q.One(p); err == nil {
 		panic("Should get a NoResultError")
 	}
 
 	q = db.Query(&Person{})
-	q = q.Where(db.Metadata.GetMapper(&Person{}).Table().C("name").Eq("Titi"))
+	q = q.Where(model.Person.Fields.Name.Eq("Titi"))
 
 	p = &Person{}
 	if err := q.One(p); err != nil {

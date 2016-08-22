@@ -62,7 +62,6 @@ var {{ $Table }} = qb.Table(
 	{{- range .Fields }}
 	qb.Column("{{ .ColumnName }}", {{ .ColumnType }}){{ .ColumnModifiers }},
 	{{- end }}
-
 )
 
 var {{ .PrivateBasename }}Type = reflect.TypeOf({{ .Name }}{})
@@ -74,8 +73,26 @@ func ({{ .Name }}) StructType() reflect.Type {
 	return {{ .PrivateBasename }}Type
 }
 
+// {{ .Name }}Fields
+type {{ .Name }}Fields struct {
+	{{- range .Fields }}
+	{{ .Name }} qb.ColumnElem
+	{{- end }}
+}
+
+// New{{ .Name }}Mapper initialize a New{{ .Name }}Mapper
+func New{{ .Name }}Mapper() *{{ .Name }}Mapper {
+	m := &{{ .Name }}Mapper{}
+	{{- range .Fields }}
+	m.Fields.{{ .Name }} = m.Table().C("{{ .ColumnName }}")
+	{{- end }}
+	return m
+}
+
 // {{ .Name }}Mapper is the {{ .Name }} mapper
-type {{ .Name }}Mapper struct{}
+type {{ .Name }}Mapper struct{
+	Fields {{ .Name }}Fields
+}
 
 // Name returns the mapper name
 func (*{{ .Name }}Mapper) Name() string {
