@@ -70,6 +70,19 @@ func main() {
 	}
 	fmt.Println(p.Name)
 
+	p.Name = "Plouf"
+
+	db.Update(p)
+
+	q = db.Query(&Person{})
+	q = q.Where(model.Person.Fields.Name.Eq("Plouf"))
+
+	p = &Person{}
+	if err := q.One(p); err != nil {
+		panic(err)
+	}
+	fmt.Println(p.Name)
+
 	db.Delete(p)
 	if err := q.One(p); err == nil {
 		panic("Should get a 'NoResultError'")

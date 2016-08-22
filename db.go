@@ -40,6 +40,26 @@ func (db *DB) Insert(s MappedStruct) {
 	}
 }
 
+// Update the struct attributes in DB
+func (db *DB) Update(s MappedStruct) {
+	mapper := db.Metadata.GetMapper(s)
+	update := mapper.Table().Update().
+		Values(mapper.Values(s)).
+		Where(mapper.PKeyClause(s))
+
+	res, err := db.Engine.Exec(update)
+	if err != nil {
+		panic(err)
+	}
+	ra, err := res.RowsAffected()
+	if err != nil {
+		panic(err)
+	}
+	if ra != 1 {
+		panic("Update failed")
+	}
+}
+
 // Query returns a new Query for the struct
 func (db *DB) Query(s MappedStruct) Query {
 	mapper := db.Metadata.GetMapper(s)
