@@ -45,11 +45,11 @@ func main() {
 
 	p := NewPerson()
 	p.Name = "Toto"
-	db.Add(p)
+	db.Insert(p)
 
 	p = NewPerson()
 	p.Name = "Titi"
-	db.Add(p)
+	db.Insert(p)
 
 	q := db.Query(&Person{})
 	if err := q.One(p); err == nil {
