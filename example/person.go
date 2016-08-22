@@ -11,7 +11,7 @@ import (
 type Person struct {
 	ID        int64   `yago:"primary_key,auto_increment"`
 	Name      string  `yago:"index"`
-	Email     *string `yago:"unique_index"`
+	Email     *string `yago:"email_address,unique_index"`
 	CreatedAt time.Time
 	UpdatedAt *time.Time
 }

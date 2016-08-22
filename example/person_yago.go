@@ -18,11 +18,11 @@ var personTable = qb.Table(
 	"person",
 	qb.Column("id", qb.BigInt()).PrimaryKey().AutoIncrement(),
 	qb.Column("name", qb.Varchar().NotNull()),
-	qb.Column("email", qb.Varchar()),
+	qb.Column("email_address", qb.Varchar()),
 	qb.Column("created_at", qb.Timestamp().NotNull()),
 	qb.Column("updated_at", qb.Timestamp()),
 	qb.UniqueKey(
-		"email",
+		"email_address",
 	),
 ).Index(
 	"name",
@@ -51,7 +51,7 @@ func NewPersonMapper() *PersonMapper {
 	m := &PersonMapper{}
 	m.Fields.ID = m.Table().C("id")
 	m.Fields.Name = m.Table().C("name")
-	m.Fields.Email = m.Table().C("email")
+	m.Fields.Email = m.Table().C("email_address")
 	m.Fields.CreatedAt = m.Table().C("created_at")
 	m.Fields.UpdatedAt = m.Table().C("updated_at")
 	return m
@@ -91,7 +91,7 @@ func (mapper PersonMapper) Values(instance yago.MappedStruct) map[string]interfa
 		m["name"] = s.Name
 	}
 	if s.Email != nil {
-		m["email"] = s.Email
+		m["email_address"] = s.Email
 	}
 	if s.CreatedAt != (time.Time{}) {
 		m["created_at"] = s.CreatedAt
@@ -107,7 +107,7 @@ func (mapper PersonMapper) FieldList() []qb.Clause {
 	return []qb.Clause{
 		personTable.C("id"),
 		personTable.C("name"),
-		personTable.C("email"),
+		personTable.C("email_address"),
 		personTable.C("created_at"),
 		personTable.C("updated_at"),
 	}

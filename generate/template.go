@@ -11,6 +11,7 @@ type FileData struct {
 
 // ColumnTags contains tags set on the fields
 type ColumnTags struct {
+	ColumnName    string
 	PrimaryKey    bool
 	AutoIncrement bool
 	Indexes       []string

@@ -71,7 +71,7 @@ func readColumnTags(tag string) (tags ColumnTags) {
 			tags.UniqueIndexes = append(tags.UniqueIndexes, ".")
 		} else if arg == "." {
 		} else {
-			panic(fmt.Sprintf("Unknown tag %v", arg))
+			tags.ColumnName = arg
 		}
 	}
 	return
@@ -136,6 +136,9 @@ func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool)
 			Tags: tags,
 			Name: name.Name,
 			Type: goType,
+		}
+		if tags.ColumnName != "" {
+			field.ColumnName = tags.ColumnName
 		}
 		res.Fields = append(res.Fields, field)
 		fieldIndex := len(res.Fields) - 1
