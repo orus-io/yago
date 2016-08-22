@@ -13,15 +13,15 @@ import (
 	"strings"
 )
 
-var magicYagormComment = regexp.MustCompile(`yagorm:([0-9A-Za-z_\.,]+)?`)
+var magicYagoComment = regexp.MustCompile(`yago:([0-9A-Za-z_\.,]+)?`)
 
 type structDefArgs struct {
 	TableName string
 	AutoAttrs bool
 }
 
-func magicYagormCommentArgs(doc string) (args structDefArgs, ok bool) {
-	sm := magicYagormComment.FindStringSubmatch(doc)
+func magicYagoCommentArgs(doc string) (args structDefArgs, ok bool) {
+	sm := magicYagoComment.FindStringSubmatch(doc)
 	if len(sm) == 0 {
 		return
 	}
@@ -66,7 +66,7 @@ func getGoType(x ast.Expr) string {
 	case *ast.SelectorExpr:
 		return getGoType(t.X) + "." + getGoType(t.Sel)
 	default:
-		panic(fmt.Sprintf("yagorm: getGoType: unhandled '%s' (%#v). Please report this bug.", x, x))
+		panic(fmt.Sprintf("yago: getGoType: unhandled '%s' (%#v). Please report this bug.", x, x))
 	}
 }
 
@@ -81,7 +81,7 @@ func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool)
 		tags := ColumnTags{}
 		if f.Tag != nil && len(f.Tag.Value) > 2 {
 			tag := f.Tag.Value
-			tag = reflect.StructTag(tag[1 : len(tag)-1]).Get("yagorm")
+			tag = reflect.StructTag(tag[1 : len(tag)-1]).Get("yago")
 			if tag != "" {
 				hasTags = true
 				tags = readColumnTags(tag)
@@ -90,19 +90,19 @@ func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool)
 		if len(f.Names) == 0 {
 			if hasTags {
 				return nil, fmt.Errorf(
-					`yagorm: %s has anonymous field %s with "yagorm:" tag, it is not allowed`,
+					`yago: %s has anonymous field %s with "yago:" tag, it is not allowed`,
 					res.Name, f.Type)
 			}
 			continue
 		}
 		if len(f.Names) != 1 {
-			panic(fmt.Sprintf("yagorm: %d names: %#v. Don't know what to do.", len(f.Names), f.Names))
+			panic(fmt.Sprintf("yago: %d names: %#v. Don't know what to do.", len(f.Names), f.Names))
 		}
 
 		name := f.Names[0]
 
 		if hasTags && !name.IsExported() {
-			return nil, fmt.Errorf(`yagorm: %s has non-exported field %s with "yagorm:" tag, it is not allowed`, res.Name, name)
+			return nil, fmt.Errorf(`yago: %s has non-exported field %s with "yago:" tag, it is not allowed`, res.Name, name)
 		}
 		if !(hasTags || autoattrs && name.IsExported()) {
 			continue
@@ -152,7 +152,7 @@ func ParseFile(path string) ([]*StructData, error) {
 				continue
 			}
 
-			args, ok := magicYagormCommentArgs(doc.Text())
+			args, ok := magicYagoCommentArgs(doc.Text())
 
 			if !ok {
 				continue

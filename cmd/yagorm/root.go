@@ -7,18 +7,18 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"bitbucket.org/cdevienne/yagorm/generate"
+	"bitbucket.org/cdevienne/yago/generate"
 )
 
-var logger = log.New(os.Stdout, "yagorm", 0)
+var logger = log.New(os.Stdout, "yago", 0)
 
 var cfgFile string
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "yagorm",
+	Use:   "yago",
 	Short: "Yet Another GORM",
-	Long:  `yagorm code generator.`,
+	Long:  `yago code generator.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		wd, err := os.Getwd()
 		if err != nil {

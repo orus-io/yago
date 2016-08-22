@@ -1,6 +1,6 @@
 package main
 
-// generated with yagorm. Better NOT to edit!
+// generated with yago. Better NOT to edit!
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/aacanakin/qb"
 
-	"bitbucket.org/cdevienne/yagorm"
+	"bitbucket.org/cdevienne/yago"
 )
 
 
@@ -52,7 +52,7 @@ func (PersonMapper) StructType() reflect.Type {
 }
 
 // Values returns non-default values as a map
-func (mapper PersonMapper) Values(instance yagorm.MappedStruct) map[string]interface{} {
+func (mapper PersonMapper) Values(instance yago.MappedStruct) map[string]interface{} {
 	s, ok := instance.(*Person)
 	if !ok {
 		 panic("Wrong struct type passed to the mapper")
@@ -88,7 +88,7 @@ func (mapper PersonMapper) FieldList() []qb.Clause {
 }
 
 // Scan a struct
-func (mapper PersonMapper) Scan(rows *sql.Rows, instance yagorm.MappedStruct) error {
+func (mapper PersonMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) error {
 	s, ok := instance.(*Person)
 	if !ok {
 		panic("Wrong struct type passed to the mapper")
@@ -103,6 +103,6 @@ func (mapper PersonMapper) Scan(rows *sql.Rows, instance yagorm.MappedStruct) er
 }
 
 // PKeyClause returns a clause that matches the instance primary key
-func (mapper PersonMapper) PKeyClause(instance yagorm.MappedStruct) qb.Clause {
+func (mapper PersonMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
 	return personTable.C("id").Eq(instance.(*Person).ID)
 }

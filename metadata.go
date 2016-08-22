@@ -1,4 +1,4 @@
-package yagorm
+package yago
 
 import (
 	"reflect"

@@ -1,6 +1,6 @@
 # Yet Another Go ORM
 
-Yagorm is an attempt to create an ORM for Go.
+Yago is an attempt to create an ORM for Go.
 
 ## Features
 

@@ -41,7 +41,7 @@ var (
 	prologTemplate = template.Must(template.New("prolog").Parse(
 		`package {{ .Package }}
 
-// generated with yagorm. Better NOT to edit!
+// generated with yago. Better NOT to edit!
 
 import (
 	"database/sql"
@@ -50,7 +50,7 @@ import (
 
 	"github.com/aacanakin/qb"
 
-	"bitbucket.org/cdevienne/yagorm"
+	"bitbucket.org/cdevienne/yago"
 )
 
 `))
@@ -93,7 +93,7 @@ func ({{ .Name }}Mapper) StructType() reflect.Type {
 }
 
 // Values returns non-default values as a map
-func (mapper {{ .Name }}Mapper) Values(instance yagorm.MappedStruct) map[string]interface{} {
+func (mapper {{ .Name }}Mapper) Values(instance yago.MappedStruct) map[string]interface{} {
 	s, ok := instance.(*{{ .Name }})
 	if !ok {
 		 panic("Wrong struct type passed to the mapper")
@@ -117,7 +117,7 @@ func (mapper {{ .Name }}Mapper) FieldList() []qb.Clause {
 }
 
 // Scan a struct
-func (mapper {{ .Name }}Mapper) Scan(rows *sql.Rows, instance yagorm.MappedStruct) error {
+func (mapper {{ .Name }}Mapper) Scan(rows *sql.Rows, instance yago.MappedStruct) error {
 	s, ok := instance.(*{{ .Name }})
 	if !ok {
 		panic("Wrong struct type passed to the mapper")
@@ -130,7 +130,7 @@ func (mapper {{ .Name }}Mapper) Scan(rows *sql.Rows, instance yagorm.MappedStruc
 }
 
 // PKeyClause returns a clause that matches the instance primary key
-func (mapper {{ .Name }}Mapper) PKeyClause(instance yagorm.MappedStruct) qb.Clause {
+func (mapper {{ .Name }}Mapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
 	{{- if eq 1 (len .PKeyFields) }}
 	return {{ $Table }}.C("{{ (index .PKeyFields 0).ColumnName }}").Eq(instance.(*{{ .Name }}).{{ (index .PKeyFields 0).Name }})
 	{{- else }}

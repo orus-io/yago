@@ -5,14 +5,14 @@ import (
 
 	"github.com/aacanakin/qb"
 
-	"bitbucket.org/cdevienne/yagorm"
+	"bitbucket.org/cdevienne/yago"
 )
 
 func main() {
-	meta := yagorm.NewMetadata()
+	meta := yago.NewMetadata()
 	meta.AddMapper(&PersonMapper{})
 
-	s := yagorm.Select(meta, &Person{})
+	s := yago.Select(meta, &Person{})
 	s.GroupBy()
 
 	engine, err := qb.NewEngine("sqlite3", ":memory:")
@@ -25,7 +25,7 @@ func main() {
 		panic(err)
 	}
 
-	db := yagorm.New(meta, engine)
+	db := yago.New(meta, engine)
 
 	p := NewPerson()
 	p.Name = "Toto"

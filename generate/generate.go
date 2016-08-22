@@ -73,13 +73,13 @@ func prepareStructData(str *StructData, fd FileData) {
 }
 
 // ProcessFile processes a go file and generates mapper and mappedstruct
-// interfaces implementations for the yagorm structs.
+// interfaces implementations for the yago structs.
 func ProcessFile(logger *log.Logger, path string, file string, pack string) error {
 
 	ext := filepath.Ext(file)
 	base := strings.TrimSuffix(file, ext)
 
-	outf, err := os.Create(filepath.Join(path, base+"_yagorm"+ext))
+	outf, err := os.Create(filepath.Join(path, base+"_yago"+ext))
 	if err != nil {
 		return err
 	}
