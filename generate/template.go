@@ -13,6 +13,8 @@ type FileData struct {
 type ColumnTags struct {
 	PrimaryKey    bool
 	AutoIncrement bool
+	Indexes       []string
+	UniqueIndexes []string
 }
 
 // FieldData describes a field to be mapped
@@ -33,6 +35,9 @@ type StructData struct {
 	TableName       string
 	Fields          []FieldData
 	PKeyFields      []*FieldData
+
+	Indexes       map[string][]int
+	UniqueIndexes map[string][]int
 
 	File FileData
 }
@@ -56,13 +61,23 @@ import (
 `))
 
 	structTemplate = template.Must(template.New("struct").Parse(`
-{{ $Struct := .Name }}{{ $Table := printf "%s%s" .PrivateBasename "Table" }}
+{{ $root := . }}{{ $Struct := .Name }}{{ $Table := printf "%s%s" .PrivateBasename "Table" }}
 var {{ $Table }} = qb.Table(
 	"{{ .TableName }}",
 	{{- range .Fields }}
 	qb.Column("{{ .ColumnName }}", {{ .ColumnType }}){{ .ColumnModifiers }},
 	{{- end }}
-)
+	{{- range .UniqueIndexes }}
+	qb.UniqueKey(
+		{{- range . }}
+		"{{ (index $root.Fields .).ColumnName }}",
+		{{- end }}
+	),{{- end }}
+){{- range $name, $cols := .Indexes }}.Index(
+	{{- range . }}
+	"{{ (index $root.Fields .).ColumnName }}",
+	{{- end }}
+){{- end }}
 
 var {{ .PrivateBasename }}Type = reflect.TypeOf({{ .Name }}{})
 

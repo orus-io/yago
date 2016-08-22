@@ -21,6 +21,11 @@ var personTable = qb.Table(
 	qb.Column("email", qb.Varchar()),
 	qb.Column("created_at", qb.Timestamp().NotNull()),
 	qb.Column("updated_at", qb.Timestamp()),
+	qb.UniqueKey(
+		"email",
+	),
+).Index(
+	"name",
 )
 
 var personType = reflect.TypeOf(Person{})

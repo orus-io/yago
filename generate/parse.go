@@ -20,6 +20,13 @@ type structDefArgs struct {
 	AutoAttrs bool
 }
 
+func readNameValue(s string) (name string, value string) {
+	l := strings.SplitN(s, "=", 2)
+	name = l[0]
+	value = l[1]
+	return
+}
+
 func magicYagoCommentArgs(doc string) (args structDefArgs, ok bool) {
 	sm := magicYagoComment.FindStringSubmatch(doc)
 	if len(sm) == 0 {
@@ -44,14 +51,27 @@ func magicYagoCommentArgs(doc string) (args structDefArgs, ok bool) {
 
 func readColumnTags(tag string) (tags ColumnTags) {
 	splitted := strings.Split(tag, ",")
-	for _, value := range splitted {
-		if value == "primary_key" {
+	for _, arg := range splitted {
+		if strings.Index(arg, "=") != -1 {
+			name, value := readNameValue(arg)
+			if name == "index" {
+				tags.Indexes = append(tags.Indexes, value)
+			} else if name == "unique_index" {
+				tags.UniqueIndexes = append(tags.UniqueIndexes, value)
+			} else {
+				panic(fmt.Sprintf("Invalid tag %v", arg))
+			}
+		} else if arg == "primary_key" {
 			tags.PrimaryKey = true
-		} else if value == "auto_increment" {
+		} else if arg == "auto_increment" {
 			tags.AutoIncrement = true
-		} else if value == "." {
+		} else if arg == "index" {
+			tags.Indexes = append(tags.Indexes, ".")
+		} else if arg == "unique_index" {
+			tags.UniqueIndexes = append(tags.UniqueIndexes, ".")
+		} else if arg == "." {
 		} else {
-			panic(fmt.Sprintf("Unknown tag %v", value))
+			panic(fmt.Sprintf("Unknown tag %v", arg))
 		}
 	}
 	return
@@ -72,8 +92,10 @@ func getGoType(x ast.Expr) string {
 
 func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool) (*StructData, error) {
 	res := &StructData{
-		Name:   ts.Name.Name,
-		Fields: nil,
+		Name:          ts.Name.Name,
+		Fields:        nil,
+		Indexes:       make(map[string][]int),
+		UniqueIndexes: make(map[string][]int),
 	}
 
 	for _, f := range str.Fields.List {
@@ -110,11 +132,28 @@ func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool)
 
 		goType := getGoType(f.Type)
 
-		res.Fields = append(res.Fields, FieldData{
+		field := FieldData{
 			Tags: tags,
 			Name: name.Name,
 			Type: goType,
-		})
+		}
+		res.Fields = append(res.Fields, field)
+		fieldIndex := len(res.Fields) - 1
+
+		for _, index := range field.Tags.Indexes {
+			if _, ok := res.Indexes[index]; ok {
+				res.Indexes[index] = append(res.Indexes[index], fieldIndex)
+			} else {
+				res.Indexes[index] = []int{fieldIndex}
+			}
+		}
+		for _, index := range field.Tags.UniqueIndexes {
+			if _, ok := res.UniqueIndexes[index]; ok {
+				res.UniqueIndexes[index] = append(res.UniqueIndexes[index], fieldIndex)
+			} else {
+				res.UniqueIndexes[index] = []int{fieldIndex}
+			}
+		}
 	}
 
 	return res, nil
