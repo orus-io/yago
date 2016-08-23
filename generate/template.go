@@ -52,7 +52,6 @@ var (
 import (
 	"database/sql"
 	"reflect"
-	"time"
 
 	"github.com/aacanakin/qb"
 
@@ -125,17 +124,22 @@ func ({{ .Name }}Mapper) StructType() reflect.Type {
 	return {{ .PrivateBasename }}Type
 }
 
-// Values returns non-default values as a map
-func (mapper {{ .Name }}Mapper) Values(instance yago.MappedStruct) map[string]interface{} {
+// SQLValues returns non-default values as a map
+func (mapper {{ .Name }}Mapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
 	s, ok := instance.(*{{ .Name }})
 	if !ok {
 		 panic("Wrong struct type passed to the mapper")
 	}
 	m := make(map[string]interface{})
-	{{- range .Fields }}
+	{{- range .PKeyFields }}
 	if s.{{ .Name }} != {{ .EmptyValue }} {
 		m["{{ .ColumnName }}"] = s.{{ .Name }}
 	}
+	{{- end }}
+	{{- range .Fields }}
+	{{- if not .Tags.PrimaryKey }}
+	m["{{ .ColumnName }}"] = s.{{ .Name }}
+	{{- end }}
 	{{- end }}
 	return m
 }

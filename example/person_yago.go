@@ -5,7 +5,6 @@ package main
 import (
 	"database/sql"
 	"reflect"
-	"time"
 
 	"github.com/aacanakin/qb"
 
@@ -77,8 +76,8 @@ func (PersonMapper) StructType() reflect.Type {
 	return personType
 }
 
-// Values returns non-default values as a map
-func (mapper PersonMapper) Values(instance yago.MappedStruct) map[string]interface{} {
+// SQLValues returns non-default values as a map
+func (mapper PersonMapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
 	s, ok := instance.(*Person)
 	if !ok {
 		 panic("Wrong struct type passed to the mapper")
@@ -87,18 +86,10 @@ func (mapper PersonMapper) Values(instance yago.MappedStruct) map[string]interfa
 	if s.ID != 0 {
 		m["id"] = s.ID
 	}
-	if s.Name != "" {
-		m["name"] = s.Name
-	}
-	if s.Email != nil {
-		m["email_address"] = s.Email
-	}
-	if s.CreatedAt != (time.Time{}) {
-		m["created_at"] = s.CreatedAt
-	}
-	if s.UpdatedAt != nil {
-		m["updated_at"] = s.UpdatedAt
-	}
+	m["name"] = s.Name
+	m["email_address"] = s.Email
+	m["created_at"] = s.CreatedAt
+	m["updated_at"] = s.UpdatedAt
 	return m
 }
 

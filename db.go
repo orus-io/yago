@@ -25,7 +25,7 @@ type DB struct {
 // Insert a struct in the database
 func (db *DB) Insert(s MappedStruct) {
 	mapper := db.Metadata.GetMapper(s)
-	insert := mapper.Table().Insert().Values(mapper.Values(s))
+	insert := mapper.Table().Insert().Values(mapper.SQLValues(s))
 
 	res, err := db.Engine.Exec(insert)
 	if err != nil {
@@ -44,7 +44,7 @@ func (db *DB) Insert(s MappedStruct) {
 func (db *DB) Update(s MappedStruct) {
 	mapper := db.Metadata.GetMapper(s)
 	update := mapper.Table().Update().
-		Values(mapper.Values(s)).
+		Values(mapper.SQLValues(s)).
 		Where(mapper.PKeyClause(s))
 
 	res, err := db.Engine.Exec(update)
