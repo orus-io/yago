@@ -131,6 +131,7 @@ var phoneNumberTable = qb.Table(
 	qb.Column("person_id", qb.BigInt()),
 	qb.Column("name", qb.Varchar().NotNull()),
 	qb.Column("number", qb.Varchar().NotNull()),
+	qb.ForeignKey().Ref("person_id", "person", "id"),
 )
 
 var phoneNumberType = reflect.TypeOf(PhoneNumber{})

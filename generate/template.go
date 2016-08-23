@@ -14,6 +14,7 @@ type ColumnTags struct {
 	ColumnName    string
 	PrimaryKey    bool
 	AutoIncrement bool
+	ForeignKeys   []string
 	Indexes       []string
 	UniqueIndexes []string
 }
@@ -29,6 +30,12 @@ type FieldData struct {
 	ColumnModifiers string
 }
 
+type FKData struct {
+	Column    string
+	RefTable  string
+	RefColumn string
+}
+
 // StructData describes a struct to be mapped
 type StructData struct {
 	Name            string
@@ -39,6 +46,7 @@ type StructData struct {
 
 	Indexes       map[string][]int
 	UniqueIndexes map[string][]int
+	ForeignKeys   []FKData
 
 	File FileData
 }
@@ -72,7 +80,8 @@ var {{ $Table }} = qb.Table(
 		{{- range . }}
 		"{{ (index $root.Fields .).ColumnName }}",
 		{{- end }}
-	),{{- end }}
+	),{{- end }} {{- range .ForeignKeys }}
+	qb.ForeignKey().Ref("{{ .Column }}", "{{ .RefTable }}", "{{ .RefColumn }}"),{{- end}}
 ){{- range $name, $cols := .Indexes }}.Index(
 	{{- range . }}
 	"{{ (index $root.Fields .).ColumnName }}",

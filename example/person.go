@@ -20,7 +20,7 @@ type Person struct {
 //yago:autoattrs
 type PhoneNumber struct {
 	ID       int64 `yago:"primary_key,auto_increment"`
-	PersonID int64 //`yago:"fk=Person.ID"`
+	PersonID int64 `yago:"fk=Person"`
 	Name     string
 	Number   string
 }

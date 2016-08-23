@@ -58,6 +58,8 @@ func readColumnTags(tag string) (tags ColumnTags) {
 				tags.Indexes = append(tags.Indexes, value)
 			} else if name == "unique_index" {
 				tags.UniqueIndexes = append(tags.UniqueIndexes, value)
+			} else if name == "fk" {
+				tags.ForeignKeys = append(tags.ForeignKeys, value)
 			} else {
 				panic(fmt.Sprintf("Invalid tag %v", arg))
 			}

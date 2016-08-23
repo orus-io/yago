@@ -72,6 +72,43 @@ func prepareStructData(str *StructData, fd FileData) {
 	}
 }
 
+func postPrepare(structs map[string]*StructData) {
+	for _, str := range structs {
+		for i := range str.Fields {
+			for _, fk := range str.Fields[i].Tags.ForeignKeys {
+				var structName string
+				var refStruct *StructData
+				var refField string
+				var refTable string
+				var refColumn string
+				if strings.Index(fk, ".") != -1 {
+					splitted := strings.Split(fk, ".")
+					structName = splitted[0]
+					refField = splitted[1]
+				} else {
+					structName = fk
+				}
+				refStruct = structs[structName]
+				if refField == "" {
+					refField = refStruct.PKeyFields[0].Name
+				}
+				refTable = refStruct.TableName
+				for _, f := range refStruct.Fields {
+					if f.Name == refField {
+						refColumn = f.ColumnName
+					}
+				}
+
+				str.ForeignKeys = append(str.ForeignKeys, FKData{
+					Column:    str.Fields[i].ColumnName,
+					RefTable:  refTable,
+					RefColumn: refColumn,
+				})
+			}
+		}
+	}
+}
+
 // ProcessFile processes a go file and generates mapper and mappedstruct
 // interfaces implementations for the yago structs.
 func ProcessFile(logger *log.Logger, path string, file string, pack string) error {
@@ -95,8 +132,13 @@ func ProcessFile(logger *log.Logger, path string, file string, pack string) erro
 	if err != nil {
 		return err
 	}
+	structsByName := make(map[string]*StructData)
 	for _, str := range structs {
 		prepareStructData(str, fd)
+		structsByName[str.Name] = str
+	}
+	postPrepare(structsByName)
+	for _, str := range structs {
 		if err := structTemplate.Execute(outf, &str); err != nil {
 			return err
 		}
