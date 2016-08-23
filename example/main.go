@@ -12,7 +12,8 @@ import (
 type Model struct {
 	Meta *yago.Metadata
 
-	Person *PersonMapper
+	Person      *PersonMapper
+	PhoneNumber *PhoneNumberMapper
 }
 
 // NewModel initialize a model
@@ -21,7 +22,9 @@ func NewModel() *Model {
 		Meta: yago.NewMetadata(),
 	}
 	model.Person = NewPersonMapper()
+	model.PhoneNumber = NewPhoneNumberMapper()
 	model.Meta.AddMapper(model.Person)
+	model.Meta.AddMapper(model.PhoneNumber)
 	return model
 }
 
@@ -82,6 +85,17 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(p.Name)
+
+	n := PhoneNumber{PersonID: p.ID, Name: "mobile", Number: "06"}
+	db.Insert(&n)
+
+	q = db.Query(&Person{})
+	q = q.LeftJoinMapper(model.PhoneNumber, model.Person.Fields.ID, model.PhoneNumber.Fields.PersonID)
+	q = q.Where(model.PhoneNumber.Fields.Name.Eq("mobile"))
+
+	if err := q.One(p); err != nil {
+		panic(err)
+	}
 
 	db.Delete(p)
 	if err := q.One(p); err == nil {

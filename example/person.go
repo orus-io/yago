@@ -16,6 +16,15 @@ type Person struct {
 	UpdatedAt *time.Time
 }
 
+// PhoneNumber is a phone number
+//yago:autoattrs
+type PhoneNumber struct {
+	ID       int64 `yago:"primary_key,auto_increment"`
+	PersonID int64 //`yago:"fk=Person.ID"`
+	Name     string
+	Number   string
+}
+
 // NewPerson instantiate a Person with sensible default values
 func NewPerson() *Person {
 	return &Person{

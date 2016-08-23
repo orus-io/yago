@@ -32,6 +32,24 @@ func (q Query) Where(clause qb.Clause) Query {
 	}
 }
 
+// InnerJoinMapper joins a mapper table
+func (q Query) InnerJoinMapper(mapper Mapper, fromCol qb.ColumnElem, col qb.ColumnElem) Query {
+	q.selectStmt = q.selectStmt.InnerJoin(*mapper.Table(), fromCol, col)
+	return q
+}
+
+// LeftJoinMapper joins a mapper table
+func (q Query) LeftJoinMapper(mapper Mapper, fromCol qb.ColumnElem, col qb.ColumnElem) Query {
+	q.selectStmt = q.selectStmt.LeftJoin(*mapper.Table(), fromCol, col)
+	return q
+}
+
+// RightJoinMapper joins a mapper table
+func (q Query) RightJoinMapper(mapper Mapper, fromCol qb.ColumnElem, col qb.ColumnElem) Query {
+	q.selectStmt = q.selectStmt.RightJoin(*mapper.Table(), fromCol, col)
+	return q
+}
+
 // SQLQuery runs the query
 func (q Query) SQLQuery() (*sql.Rows, error) {
 	return q.db.Engine.Query(q.selectStmt)
