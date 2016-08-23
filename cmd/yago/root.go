@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"bitbucket.org/cdevienne/yago/generate"
+	"github.com/orus-io/yago/generate"
 )
 
 var logger = log.New(os.Stdout, "yago", 0)

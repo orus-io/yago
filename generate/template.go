@@ -63,7 +63,7 @@ import (
 
 	"github.com/aacanakin/qb"
 
-	"bitbucket.org/cdevienne/yago"
+	"github.com/orus-io/yago"
 )
 
 `))
