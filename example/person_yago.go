@@ -36,30 +36,39 @@ func (Person) StructType() reflect.Type {
 	return personType
 }
 
-// PersonFields
-type PersonFields struct {
-	ID qb.ColumnElem
-	Name qb.ColumnElem
-	Email qb.ColumnElem
-	CreatedAt qb.ColumnElem
-	UpdatedAt qb.ColumnElem
+// PersonModel
+type PersonModel struct {
+	mapper *PersonMapper
+	ID yago.ScalarField
+	Name yago.ScalarField
+	Email yago.ScalarField
+	CreatedAt yago.ScalarField
+	UpdatedAt yago.ScalarField
+}
+
+func NewPersonModel(mapper *PersonMapper) PersonModel {
+	return PersonModel {
+		mapper: mapper,
+		ID: yago.NewScalarField(mapper.Table().C("id")),
+		Name: yago.NewScalarField(mapper.Table().C("name")),
+		Email: yago.NewScalarField(mapper.Table().C("email_address")),
+		CreatedAt: yago.NewScalarField(mapper.Table().C("created_at")),
+		UpdatedAt: yago.NewScalarField(mapper.Table().C("updated_at")),
+	}
+}
+
+func (m PersonModel) GetMapper() yago.Mapper {
+	return m.mapper
 }
 
 // NewPersonMapper initialize a NewPersonMapper
 func NewPersonMapper() *PersonMapper {
 	m := &PersonMapper{}
-	m.Fields.ID = m.Table().C("id")
-	m.Fields.Name = m.Table().C("name")
-	m.Fields.Email = m.Table().C("email_address")
-	m.Fields.CreatedAt = m.Table().C("created_at")
-	m.Fields.UpdatedAt = m.Table().C("updated_at")
 	return m
 }
 
 // PersonMapper is the Person mapper
-type PersonMapper struct{
-	Fields PersonFields
-}
+type PersonMapper struct{}
 
 // Name returns the mapper name
 func (*PersonMapper) Name() string {
@@ -143,28 +152,37 @@ func (PhoneNumber) StructType() reflect.Type {
 	return phoneNumberType
 }
 
-// PhoneNumberFields
-type PhoneNumberFields struct {
-	ID qb.ColumnElem
-	PersonID qb.ColumnElem
-	Name qb.ColumnElem
-	Number qb.ColumnElem
+// PhoneNumberModel
+type PhoneNumberModel struct {
+	mapper *PhoneNumberMapper
+	ID yago.ScalarField
+	PersonID yago.ScalarField
+	Name yago.ScalarField
+	Number yago.ScalarField
+}
+
+func NewPhoneNumberModel(mapper *PhoneNumberMapper) PhoneNumberModel {
+	return PhoneNumberModel {
+		mapper: mapper,
+		ID: yago.NewScalarField(mapper.Table().C("id")),
+		PersonID: yago.NewScalarField(mapper.Table().C("person_id")),
+		Name: yago.NewScalarField(mapper.Table().C("name")),
+		Number: yago.NewScalarField(mapper.Table().C("number")),
+	}
+}
+
+func (m PhoneNumberModel) GetMapper() yago.Mapper {
+	return m.mapper
 }
 
 // NewPhoneNumberMapper initialize a NewPhoneNumberMapper
 func NewPhoneNumberMapper() *PhoneNumberMapper {
 	m := &PhoneNumberMapper{}
-	m.Fields.ID = m.Table().C("id")
-	m.Fields.PersonID = m.Table().C("person_id")
-	m.Fields.Name = m.Table().C("name")
-	m.Fields.Number = m.Table().C("number")
 	return m
 }
 
 // PhoneNumberMapper is the PhoneNumber mapper
-type PhoneNumberMapper struct{
-	Fields PhoneNumberFields
-}
+type PhoneNumberMapper struct{}
 
 // Name returns the mapper name
 func (*PhoneNumberMapper) Name() string {

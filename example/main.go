@@ -12,8 +12,8 @@ import (
 type Model struct {
 	Meta *yago.Metadata
 
-	Person      *PersonMapper
-	PhoneNumber *PhoneNumberMapper
+	Person      PersonModel
+	PhoneNumber PhoneNumberModel
 }
 
 // NewModel initialize a model
@@ -21,10 +21,15 @@ func NewModel() *Model {
 	model := &Model{
 		Meta: yago.NewMetadata(),
 	}
-	model.Person = NewPersonMapper()
-	model.PhoneNumber = NewPhoneNumberMapper()
-	model.Meta.AddMapper(model.Person)
-	model.Meta.AddMapper(model.PhoneNumber)
+
+	personMapper := NewPersonMapper()
+	model.Person = NewPersonModel(personMapper)
+	model.Meta.AddMapper(personMapper)
+
+	phoneNumberMapper := NewPhoneNumberMapper()
+	model.PhoneNumber = NewPhoneNumberModel(phoneNumberMapper)
+	model.Meta.AddMapper(phoneNumberMapper)
+
 	return model
 }
 
@@ -59,13 +64,13 @@ func main() {
 		panic("Should get a TooManyResultsError")
 	}
 
-	q = q.Where(model.Person.Fields.Name.Eq("Plouf"))
+	q = q.Where(model.Person.Name.Eq("Plouf"))
 	if err := q.One(p); err == nil {
 		panic("Should get a NoResultError")
 	}
 
 	q = db.Query(&Person{})
-	q = q.Where(model.Person.Fields.Name.Eq("Titi"))
+	q = q.Where(model.Person.Name.Eq("Titi"))
 
 	p = &Person{}
 	if err := q.One(p); err != nil {
@@ -78,7 +83,7 @@ func main() {
 	db.Update(p)
 
 	q = db.Query(&Person{})
-	q = q.Where(model.Person.Fields.Name.Eq("Plouf"))
+	q = q.Where(model.Person.Name.Eq("Plouf"))
 
 	p = &Person{}
 	if err := q.One(p); err != nil {
@@ -90,8 +95,8 @@ func main() {
 	db.Insert(&n)
 
 	q = db.Query(&Person{})
-	q = q.LeftJoinMapper(model.PhoneNumber, model.Person.Fields.ID, model.PhoneNumber.Fields.PersonID)
-	q = q.Where(model.PhoneNumber.Fields.Name.Eq("mobile"))
+	q = q.LeftJoin(model.PhoneNumber, model.Person.ID, model.PhoneNumber.PersonID)
+	q = q.Where(model.PhoneNumber.Name.Eq("mobile"))
 
 	if err := q.One(p); err != nil {
 		panic(err)

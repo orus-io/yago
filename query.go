@@ -50,6 +50,24 @@ func (q Query) RightJoinMapper(mapper Mapper, fromCol qb.ColumnElem, col qb.Colu
 	return q
 }
 
+// InnerJoin joins a table
+func (q Query) InnerJoin(model Model, fields ...ScalarField) Query {
+	// TODO if fields is empty, find the relation based on foreign keys
+	return q.InnerJoinMapper(model.GetMapper(), fields[0].Column, fields[1].Column)
+}
+
+// LeftJoin joins a table
+func (q Query) LeftJoin(model Model, fields ...ScalarField) Query {
+	// TODO if fields is empty, find the relation based on foreign keys
+	return q.LeftJoinMapper(model.GetMapper(), fields[0].Column, fields[1].Column)
+}
+
+// RightJoin joins a table
+func (q Query) RightJoin(model Model, fields ...ScalarField) Query {
+	// TODO if fields is empty, find the relation based on foreign keys
+	return q.RightJoinMapper(model.GetMapper(), fields[0].Column, fields[1].Column)
+}
+
 // SQLQuery runs the query
 func (q Query) SQLQuery() (*sql.Rows, error) {
 	return q.db.Engine.Query(q.selectStmt)
