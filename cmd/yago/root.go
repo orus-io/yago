@@ -20,6 +20,9 @@ var RootCmd = &cobra.Command{
 	Short: "Yet Another GORM",
 	Long:  `yago code generator.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cmd.ParseFlags(args)
+		output := cmd.Flag("output").Value.String()
+
 		wd, err := os.Getwd()
 		if err != nil {
 			logger.Fatal(err)
@@ -27,7 +30,11 @@ var RootCmd = &cobra.Command{
 		gofilename := os.Getenv("GOFILE")
 		gopackage := os.Getenv("GOPACKAGE")
 
-		err = generate.ProcessFile(logger, wd, gofilename, gopackage)
+		if flag := cmd.Flag("package"); flag.Changed {
+			gopackage = flag.Value.String()
+		}
+
+		err = generate.ProcessFile(logger, wd, gofilename, gopackage, output)
 		if err != nil {
 			logger.Fatal(err)
 		}
@@ -45,4 +52,6 @@ func Execute() {
 
 func init() {
 	RootCmd.Flags().BoolP("debug", "d", false, "Enable debug logging")
+	RootCmd.Flags().StringP("output", "o", "", "Set the output file name")
+	RootCmd.Flags().StringP("package", "p", "", "Force the package")
 }
