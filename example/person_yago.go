@@ -87,7 +87,8 @@ func (PersonMapper) StructType() reflect.Type {
 	return personType
 }
 
-// SQLValues returns non-default values as a map
+// SQLValues returns values as a map
+// The primary key is included only if having non-default values
 func (mapper PersonMapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
 	s, ok := instance.(*Person)
 	if !ok {
@@ -203,7 +204,8 @@ func (PhoneNumberMapper) StructType() reflect.Type {
 	return phoneNumberType
 }
 
-// SQLValues returns non-default values as a map
+// SQLValues returns values as a map
+// The primary key is included only if having non-default values
 func (mapper PhoneNumberMapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
 	s, ok := instance.(*PhoneNumber)
 	if !ok {

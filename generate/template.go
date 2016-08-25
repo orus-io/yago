@@ -144,7 +144,8 @@ func ({{ .Name }}Mapper) StructType() reflect.Type {
 	return {{ .PrivateBasename }}Type
 }
 
-// SQLValues returns non-default values as a map
+// SQLValues returns values as a map
+// The primary key is included only if having non-default values
 func (mapper {{ .Name }}Mapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
 	s, ok := instance.(*{{ .Name }})
 	if !ok {
