@@ -1,5 +1,7 @@
 package yago
 
+import "fmt"
+
 // CallbackFunc is the type of the callback functions
 type CallbackFunc func(db *DB, s MappedStruct)
 
@@ -64,8 +66,11 @@ func (c *CallbackList) Add(def CallbackDef) {
 	if def.after == "" && def.before == "" && len(c.defs) != 0 {
 		def.after = c.defs[len(c.defs)-1].name
 	}
-	c.defs = append(c.defs, def)
-	c.reorder()
+	c.defs = AddCallbackSorted(c.defs, def)
+	c.callbacks = []CallbackFunc{}
+	for _, d := range c.defs {
+		c.callbacks = append(c.callbacks, d.callback)
+	}
 }
 
 // Get a callback by name
@@ -88,11 +93,53 @@ func (c *CallbackList) Remove(name string) {
 	}
 }
 
-// reorder the callbacks
-func (c *CallbackList) reorder() {
-	// XXX This implementation is obviously broken, as it ignores 'before' and 'after'
-	c.callbacks = []CallbackFunc{}
-	for _, def := range c.defs {
-		c.callbacks = append(c.callbacks, def.callback)
+// AddCallbackSorted insert a CallbackDef respecting the before/after args
+func AddCallbackSorted(defs []CallbackDef, def CallbackDef) []CallbackDef {
+	if len(defs) == 0 {
+		return []CallbackDef{def}
 	}
+
+	// find a spot
+	index := -1
+	for i, d := range defs {
+		if def.after == d.name {
+			index = i + 1
+			break
+		} else if def.before == d.name {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		panic("yago.AddCallbackSorted: No spot candidate for callbacks")
+	}
+
+	// Make sure the spot is consistant with all constraints
+	for i, d := range defs {
+		if i < index {
+			if d.after == def.name || def.before == d.name {
+				panic(fmt.Sprintf(
+					"yago.AddCallbackSorted: No consistent spot for callback %s",
+					def.name,
+				))
+			}
+		} else {
+			if d.before == def.name || def.after == d.name {
+				panic(fmt.Sprintf(
+					"yago.AddCallbackSorted: No consistent spot for callback %s",
+					def.name,
+				))
+			}
+		}
+	}
+
+	if index == len(defs) {
+		defs = append(defs, def)
+	} else {
+		defs = append(
+			defs[0:index],
+			append([]CallbackDef{def}, defs[index:len(defs)]...)...,
+		)
+	}
+	return defs
 }

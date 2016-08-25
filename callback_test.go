@@ -67,3 +67,33 @@ func TestDefaultCallbackInterface(t *testing.T) {
 	DefaultCallbacks.AfterDelete.Call(nil, &s)
 	assert.Equal(t, "AfterDelete", s.lastCall)
 }
+
+func TestCallbackListReorder(t *testing.T) {
+	var calls []string
+	getCb := func(name string) CallbackFunc {
+		return func(db *DB, s MappedStruct) { calls = append(calls, name) }
+	}
+
+	var list CallbackList
+	list.Add(Callback("test2", getCb("test2")))
+	list.Add(Callback("test1", getCb("test1")).Before("test2"))
+	list.Add(Callback("test3", getCb("test3")).After("test2"))
+
+	list.Call(nil, nil)
+
+	assert.Equal(t, []string{"test1", "test2", "test3"}, calls)
+
+	list = CallbackList{}
+	list.Add(Callback("test1", nil))
+	assert.Panics(t, func() {
+		list.Add(Callback("test2", nil).Before("none"))
+	})
+	list.Add(Callback("test2", nil).Before("test1"))
+	assert.Panics(t, func() {
+		list.Add(Callback("test3", nil).After("test1").Before("test2"))
+	})
+	assert.Panics(t, func() {
+		list.Add(Callback("test3", nil).Before("test1").After("test1"))
+	})
+
+}
