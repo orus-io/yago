@@ -2,6 +2,8 @@ package main
 
 import (
 	"time"
+
+	"github.com/orus-io/yago"
 )
 
 //go:generate yago
@@ -25,9 +27,18 @@ type PhoneNumber struct {
 	Number   string
 }
 
+// BeforeInsert callback
+func (p *Person) BeforeInsert(db *yago.DB) {
+	p.CreatedAt = time.Now()
+}
+
+// BeforeUpdate callback
+func (p *Person) BeforeUpdate(db *yago.DB) {
+	now := time.Now()
+	p.UpdatedAt = &now
+}
+
 // NewPerson instantiate a Person with sensible default values
 func NewPerson() *Person {
-	return &Person{
-		CreatedAt: time.Now(),
-	}
+	return &Person{}
 }

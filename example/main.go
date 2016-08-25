@@ -71,7 +71,7 @@ func main() {
 	if err := q.One(p); err != nil {
 		panic(err)
 	}
-	fmt.Println(p.Name)
+	fmt.Println(p.Name, "created at", p.CreatedAt)
 
 	p.Name = "Plouf"
 
@@ -84,7 +84,7 @@ func main() {
 	if err := q.One(p); err != nil {
 		panic(err)
 	}
-	fmt.Println(p.Name)
+	fmt.Println(p.Name, "Updated at", p.UpdatedAt)
 
 	n := PhoneNumber{PersonID: p.ID, Name: "mobile", Number: "06"}
 	db.Insert(&n)

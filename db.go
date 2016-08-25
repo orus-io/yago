@@ -11,6 +11,7 @@ func New(metadata *Metadata, engine *qb.Engine) *DB {
 	return &DB{
 		metadata,
 		engine,
+		DefaultCallbacks,
 	}
 }
 
@@ -18,12 +19,14 @@ func New(metadata *Metadata, engine *qb.Engine) *DB {
 // It provides a SQLA session like API, but has no
 // instance cache, change tracking or unit-of-work
 type DB struct {
-	Metadata *Metadata
-	Engine   *qb.Engine
+	Metadata  *Metadata
+	Engine    *qb.Engine
+	Callbacks Callbacks
 }
 
 // Insert a struct in the database
 func (db *DB) Insert(s MappedStruct) {
+	db.Callbacks.BeforeInsert.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
 	insert := mapper.Table().Insert().Values(mapper.SQLValues(s))
 
@@ -38,10 +41,13 @@ func (db *DB) Insert(s MappedStruct) {
 	if ra != 1 {
 		panic("Insert failed")
 	}
+	// TODO get the generated pkey, if any, and set it on the MappedStruct
+	db.Callbacks.AfterInsert.Call(db, s)
 }
 
 // Update the struct attributes in DB
 func (db *DB) Update(s MappedStruct) {
+	db.Callbacks.BeforeUpdate.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
 	update := mapper.Table().Update().
 		Values(mapper.SQLValues(s)).
@@ -58,6 +64,7 @@ func (db *DB) Update(s MappedStruct) {
 	if ra != 1 {
 		panic("Update failed")
 	}
+	db.Callbacks.AfterUpdate.Call(db, s)
 }
 
 // Query returns a new Query for the struct
@@ -73,6 +80,7 @@ func (db *DB) QueryFromMapper(m Mapper) Query {
 
 // Delete a struct from the database
 func (db *DB) Delete(s MappedStruct) error {
+	db.Callbacks.BeforeDelete.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
 	del := mapper.Table().Delete().Where(mapper.PKeyClause(s))
 	res, err := db.Engine.Exec(del)
@@ -86,5 +94,6 @@ func (db *DB) Delete(s MappedStruct) error {
 	if rowsAffected != 1 {
 		return fmt.Errorf("Wrong number of rows affected. Expected 1, got %v", rowsAffected)
 	}
-	return err
+	db.Callbacks.AfterDelete.Call(db, s)
+	return nil
 }
