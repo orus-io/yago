@@ -22,13 +22,8 @@ func NewModel() *Model {
 		Meta: yago.NewMetadata(),
 	}
 
-	personMapper := NewPersonMapper()
-	model.Person = NewPersonModel(personMapper)
-	model.Meta.AddMapper(personMapper)
-
-	phoneNumberMapper := NewPhoneNumberMapper()
-	model.PhoneNumber = NewPhoneNumberModel(phoneNumberMapper)
-	model.Meta.AddMapper(phoneNumberMapper)
+	model.Person = NewPersonModel(model.Meta)
+	model.PhoneNumber = NewPhoneNumberModel(model.Meta)
 
 	return model
 }

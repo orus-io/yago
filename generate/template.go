@@ -105,7 +105,9 @@ type {{ .Name }}Model struct {
 	{{- end }}
 }
 
-func New{{ .Name }}Model(mapper *{{ .Name }}Mapper) {{ .Name }}Model {
+func New{{ .Name }}Model(meta *yago.Metadata) {{ .Name }}Model {
+	mapper := New{{ .Name }}Mapper()
+	meta.AddMapper(mapper)
 	return {{ .Name }}Model {
 		mapper: mapper,
 		{{- range .Fields }}

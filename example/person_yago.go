@@ -46,7 +46,9 @@ type PersonModel struct {
 	UpdatedAt yago.ScalarField
 }
 
-func NewPersonModel(mapper *PersonMapper) PersonModel {
+func NewPersonModel(meta *yago.Metadata) PersonModel {
+	mapper := NewPersonMapper()
+	meta.AddMapper(mapper)
 	return PersonModel {
 		mapper: mapper,
 		ID: yago.NewScalarField(mapper.Table().C("id")),
@@ -161,7 +163,9 @@ type PhoneNumberModel struct {
 	Number yago.ScalarField
 }
 
-func NewPhoneNumberModel(mapper *PhoneNumberMapper) PhoneNumberModel {
+func NewPhoneNumberModel(meta *yago.Metadata) PhoneNumberModel {
+	mapper := NewPhoneNumberMapper()
+	meta.AddMapper(mapper)
 	return PhoneNumberModel {
 		mapper: mapper,
 		ID: yago.NewScalarField(mapper.Table().C("id")),
