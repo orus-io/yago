@@ -7,6 +7,7 @@ import (
 // FileData contains top-level infos for templates
 type FileData struct {
 	Package string
+	Imports map[string]bool
 }
 
 // ColumnTags contains tags set on the fields
@@ -64,6 +65,10 @@ import (
 	"github.com/aacanakin/qb"
 
 	"github.com/orus-io/yago"
+
+	{{- range $k, $_ := .Imports }}
+	"{{$k}}"
+	{{- end }}
 )
 
 `))

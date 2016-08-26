@@ -19,6 +19,8 @@ func guessColumnType(goType string) string {
 		return "qb.Timestamp()"
 	} else if goType == "*time.Time" {
 		return "qb.Timestamp()"
+	} else if goType == "uuid.UUID" {
+		return "qb.UUID()"
 	}
 	panic(fmt.Sprintf("Cannot guess column type for go type %s", goType))
 }
@@ -36,9 +38,10 @@ func getEmptyValue(goType string) string {
 		return "0"
 	} else if goType == "time.Time" {
 		return "(time.Time{})"
-	} else {
-		panic(fmt.Sprintf("I have no empty value for type '%v'", goType))
+	} else if goType == "uuid.UUID" {
+		return "(uuid.UUID{})"
 	}
+	panic(fmt.Sprintf("I have no empty value for type '%v'", goType))
 }
 
 func prepareFieldData(f *FieldData) {
@@ -77,9 +80,12 @@ func prepareStructData(str *StructData, fd FileData) {
 	}
 }
 
-func postPrepare(structs map[string]*StructData) {
+func postPrepare(filedata *FileData, structs map[string]*StructData) {
 	for _, str := range structs {
-		for i := range str.Fields {
+		for i, f := range str.Fields {
+			if f.Tags.PrimaryKey && str.Fields[i].Type == "uuid.UUID" {
+				filedata.Imports["github.com/m4rw3r/uuid"] = true
+			}
 			for _, fk := range str.Fields[i].Tags.ForeignKeys {
 				var structName string
 				var refStruct *StructData
@@ -124,6 +130,21 @@ func ProcessFile(logger *log.Logger, path string, file string, pack string, outp
 	if output == "" {
 		output = filepath.Join(path, base+"_yago"+ext)
 	}
+
+	filedata := FileData{Package: pack, Imports: make(map[string]bool)}
+
+	structs, err := ParseFile(filepath.Join(path, file))
+	if err != nil {
+		return err
+	}
+
+	structsByName := make(map[string]*StructData)
+	for _, str := range structs {
+		prepareStructData(str, filedata)
+		structsByName[str.Name] = str
+	}
+	postPrepare(&filedata, structsByName)
+
 	outf, err := os.Create(output)
 	if err != nil {
 		return err
@@ -131,21 +152,10 @@ func ProcessFile(logger *log.Logger, path string, file string, pack string, outp
 
 	defer outf.Close()
 
-	fd := FileData{Package: pack}
-	if err := prologTemplate.Execute(outf, &fd); err != nil {
+	if err := prologTemplate.Execute(outf, &filedata); err != nil {
 		return err
 	}
 
-	structs, err := ParseFile(filepath.Join(path, file))
-	if err != nil {
-		return err
-	}
-	structsByName := make(map[string]*StructData)
-	for _, str := range structs {
-		prepareStructData(str, fd)
-		structsByName[str.Name] = str
-	}
-	postPrepare(structsByName)
 	for _, str := range structs {
 		if err := structTemplate.Execute(outf, &str); err != nil {
 			return err
