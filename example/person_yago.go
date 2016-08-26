@@ -15,11 +15,11 @@ import (
 
 var personTable = qb.Table(
 	"person",
-	qb.Column("id", qb.BigInt()).PrimaryKey().AutoIncrement(),
-	qb.Column("name", qb.Varchar().NotNull()),
-	qb.Column("email_address", qb.Varchar()),
-	qb.Column("created_at", qb.Timestamp().NotNull()),
-	qb.Column("updated_at", qb.Timestamp()),
+	qb.Column("id", qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
+	qb.Column("name", qb.Varchar()).NotNull(),
+	qb.Column("email_address", qb.Varchar()).Null(),
+	qb.Column("created_at", qb.Timestamp()).NotNull(),
+	qb.Column("updated_at", qb.Timestamp()).Null(),
 	qb.UniqueKey(
 		"email_address",
 	),
@@ -139,10 +139,10 @@ func (mapper PersonMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
 
 var phoneNumberTable = qb.Table(
 	"phonenumber",
-	qb.Column("id", qb.BigInt()).PrimaryKey().AutoIncrement(),
-	qb.Column("person_id", qb.BigInt()),
-	qb.Column("name", qb.Varchar().NotNull()),
-	qb.Column("number", qb.Varchar().NotNull()),
+	qb.Column("id", qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
+	qb.Column("person_id", qb.BigInt()).NotNull(),
+	qb.Column("name", qb.Varchar()).NotNull(),
+	qb.Column("number", qb.Varchar()).NotNull(),
 	qb.ForeignKey().Ref("person_id", "person", "id"),
 )
 

@@ -12,11 +12,11 @@ func guessColumnType(goType string) string {
 	if goType == "int64" {
 		return "qb.BigInt()"
 	} else if goType == "string" {
-		return "qb.Varchar().NotNull()"
+		return "qb.Varchar()"
 	} else if goType == "*string" {
 		return "qb.Varchar()"
 	} else if goType == "time.Time" {
-		return "qb.Timestamp().NotNull()"
+		return "qb.Timestamp()"
 	} else if goType == "*time.Time" {
 		return "qb.Timestamp()"
 	}
@@ -54,6 +54,11 @@ func prepareFieldData(f *FieldData) {
 		}
 		if f.Tags.AutoIncrement {
 			f.ColumnModifiers += ".AutoIncrement()"
+		}
+		if f.Type[0] == '*' {
+			f.ColumnModifiers += ".Null()"
+		} else {
+			f.ColumnModifiers += ".NotNull()"
 		}
 	}
 	if f.EmptyValue == "" {
