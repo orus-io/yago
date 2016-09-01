@@ -18,14 +18,12 @@ type Model struct {
 
 // NewModel initialize a model
 func NewModel() *Model {
-	model := &Model{
-		Meta: yago.NewMetadata(),
+	meta := yago.NewMetadata()
+	return &Model{
+		Meta:        meta,
+		Person:      NewPersonModel(meta),
+		PhoneNumber: NewPhoneNumberModel(meta),
 	}
-
-	model.Person = NewPersonModel(model.Meta)
-	model.PhoneNumber = NewPhoneNumberModel(model.Meta)
-
-	return model
 }
 
 func main() {
