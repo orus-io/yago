@@ -29,6 +29,7 @@ type FieldData struct {
 	ColumnName      string
 	ColumnType      string
 	ColumnModifiers string
+	ColumnNameConst string
 }
 
 type FKData struct {
@@ -75,21 +76,28 @@ import (
 
 	structTemplate = template.Must(template.New("struct").Parse(`
 {{ $root := . }}{{ $Struct := .Name }}{{ $Table := printf "%s%s" .PrivateBasename "Table" }}
+const (
+	{{ .Name }}TableName = "{{ .TableName }}"
+{{- range .Fields }}
+	{{ .ColumnNameConst }} = "{{ .ColumnName }}"
+{{- end }}
+)
+
 var {{ $Table }} = qb.Table(
-	"{{ .TableName }}",
+	{{ .Name }}TableName,
 	{{- range .Fields }}
-	qb.Column("{{ .ColumnName }}", {{ .ColumnType }}){{ .ColumnModifiers }},
+	qb.Column({{ .ColumnNameConst }}, {{ .ColumnType }}){{ .ColumnModifiers }},
 	{{- end }}
 	{{- range .UniqueIndexes }}
 	qb.UniqueKey(
 		{{- range . }}
-		"{{ (index $root.Fields .).ColumnName }}",
+		{{ (index $root.Fields .).ColumnNameConst }},
 		{{- end }}
 	),{{- end }} {{- range .ForeignKeys }}
 	qb.ForeignKey().Ref("{{ .Column }}", "{{ .RefTable }}", "{{ .RefColumn }}"),{{- end}}
 ){{- range $name, $cols := .Indexes }}.Index(
 	{{- range . }}
-	"{{ (index $root.Fields .).ColumnName }}",
+	{{ (index $root.Fields .).ColumnNameConst }},
 	{{- end }}
 ){{- end }}
 
@@ -116,7 +124,7 @@ func New{{ .Name }}Model(meta *yago.Metadata) {{ .Name }}Model {
 	return {{ .Name }}Model {
 		mapper: mapper,
 		{{- range .Fields }}
-		{{ .Name }}: yago.NewScalarField(mapper.Table().C("{{ .ColumnName }}")),
+		{{ .Name }}: yago.NewScalarField(mapper.Table().C({{ .ColumnNameConst }})),
 		{{- end }}
 	}
 }
@@ -159,12 +167,12 @@ func (mapper {{ .Name }}Mapper) SQLValues(instance yago.MappedStruct) map[string
 	m := make(map[string]interface{})
 	{{- range .PKeyFields }}
 	if s.{{ .Name }} != {{ .EmptyValue }} {
-		m["{{ .ColumnName }}"] = s.{{ .Name }}
+		m[{{ .ColumnNameConst }}] = s.{{ .Name }}
 	}
 	{{- end }}
 	{{- range .Fields }}
 	{{- if not .Tags.PrimaryKey }}
-	m["{{ .ColumnName }}"] = s.{{ .Name }}
+	m[{{ .ColumnNameConst }}] = s.{{ .Name }}
 	{{- end }}
 	{{- end }}
 	return m
@@ -174,7 +182,7 @@ func (mapper {{ .Name }}Mapper) SQLValues(instance yago.MappedStruct) map[string
 func (mapper {{ .Name }}Mapper) FieldList() []qb.Clause {
 	return []qb.Clause{
 		{{- range .Fields }}
-		{{ $Table }}.C("{{ .ColumnName }}"),
+		{{ $Table }}.C({{ .ColumnNameConst }}),
 		{{- end }}
 	}
 }
@@ -195,11 +203,11 @@ func (mapper {{ .Name }}Mapper) Scan(rows *sql.Rows, instance yago.MappedStruct)
 // PKeyClause returns a clause that matches the instance primary key
 func (mapper {{ .Name }}Mapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
 	{{- if eq 1 (len .PKeyFields) }}
-	return {{ $Table }}.C("{{ (index .PKeyFields 0).ColumnName }}").Eq(instance.(*{{ .Name }}).{{ (index .PKeyFields 0).Name }})
+	return {{ $Table }}.C({{ (index .PKeyFields 0).ColumnNameConst }}).Eq(instance.(*{{ .Name }}).{{ (index .PKeyFields 0).Name }})
 	{{- else }}
 	return qb.And(
 		{{- range .PKeyFields }}
-		{{ $Table }}.C("{{ .ColumnName }}").Eq(instance.(*{{ $Struct }}).{{ .Name }}),
+		{{ $Table }}.C({{ .ColumnNameConst }}).Eq(instance.(*{{ $Struct }}).{{ .Name }}),
 		{{- end }}
 	)
 	{{- end }}

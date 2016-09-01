@@ -13,18 +13,27 @@ import (
 
 
 
+const (
+	PersonTableName = "person"
+	PersonIDColumnName = "id"
+	PersonNameColumnName = "name"
+	PersonEmailColumnName = "email_address"
+	PersonCreatedAtColumnName = "created_at"
+	PersonUpdatedAtColumnName = "updated_at"
+)
+
 var personTable = qb.Table(
-	"person",
-	qb.Column("id", qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
-	qb.Column("name", qb.Varchar()).NotNull(),
-	qb.Column("email_address", qb.Varchar()).Null(),
-	qb.Column("created_at", qb.Timestamp()).NotNull(),
-	qb.Column("updated_at", qb.Timestamp()).Null(),
+	PersonTableName,
+	qb.Column(PersonIDColumnName, qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
+	qb.Column(PersonNameColumnName, qb.Varchar()).NotNull(),
+	qb.Column(PersonEmailColumnName, qb.Varchar()).Null(),
+	qb.Column(PersonCreatedAtColumnName, qb.Timestamp()).NotNull(),
+	qb.Column(PersonUpdatedAtColumnName, qb.Timestamp()).Null(),
 	qb.UniqueKey(
-		"email_address",
+		PersonEmailColumnName,
 	),
 ).Index(
-	"name",
+	PersonNameColumnName,
 )
 
 var personType = reflect.TypeOf(Person{})
@@ -51,11 +60,11 @@ func NewPersonModel(meta *yago.Metadata) PersonModel {
 	meta.AddMapper(mapper)
 	return PersonModel {
 		mapper: mapper,
-		ID: yago.NewScalarField(mapper.Table().C("id")),
-		Name: yago.NewScalarField(mapper.Table().C("name")),
-		Email: yago.NewScalarField(mapper.Table().C("email_address")),
-		CreatedAt: yago.NewScalarField(mapper.Table().C("created_at")),
-		UpdatedAt: yago.NewScalarField(mapper.Table().C("updated_at")),
+		ID: yago.NewScalarField(mapper.Table().C(PersonIDColumnName)),
+		Name: yago.NewScalarField(mapper.Table().C(PersonNameColumnName)),
+		Email: yago.NewScalarField(mapper.Table().C(PersonEmailColumnName)),
+		CreatedAt: yago.NewScalarField(mapper.Table().C(PersonCreatedAtColumnName)),
+		UpdatedAt: yago.NewScalarField(mapper.Table().C(PersonUpdatedAtColumnName)),
 	}
 }
 
@@ -96,23 +105,23 @@ func (mapper PersonMapper) SQLValues(instance yago.MappedStruct) map[string]inte
 	}
 	m := make(map[string]interface{})
 	if s.ID != 0 {
-		m["id"] = s.ID
+		m[PersonIDColumnName] = s.ID
 	}
-	m["name"] = s.Name
-	m["email_address"] = s.Email
-	m["created_at"] = s.CreatedAt
-	m["updated_at"] = s.UpdatedAt
+	m[PersonNameColumnName] = s.Name
+	m[PersonEmailColumnName] = s.Email
+	m[PersonCreatedAtColumnName] = s.CreatedAt
+	m[PersonUpdatedAtColumnName] = s.UpdatedAt
 	return m
 }
 
 // FieldList returns the list of fields for a select
 func (mapper PersonMapper) FieldList() []qb.Clause {
 	return []qb.Clause{
-		personTable.C("id"),
-		personTable.C("name"),
-		personTable.C("email_address"),
-		personTable.C("created_at"),
-		personTable.C("updated_at"),
+		personTable.C(PersonIDColumnName),
+		personTable.C(PersonNameColumnName),
+		personTable.C(PersonEmailColumnName),
+		personTable.C(PersonCreatedAtColumnName),
+		personTable.C(PersonUpdatedAtColumnName),
 	}
 }
 
@@ -133,16 +142,24 @@ func (mapper PersonMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) erro
 
 // PKeyClause returns a clause that matches the instance primary key
 func (mapper PersonMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
-	return personTable.C("id").Eq(instance.(*Person).ID)
+	return personTable.C(PersonIDColumnName).Eq(instance.(*Person).ID)
 }
 
 
+const (
+	PhoneNumberTableName = "phonenumber"
+	PhoneNumberIDColumnName = "id"
+	PhoneNumberPersonIDColumnName = "person_id"
+	PhoneNumberNameColumnName = "name"
+	PhoneNumberNumberColumnName = "number"
+)
+
 var phoneNumberTable = qb.Table(
-	"phonenumber",
-	qb.Column("id", qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
-	qb.Column("person_id", qb.BigInt()).NotNull(),
-	qb.Column("name", qb.Varchar()).NotNull(),
-	qb.Column("number", qb.Varchar()).NotNull(),
+	PhoneNumberTableName,
+	qb.Column(PhoneNumberIDColumnName, qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
+	qb.Column(PhoneNumberPersonIDColumnName, qb.BigInt()).NotNull(),
+	qb.Column(PhoneNumberNameColumnName, qb.Varchar()).NotNull(),
+	qb.Column(PhoneNumberNumberColumnName, qb.Varchar()).NotNull(),
 	qb.ForeignKey().Ref("person_id", "person", "id"),
 )
 
@@ -169,10 +186,10 @@ func NewPhoneNumberModel(meta *yago.Metadata) PhoneNumberModel {
 	meta.AddMapper(mapper)
 	return PhoneNumberModel {
 		mapper: mapper,
-		ID: yago.NewScalarField(mapper.Table().C("id")),
-		PersonID: yago.NewScalarField(mapper.Table().C("person_id")),
-		Name: yago.NewScalarField(mapper.Table().C("name")),
-		Number: yago.NewScalarField(mapper.Table().C("number")),
+		ID: yago.NewScalarField(mapper.Table().C(PhoneNumberIDColumnName)),
+		PersonID: yago.NewScalarField(mapper.Table().C(PhoneNumberPersonIDColumnName)),
+		Name: yago.NewScalarField(mapper.Table().C(PhoneNumberNameColumnName)),
+		Number: yago.NewScalarField(mapper.Table().C(PhoneNumberNumberColumnName)),
 	}
 }
 
@@ -213,21 +230,21 @@ func (mapper PhoneNumberMapper) SQLValues(instance yago.MappedStruct) map[string
 	}
 	m := make(map[string]interface{})
 	if s.ID != 0 {
-		m["id"] = s.ID
+		m[PhoneNumberIDColumnName] = s.ID
 	}
-	m["person_id"] = s.PersonID
-	m["name"] = s.Name
-	m["number"] = s.Number
+	m[PhoneNumberPersonIDColumnName] = s.PersonID
+	m[PhoneNumberNameColumnName] = s.Name
+	m[PhoneNumberNumberColumnName] = s.Number
 	return m
 }
 
 // FieldList returns the list of fields for a select
 func (mapper PhoneNumberMapper) FieldList() []qb.Clause {
 	return []qb.Clause{
-		phoneNumberTable.C("id"),
-		phoneNumberTable.C("person_id"),
-		phoneNumberTable.C("name"),
-		phoneNumberTable.C("number"),
+		phoneNumberTable.C(PhoneNumberIDColumnName),
+		phoneNumberTable.C(PhoneNumberPersonIDColumnName),
+		phoneNumberTable.C(PhoneNumberNameColumnName),
+		phoneNumberTable.C(PhoneNumberNumberColumnName),
 	}
 }
 
@@ -247,5 +264,5 @@ func (mapper PhoneNumberMapper) Scan(rows *sql.Rows, instance yago.MappedStruct)
 
 // PKeyClause returns a clause that matches the instance primary key
 func (mapper PhoneNumberMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
-	return phoneNumberTable.C("id").Eq(instance.(*PhoneNumber).ID)
+	return phoneNumberTable.C(PhoneNumberIDColumnName).Eq(instance.(*PhoneNumber).ID)
 }

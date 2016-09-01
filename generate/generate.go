@@ -44,7 +44,7 @@ func getEmptyValue(goType string) string {
 	panic(fmt.Sprintf("I have no empty value for type '%v'", goType))
 }
 
-func prepareFieldData(f *FieldData) {
+func prepareFieldData(str *StructData, f *FieldData) {
 	if f.ColumnName == "" {
 		f.ColumnName = makeColumnName(f.Name)
 	}
@@ -67,13 +67,19 @@ func prepareFieldData(f *FieldData) {
 	if f.EmptyValue == "" {
 		f.EmptyValue = getEmptyValue(f.Type)
 	}
+	if f.ColumnNameConst == "" {
+		f.ColumnNameConst = fmt.Sprintf(
+			"%s%sColumnName",
+			str.Name, f.Name,
+		)
+	}
 }
 
 func prepareStructData(str *StructData, fd FileData) {
 	str.File = fd
 	str.PrivateBasename = strings.ToLower(str.Name[0:1]) + str.Name[1:]
 	for i := range str.Fields {
-		prepareFieldData(&str.Fields[i])
+		prepareFieldData(str, &str.Fields[i])
 		if str.Fields[i].Tags.PrimaryKey {
 			str.PKeyFields = append(str.PKeyFields, &str.Fields[i])
 		}
