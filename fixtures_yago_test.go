@@ -12,14 +12,18 @@ import (
 	"github.com/m4rw3r/uuid"
 )
 
-
+const (
+	SimpleStructTableName = "simplestruct"
+	SimpleStructIDColumnName = "id"
+	SimpleStructNameColumnName = "name"
+)
 
 var simpleStructTable = qb.Table(
-	"simplestruct",
-	qb.Column("id", qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
-	qb.Column("name", qb.Varchar()).NotNull(),
+	SimpleStructTableName,
+	qb.Column(SimpleStructIDColumnName, qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
+	qb.Column(SimpleStructNameColumnName, qb.Varchar()).NotNull(),
 	qb.UniqueKey(
-		"name",
+		SimpleStructNameColumnName,
 	),
 )
 
@@ -44,8 +48,8 @@ func NewSimpleStructModel(meta *yago.Metadata) SimpleStructModel {
 	meta.AddMapper(mapper)
 	return SimpleStructModel {
 		mapper: mapper,
-		ID: yago.NewScalarField(mapper.Table().C("id")),
-		Name: yago.NewScalarField(mapper.Table().C("name")),
+		ID: yago.NewScalarField(mapper.Table().C(SimpleStructIDColumnName)),
+		Name: yago.NewScalarField(mapper.Table().C(SimpleStructNameColumnName)),
 	}
 }
 
@@ -86,17 +90,17 @@ func (mapper SimpleStructMapper) SQLValues(instance yago.MappedStruct) map[strin
 	}
 	m := make(map[string]interface{})
 	if s.ID != 0 {
-		m["id"] = s.ID
+		m[SimpleStructIDColumnName] = s.ID
 	}
-	m["name"] = s.Name
+	m[SimpleStructNameColumnName] = s.Name
 	return m
 }
 
 // FieldList returns the list of fields for a select
 func (mapper SimpleStructMapper) FieldList() []qb.Clause {
 	return []qb.Clause{
-		simpleStructTable.C("id"),
-		simpleStructTable.C("name"),
+		simpleStructTable.C(SimpleStructIDColumnName),
+		simpleStructTable.C(SimpleStructNameColumnName),
 	}
 }
 
@@ -112,17 +116,35 @@ func (mapper SimpleStructMapper) Scan(rows *sql.Rows, instance yago.MappedStruct
 	)
 }
 
+// AutoIncrementPKey return true if a column of the pkey is autoincremented
+func (SimpleStructMapper) AutoIncrementPKey() bool {
+	return true
+}
+
+// LoadAutoIncrementPKeyValue set the pkey autoincremented column value
+func (SimpleStructMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value int64) {
+	s := instance.(*SimpleStruct)
+	s.ID = value
+}
+
 // PKeyClause returns a clause that matches the instance primary key
 func (mapper SimpleStructMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
-	return simpleStructTable.C("id").Eq(instance.(*SimpleStruct).ID)
+	return simpleStructTable.C(SimpleStructIDColumnName).Eq(instance.(*SimpleStruct).ID)
 }
 
 
+const (
+	PersonStructTableName = "personstruct"
+	PersonStructIDColumnName = "id"
+	PersonStructFirstNameColumnName = "first_name"
+	PersonStructLastNameColumnName = "last_name"
+)
+
 var personStructTable = qb.Table(
-	"personstruct",
-	qb.Column("id", qb.UUID()).PrimaryKey().NotNull(),
-	qb.Column("first_name", qb.Varchar()).NotNull(),
-	qb.Column("last_name", qb.Varchar()).NotNull(),
+	PersonStructTableName,
+	qb.Column(PersonStructIDColumnName, qb.UUID()).PrimaryKey().NotNull(),
+	qb.Column(PersonStructFirstNameColumnName, qb.Varchar()).NotNull(),
+	qb.Column(PersonStructLastNameColumnName, qb.Varchar()).NotNull(),
 )
 
 var personStructType = reflect.TypeOf(PersonStruct{})
@@ -147,9 +169,9 @@ func NewPersonStructModel(meta *yago.Metadata) PersonStructModel {
 	meta.AddMapper(mapper)
 	return PersonStructModel {
 		mapper: mapper,
-		ID: yago.NewScalarField(mapper.Table().C("id")),
-		FirstName: yago.NewScalarField(mapper.Table().C("first_name")),
-		LastName: yago.NewScalarField(mapper.Table().C("last_name")),
+		ID: yago.NewScalarField(mapper.Table().C(PersonStructIDColumnName)),
+		FirstName: yago.NewScalarField(mapper.Table().C(PersonStructFirstNameColumnName)),
+		LastName: yago.NewScalarField(mapper.Table().C(PersonStructLastNameColumnName)),
 	}
 }
 
@@ -190,19 +212,19 @@ func (mapper PersonStructMapper) SQLValues(instance yago.MappedStruct) map[strin
 	}
 	m := make(map[string]interface{})
 	if s.ID != (uuid.UUID{}) {
-		m["id"] = s.ID
+		m[PersonStructIDColumnName] = s.ID
 	}
-	m["first_name"] = s.FirstName
-	m["last_name"] = s.LastName
+	m[PersonStructFirstNameColumnName] = s.FirstName
+	m[PersonStructLastNameColumnName] = s.LastName
 	return m
 }
 
 // FieldList returns the list of fields for a select
 func (mapper PersonStructMapper) FieldList() []qb.Clause {
 	return []qb.Clause{
-		personStructTable.C("id"),
-		personStructTable.C("first_name"),
-		personStructTable.C("last_name"),
+		personStructTable.C(PersonStructIDColumnName),
+		personStructTable.C(PersonStructFirstNameColumnName),
+		personStructTable.C(PersonStructLastNameColumnName),
 	}
 }
 
@@ -219,7 +241,17 @@ func (mapper PersonStructMapper) Scan(rows *sql.Rows, instance yago.MappedStruct
 	)
 }
 
+// AutoIncrementPKey return true if a column of the pkey is autoincremented
+func (PersonStructMapper) AutoIncrementPKey() bool {
+	return false
+}
+
+// LoadAutoIncrementPKeyValue set the pkey autoincremented column value
+func (PersonStructMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value int64) {
+	panic("PersonStruct has no auto increment column in its pkey")
+}
+
 // PKeyClause returns a clause that matches the instance primary key
 func (mapper PersonStructMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
-	return personStructTable.C("id").Eq(instance.(*PersonStruct).ID)
+	return personStructTable.C(PersonStructIDColumnName).Eq(instance.(*PersonStruct).ID)
 }

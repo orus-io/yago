@@ -40,11 +40,12 @@ type FKData struct {
 
 // StructData describes a struct to be mapped
 type StructData struct {
-	Name            string
-	PrivateBasename string
-	TableName       string
-	Fields          []FieldData
-	PKeyFields      []*FieldData
+	Name              string
+	PrivateBasename   string
+	TableName         string
+	Fields            []FieldData
+	PKeyFields        []*FieldData
+	AutoIncrementPKey *FieldData
 
 	Indexes       map[string][]int
 	UniqueIndexes map[string][]int
@@ -196,6 +197,25 @@ func (mapper {{ .Name }}Mapper) Scan(rows *sql.Rows, instance yago.MappedStruct)
 		&s.{{ $fd.Name }},
 	{{- end }}
 	)
+}
+
+// AutoIncrementPKey return true if a column of the pkey is autoincremented
+func ({{ .Name }}Mapper) AutoIncrementPKey() bool {
+	{{- if .AutoIncrementPKey }}
+	return true
+	{{- else }}
+	return false
+	{{- end }}
+}
+
+// LoadAutoIncrementPKeyValue set the pkey autoincremented column value
+func ({{ .Name }}Mapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value int64) {
+	{{- if .AutoIncrementPKey }}
+	s := instance.(*{{ $Struct }})
+	s.{{ .AutoIncrementPKey.Name }} = value
+	{{- else }}
+	panic("{{ .Name }} has no auto increment column in its pkey")
+	{{- end }}
 }
 
 // PKeyClause returns a clause that matches the instance primary key

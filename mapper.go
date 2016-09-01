@@ -14,6 +14,8 @@ type Mapper interface {
 	StructType() reflect.Type
 	FieldList() []qb.Clause
 
+	AutoIncrementPKey() bool
+	LoadAutoIncrementPKeyValue(instance MappedStruct, value int64)
 	PKeyClause(instance MappedStruct) qb.Clause
 	SQLValues(instance MappedStruct) map[string]interface{}
 

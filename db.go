@@ -41,6 +41,13 @@ func (db *DB) Insert(s MappedStruct) {
 	if ra != 1 {
 		panic("Insert failed")
 	}
+	if mapper.AutoIncrementPKey() {
+		if pkey, err := res.LastInsertId(); err != nil {
+			panic(err)
+		} else {
+			mapper.LoadAutoIncrementPKeyValue(s, pkey)
+		}
+	}
 	// TODO get the generated pkey, if any, and set it on the MappedStruct
 	db.Callbacks.AfterInsert.Call(db, s)
 }

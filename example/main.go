@@ -47,10 +47,12 @@ func main() {
 	p := NewPerson()
 	p.Name = "Toto"
 	db.Insert(p)
+	fmt.Println("Inserted", p.Name, "got ID", p.ID)
 
 	p = NewPerson()
 	p.Name = "Titi"
 	db.Insert(p)
+	fmt.Println("Inserted", p.Name, "got ID", p.ID)
 
 	q := db.Query(&Person{})
 	if err := q.One(p); err == nil {

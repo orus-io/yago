@@ -138,6 +138,17 @@ func (mapper PersonMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) erro
 	)
 }
 
+// AutoIncrementPKey return true if a column of the pkey is autoincremented
+func (PersonMapper) AutoIncrementPKey() bool {
+	return true
+}
+
+// LoadAutoIncrementPKeyValue set the pkey autoincremented column value
+func (PersonMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value int64) {
+	s := instance.(*Person)
+	s.ID = value
+}
+
 // PKeyClause returns a clause that matches the instance primary key
 func (mapper PersonMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
 	return personTable.C(PersonIDColumnName).Eq(instance.(*Person).ID)
@@ -258,6 +269,17 @@ func (mapper PhoneNumberMapper) Scan(rows *sql.Rows, instance yago.MappedStruct)
 		&s.Name,
 		&s.Number,
 	)
+}
+
+// AutoIncrementPKey return true if a column of the pkey is autoincremented
+func (PhoneNumberMapper) AutoIncrementPKey() bool {
+	return true
+}
+
+// LoadAutoIncrementPKeyValue set the pkey autoincremented column value
+func (PhoneNumberMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value int64) {
+	s := instance.(*PhoneNumber)
+	s.ID = value
 }
 
 // PKeyClause returns a clause that matches the instance primary key
