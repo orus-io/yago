@@ -11,8 +11,6 @@ import (
 	"github.com/orus-io/yago"
 )
 
-
-
 const (
 	PersonTableName = "person"
 	PersonIDColumnName = "id"
@@ -160,7 +158,7 @@ var phoneNumberTable = qb.Table(
 	qb.Column(PhoneNumberPersonIDColumnName, qb.BigInt()).NotNull(),
 	qb.Column(PhoneNumberNameColumnName, qb.Varchar()).NotNull(),
 	qb.Column(PhoneNumberNumberColumnName, qb.Varchar()).NotNull(),
-	qb.ForeignKey().Ref("person_id", "person", "id"),
+	qb.ForeignKey().Ref(PhoneNumberPersonIDColumnName, PersonTableName, PersonIDColumnName),
 )
 
 var phoneNumberType = reflect.TypeOf(PhoneNumber{})

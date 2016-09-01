@@ -93,33 +93,34 @@ func postPrepare(filedata *FileData, structs map[string]*StructData) {
 				filedata.Imports["github.com/m4rw3r/uuid"] = true
 			}
 			for _, fk := range str.Fields[i].Tags.ForeignKeys {
-				var structName string
-				var refStruct *StructData
-				var refField string
-				var refTable string
-				var refColumn string
+				var (
+					structName   string
+					refFieldName string
+					refStruct    *StructData
+					refField     *FieldData
+				)
 				if strings.Index(fk, ".") != -1 {
 					splitted := strings.Split(fk, ".")
 					structName = splitted[0]
-					refField = splitted[1]
+					refFieldName = splitted[1]
 				} else {
 					structName = fk
 				}
 				refStruct = structs[structName]
-				if refField == "" {
-					refField = refStruct.PKeyFields[0].Name
-				}
-				refTable = refStruct.TableName
-				for _, f := range refStruct.Fields {
-					if f.Name == refField {
-						refColumn = f.ColumnName
+				if refFieldName == "" {
+					refField = refStruct.PKeyFields[0]
+				} else {
+					for i := range refStruct.Fields {
+						if refStruct.Fields[i].Name == refFieldName {
+							refField = &refStruct.Fields[i]
+						}
 					}
 				}
 
 				str.ForeignKeys = append(str.ForeignKeys, FKData{
-					Column:    str.Fields[i].ColumnName,
-					RefTable:  refTable,
-					RefColumn: refColumn,
+					Column:    &str.Fields[i],
+					RefTable:  refStruct,
+					RefColumn: refField,
 				})
 			}
 		}

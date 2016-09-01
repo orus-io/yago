@@ -33,9 +33,9 @@ type FieldData struct {
 }
 
 type FKData struct {
-	Column    string
-	RefTable  string
-	RefColumn string
+	Column    *FieldData
+	RefTable  *StructData
+	RefColumn *FieldData
 }
 
 // StructData describes a struct to be mapped
@@ -70,9 +70,7 @@ import (
 	{{- range $k, $_ := .Imports }}
 	"{{$k}}"
 	{{- end }}
-)
-
-`))
+)`))
 
 	structTemplate = template.Must(template.New("struct").Parse(`
 {{ $root := . }}{{ $Struct := .Name }}{{ $Table := printf "%s%s" .PrivateBasename "Table" }}
@@ -94,7 +92,7 @@ var {{ $Table }} = qb.Table(
 		{{ (index $root.Fields .).ColumnNameConst }},
 		{{- end }}
 	),{{- end }} {{- range .ForeignKeys }}
-	qb.ForeignKey().Ref("{{ .Column }}", "{{ .RefTable }}", "{{ .RefColumn }}"),{{- end}}
+	qb.ForeignKey().Ref({{ .Column.ColumnNameConst }}, {{ .RefTable.Name }}TableName, {{ .RefColumn.ColumnNameConst }}),{{- end}}
 ){{- range $name, $cols := .Indexes }}.Index(
 	{{- range . }}
 	{{ (index $root.Fields .).ColumnNameConst }},
