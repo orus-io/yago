@@ -12,26 +12,29 @@ import (
 )
 
 const (
-	// PersonTableName is the Person associated table name
-	PersonTableName = "person"
 	// PersonID is the ID field name
 	PersonID = "ID"
-	// PersonIDColumnName is the ID field associated column name
-	PersonIDColumnName = "id"
 	// PersonName is the Name field name
 	PersonName = "Name"
-	// PersonNameColumnName is the Name field associated column name
-	PersonNameColumnName = "name"
 	// PersonEmail is the Email field name
 	PersonEmail = "Email"
-	// PersonEmailColumnName is the Email field associated column name
-	PersonEmailColumnName = "email_address"
 	// PersonCreatedAt is the CreatedAt field name
 	PersonCreatedAt = "CreatedAt"
-	// PersonCreatedAtColumnName is the CreatedAt field associated column name
-	PersonCreatedAtColumnName = "created_at"
 	// PersonUpdatedAt is the UpdatedAt field name
 	PersonUpdatedAt = "UpdatedAt"
+)
+
+const (
+	// PersonTableName is the Person associated table name
+	PersonTableName = "person"
+	// PersonIDColumnName is the ID field associated column name
+	PersonIDColumnName = "id"
+	// PersonNameColumnName is the Name field associated column name
+	PersonNameColumnName = "name"
+	// PersonEmailColumnName is the Email field associated column name
+	PersonEmailColumnName = "email_address"
+	// PersonCreatedAtColumnName is the CreatedAt field associated column name
+	PersonCreatedAtColumnName = "created_at"
 	// PersonUpdatedAtColumnName is the UpdatedAt field associated column name
 	PersonUpdatedAtColumnName = "updated_at"
 )
@@ -180,22 +183,25 @@ func (mapper PersonMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
 }
 
 const (
-	// PhoneNumberTableName is the PhoneNumber associated table name
-	PhoneNumberTableName = "phonenumber"
 	// PhoneNumberID is the ID field name
 	PhoneNumberID = "ID"
-	// PhoneNumberIDColumnName is the ID field associated column name
-	PhoneNumberIDColumnName = "id"
 	// PhoneNumberPersonID is the PersonID field name
 	PhoneNumberPersonID = "PersonID"
-	// PhoneNumberPersonIDColumnName is the PersonID field associated column name
-	PhoneNumberPersonIDColumnName = "person_id"
 	// PhoneNumberName is the Name field name
 	PhoneNumberName = "Name"
-	// PhoneNumberNameColumnName is the Name field associated column name
-	PhoneNumberNameColumnName = "name"
 	// PhoneNumberNumber is the Number field name
 	PhoneNumberNumber = "Number"
+)
+
+const (
+	// PhoneNumberTableName is the PhoneNumber associated table name
+	PhoneNumberTableName = "phonenumber"
+	// PhoneNumberIDColumnName is the ID field associated column name
+	PhoneNumberIDColumnName = "id"
+	// PhoneNumberPersonIDColumnName is the PersonID field associated column name
+	PhoneNumberPersonIDColumnName = "person_id"
+	// PhoneNumberNameColumnName is the Name field associated column name
+	PhoneNumberNameColumnName = "name"
 	// PhoneNumberNumberColumnName is the Number field associated column name
 	PhoneNumberNumberColumnName = "number"
 )

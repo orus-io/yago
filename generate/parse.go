@@ -18,6 +18,7 @@ var magicYagoComment = regexp.MustCompile(`yago:([0-9A-Za-z_\.,]+)?`)
 type structDefArgs struct {
 	TableName string
 	AutoAttrs bool
+	NoTable   bool
 }
 
 func readNameValue(s string) (name string, value string) {
@@ -38,6 +39,8 @@ func magicYagoCommentArgs(doc string) (args structDefArgs, ok bool) {
 		for _, arg := range splitted {
 			if arg == "autoattrs" {
 				args.AutoAttrs = true
+			} else if arg == "notable" {
+				args.NoTable = true
 			} else {
 				args.TableName = arg
 			}
@@ -101,6 +104,7 @@ func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool)
 	}
 
 	for _, f := range str.Fields.List {
+		fmt.Println(f.Names, f.Type, f.Tag)
 		hasTags := false
 		tags := ColumnTags{}
 		if f.Tag != nil && len(f.Tag.Value) > 2 {
@@ -117,7 +121,11 @@ func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool)
 					`yago: %s has anonymous field %s with "yago:" tag, it is not allowed`,
 					res.Name, f.Type)
 			}
+			if ident, ok := f.Type.(*ast.Ident); ok {
+				res.Embed = append(res.Embed, ident.Name)
+			}
 			continue
+
 		}
 		if len(f.Names) != 1 {
 			panic(fmt.Sprintf("yago: %d names: %#v. Don't know what to do.", len(f.Names), f.Names))
@@ -217,7 +225,10 @@ func ParseFile(path string) ([]*StructData, error) {
 			if err != nil {
 				return nil, err
 			}
-			sd.TableName = tablename
+			sd.NoTable = args.NoTable
+			if !sd.NoTable {
+				sd.TableName = tablename
+			}
 			res = append(res, sd)
 		}
 	}

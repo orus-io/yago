@@ -26,10 +26,10 @@ var (
 	}{
 		{
 			NewPersonStructMapper(),
-			&PersonStruct{ID: uuid1, FirstName: "John", LastName: "Reece"},
+			&PersonStruct{BaseStruct: BaseStruct{ID: uuid1}, FirstName: "John", LastName: "Reece"},
 			[]string{PersonStructFirstName},
 			map[string]interface{}{
-				PersonStructIDColumnName:        uuid1,
+				BaseStructIDColumnName:          uuid1,
 				PersonStructFirstNameColumnName: "John",
 			},
 		},

@@ -2,6 +2,7 @@ package yago_test
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/m4rw3r/uuid"
 
@@ -16,17 +17,31 @@ type SimpleStruct struct {
 	Name string `yago:"unique_index"`
 }
 
+//yago:notable,autoattrs
+type BaseStruct struct {
+	ID        uuid.UUID `yago:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 //yago:autoattrs
 type PersonStruct struct {
-	ID        uuid.UUID `yago:"primary_key"`
+	BaseStruct
+
 	FirstName string
 	LastName  string
 }
 
-func (p *PersonStruct) BeforeCreate(db *yago.DB) {
+func (s *BaseStruct) BeforeCreate(db *yago.DB) {
 	var err error
-	p.ID, err = uuid.V4()
+	s.ID, err = uuid.V4()
 	if err != nil {
 		panic(fmt.Sprintf("Cannot generate a UUID. Got err %s", err))
 	}
+	s.CreatedAt = time.Now()
+	s.UpdatedAt = time.Now()
+}
+
+func (s *BaseStruct) BeforeUpdate(db *yago.DB) {
+	s.UpdatedAt = time.Now()
 }

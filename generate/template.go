@@ -24,12 +24,14 @@ type ColumnTags struct {
 type FieldData struct {
 	Tags            ColumnTags
 	Name            string
+	NameConst       string
 	Type            string
 	EmptyValue      string
 	ColumnName      string
 	ColumnType      string
 	ColumnModifiers string
 	ColumnNameConst string
+	FromEmbedded    bool
 }
 
 type FKData struct {
@@ -52,6 +54,9 @@ type StructData struct {
 	Indexes       map[string][]int
 	UniqueIndexes map[string][]int
 	ForeignKeys   []FKData
+
+	NoTable bool
+	Embed   []string
 
 	File FileData
 }
@@ -76,14 +81,24 @@ import (
 )
 `))
 
+	structPreambleTemplate = template.Must(template.New("struct_preamble").Parse(
+		`{{ $root := . }}{{ $Struct := .Name }}{{ $Table := printf "%s%s" .PrivateBasename "Table" }}
+const (
+{{- range .Fields }}
+	{{- if not .FromEmbedded }}
+	// {{ .NameConst }} is the {{ .Name }} field name
+	{{ .NameConst }} = "{{ .Name }}"
+	{{- end }}
+{{- end }}
+)
+`))
+
 	structTemplate = template.Must(template.New("struct").Parse(
 		`{{ $root := . }}{{ $Struct := .Name }}{{ $Table := printf "%s%s" .PrivateBasename "Table" }}
 const (
 	// {{ .Name }}TableName is the {{ .Name }} associated table name
 	{{ .Name }}TableName = "{{ .TableName }}"
 {{- range .Fields }}
-	// {{ $root.Name }}{{ .Name }} is the {{ .Name }} field name
-	{{ $root.Name }}{{ .Name }} = "{{ .Name }}"
 	// {{ .ColumnNameConst }} is the {{ .Name }} field associated column name
 	{{ .ColumnNameConst }} = "{{ .ColumnName }}"
 {{- end }}
@@ -179,7 +194,7 @@ func (mapper {{ .Name }}Mapper) SQLValues(instance yago.MappedStruct, fields ...
 	{{- end }}
 	{{- range .Fields }}
 	{{- if not .Tags.PrimaryKey }}
-	if allValues || yago.StringListContains(fields, {{ $root.Name }}{{ .Name }}) {
+	if allValues || yago.StringListContains(fields, {{ .NameConst }}) {
 		m[{{ .ColumnNameConst }}] = s.{{ .Name }}
 	}
 	{{- end }}

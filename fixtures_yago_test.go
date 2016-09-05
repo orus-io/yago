@@ -13,14 +13,17 @@ import (
 )
 
 const (
-	// SimpleStructTableName is the SimpleStruct associated table name
-	SimpleStructTableName = "simplestruct"
 	// SimpleStructID is the ID field name
 	SimpleStructID = "ID"
-	// SimpleStructIDColumnName is the ID field associated column name
-	SimpleStructIDColumnName = "id"
 	// SimpleStructName is the Name field name
 	SimpleStructName = "Name"
+)
+
+const (
+	// SimpleStructTableName is the SimpleStruct associated table name
+	SimpleStructTableName = "simplestruct"
+	// SimpleStructIDColumnName is the ID field associated column name
+	SimpleStructIDColumnName = "id"
 	// SimpleStructNameColumnName is the Name field associated column name
 	SimpleStructNameColumnName = "name"
 )
@@ -143,27 +146,43 @@ func (mapper SimpleStructMapper) PKeyClause(instance yago.MappedStruct) qb.Claus
 }
 
 const (
-	// PersonStructTableName is the PersonStruct associated table name
-	PersonStructTableName = "personstruct"
-	// PersonStructID is the ID field name
-	PersonStructID = "ID"
-	// PersonStructIDColumnName is the ID field associated column name
-	PersonStructIDColumnName = "id"
+	// BaseStructID is the ID field name
+	BaseStructID = "ID"
+	// BaseStructCreatedAt is the CreatedAt field name
+	BaseStructCreatedAt = "CreatedAt"
+	// BaseStructUpdatedAt is the UpdatedAt field name
+	BaseStructUpdatedAt = "UpdatedAt"
+)
+
+const (
 	// PersonStructFirstName is the FirstName field name
 	PersonStructFirstName = "FirstName"
-	// PersonStructFirstNameColumnName is the FirstName field associated column name
-	PersonStructFirstNameColumnName = "first_name"
 	// PersonStructLastName is the LastName field name
 	PersonStructLastName = "LastName"
+)
+
+const (
+	// PersonStructTableName is the PersonStruct associated table name
+	PersonStructTableName = "personstruct"
+	// PersonStructFirstNameColumnName is the FirstName field associated column name
+	PersonStructFirstNameColumnName = "first_name"
 	// PersonStructLastNameColumnName is the LastName field associated column name
 	PersonStructLastNameColumnName = "last_name"
+	// BaseStructIDColumnName is the ID field associated column name
+	BaseStructIDColumnName = "id"
+	// BaseStructCreatedAtColumnName is the CreatedAt field associated column name
+	BaseStructCreatedAtColumnName = "created_at"
+	// BaseStructUpdatedAtColumnName is the UpdatedAt field associated column name
+	BaseStructUpdatedAtColumnName = "updated_at"
 )
 
 var personStructTable = qb.Table(
 	PersonStructTableName,
-	qb.Column(PersonStructIDColumnName, qb.UUID()).PrimaryKey().NotNull(),
 	qb.Column(PersonStructFirstNameColumnName, qb.Varchar()).NotNull(),
 	qb.Column(PersonStructLastNameColumnName, qb.Varchar()).NotNull(),
+	qb.Column(BaseStructIDColumnName, qb.UUID()).PrimaryKey().NotNull(),
+	qb.Column(BaseStructCreatedAtColumnName, qb.Timestamp()).NotNull(),
+	qb.Column(BaseStructUpdatedAtColumnName, qb.Timestamp()).NotNull(),
 )
 
 var personStructType = reflect.TypeOf(PersonStruct{})
@@ -178,9 +197,11 @@ func (PersonStruct) StructType() reflect.Type {
 // PersonStructModel
 type PersonStructModel struct {
 	mapper *PersonStructMapper
-	ID yago.ScalarField
 	FirstName yago.ScalarField
 	LastName yago.ScalarField
+	ID yago.ScalarField
+	CreatedAt yago.ScalarField
+	UpdatedAt yago.ScalarField
 }
 
 func NewPersonStructModel(meta *yago.Metadata) PersonStructModel {
@@ -188,9 +209,11 @@ func NewPersonStructModel(meta *yago.Metadata) PersonStructModel {
 	meta.AddMapper(mapper)
 	return PersonStructModel {
 		mapper: mapper,
-		ID: yago.NewScalarField(mapper.Table().C(PersonStructIDColumnName)),
 		FirstName: yago.NewScalarField(mapper.Table().C(PersonStructFirstNameColumnName)),
 		LastName: yago.NewScalarField(mapper.Table().C(PersonStructLastNameColumnName)),
+		ID: yago.NewScalarField(mapper.Table().C(BaseStructIDColumnName)),
+		CreatedAt: yago.NewScalarField(mapper.Table().C(BaseStructCreatedAtColumnName)),
+		UpdatedAt: yago.NewScalarField(mapper.Table().C(BaseStructUpdatedAtColumnName)),
 	}
 }
 
@@ -232,7 +255,7 @@ func (mapper PersonStructMapper) SQLValues(instance yago.MappedStruct, fields ..
 	allValues := len(fields) == 0
 	m := make(map[string]interface{})
 	if s.ID != (uuid.UUID{}) {
-		m[PersonStructIDColumnName] = s.ID
+		m[BaseStructIDColumnName] = s.ID
 	}
 	if allValues || yago.StringListContains(fields, PersonStructFirstName) {
 		m[PersonStructFirstNameColumnName] = s.FirstName
@@ -240,15 +263,23 @@ func (mapper PersonStructMapper) SQLValues(instance yago.MappedStruct, fields ..
 	if allValues || yago.StringListContains(fields, PersonStructLastName) {
 		m[PersonStructLastNameColumnName] = s.LastName
 	}
+	if allValues || yago.StringListContains(fields, BaseStructCreatedAt) {
+		m[BaseStructCreatedAtColumnName] = s.CreatedAt
+	}
+	if allValues || yago.StringListContains(fields, BaseStructUpdatedAt) {
+		m[BaseStructUpdatedAtColumnName] = s.UpdatedAt
+	}
 	return m
 }
 
 // FieldList returns the list of fields for a select
 func (mapper PersonStructMapper) FieldList() []qb.Clause {
 	return []qb.Clause{
-		personStructTable.C(PersonStructIDColumnName),
 		personStructTable.C(PersonStructFirstNameColumnName),
 		personStructTable.C(PersonStructLastNameColumnName),
+		personStructTable.C(BaseStructIDColumnName),
+		personStructTable.C(BaseStructCreatedAtColumnName),
+		personStructTable.C(BaseStructUpdatedAtColumnName),
 	}
 }
 
@@ -259,9 +290,11 @@ func (mapper PersonStructMapper) Scan(rows *sql.Rows, instance yago.MappedStruct
 		panic("Wrong struct type passed to the mapper")
 	}
 	return rows.Scan(
-		&s.ID,
 		&s.FirstName,
 		&s.LastName,
+		&s.ID,
+		&s.CreatedAt,
+		&s.UpdatedAt,
 	)
 }
 
@@ -277,5 +310,5 @@ func (PersonStructMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct,
 
 // PKeyClause returns a clause that matches the instance primary key
 func (mapper PersonStructMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
-	return personStructTable.C(PersonStructIDColumnName).Eq(instance.(*PersonStruct).ID)
+	return personStructTable.C(BaseStructIDColumnName).Eq(instance.(*PersonStruct).ID)
 }

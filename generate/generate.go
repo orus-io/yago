@@ -68,6 +68,12 @@ func prepareFieldData(str *StructData, f *FieldData) {
 	if f.EmptyValue == "" {
 		f.EmptyValue = getEmptyValue(f.Type)
 	}
+	if f.NameConst == "" {
+		f.NameConst = fmt.Sprintf(
+			"%s%s",
+			str.Name, f.Name,
+		)
+	}
 	if f.ColumnNameConst == "" {
 		f.ColumnNameConst = fmt.Sprintf(
 			"%s%sColumnName",
@@ -81,13 +87,34 @@ func prepareStructData(str *StructData, fd FileData) {
 	str.PrivateBasename = strings.ToLower(str.Name[0:1]) + str.Name[1:]
 	for i := range str.Fields {
 		prepareFieldData(str, &str.Fields[i])
-		if str.Fields[i].Tags.PrimaryKey {
-			str.PKeyFields = append(str.PKeyFields, &str.Fields[i])
-		}
 	}
 }
 
 func postPrepare(filedata *FileData, structs map[string]*StructData) {
+	for _, str := range structs {
+		for _, name := range str.Embed {
+			embedded, ok := structs[name]
+			if ok {
+				for index, fields := range embedded.Indexes {
+					if _, ok := str.Indexes[index]; !ok {
+						str.Indexes[index] = []int{}
+					}
+					for _, fieldIndex := range fields {
+						str.Indexes[index] = append(str.Indexes[index], len(str.Fields)+fieldIndex)
+					}
+				}
+				for _, field := range embedded.Fields {
+					field.FromEmbedded = true
+					str.Fields = append(str.Fields, field)
+				}
+			}
+		}
+		for i := range str.Fields {
+			if str.Fields[i].Tags.PrimaryKey {
+				str.PKeyFields = append(str.PKeyFields, &str.Fields[i])
+			}
+		}
+	}
 	for _, str := range structs {
 		for i, f := range str.Fields {
 			if f.Tags.PrimaryKey && str.Fields[i].Type == "uuid.UUID" {
@@ -185,6 +212,12 @@ func ProcessFile(logger *log.Logger, path string, file string, pack string, outp
 	}
 
 	for _, str := range structs {
+		if err := structPreambleTemplate.Execute(outf, &str); err != nil {
+			return err
+		}
+		if str.NoTable {
+			continue
+		}
 		if err := structTemplate.Execute(outf, &str); err != nil {
 			return err
 		}
