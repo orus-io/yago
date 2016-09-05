@@ -93,13 +93,31 @@ func postPrepare(filedata *FileData, structs map[string]*StructData) {
 			if f.Tags.PrimaryKey && str.Fields[i].Type == "uuid.UUID" {
 				filedata.Imports["github.com/m4rw3r/uuid"] = true
 			}
-			for _, fk := range str.Fields[i].Tags.ForeignKeys {
+			for _, fkDef := range str.Fields[i].Tags.ForeignKeys {
 				var (
+					fk           string
 					structName   string
 					refFieldName string
 					refStruct    *StructData
 					refField     *FieldData
+					onUpdate     string
+					onDelete     string
 				)
+				if strings.Index(fkDef, " ") != -1 {
+					splitted := strings.Split(fkDef, " ")
+					fk = splitted[0]
+					for i, w := range splitted[1 : len(splitted)-1] {
+						fmt.Println(w, splitted[i+2])
+						if strings.ToUpper(w) == "ONUPDATE" {
+							onUpdate = strings.ToUpper(splitted[i+2])
+						}
+						if strings.ToUpper(w) == "ONDELETE" {
+							onDelete = strings.ToUpper(splitted[i+2])
+						}
+					}
+				} else {
+					fk = fkDef
+				}
 				if strings.Index(fk, ".") != -1 {
 					splitted := strings.Split(fk, ".")
 					structName = splitted[0]
@@ -122,6 +140,8 @@ func postPrepare(filedata *FileData, structs map[string]*StructData) {
 					Column:    &str.Fields[i],
 					RefTable:  refStruct,
 					RefColumn: refField,
+					OnUpdate:  onUpdate,
+					OnDelete:  onDelete,
 				})
 			}
 		}

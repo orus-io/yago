@@ -36,6 +36,8 @@ type FKData struct {
 	Column    *FieldData
 	RefTable  *StructData
 	RefColumn *FieldData
+	OnUpdate  string
+	OnDelete  string
 }
 
 // StructData describes a struct to be mapped
@@ -96,7 +98,7 @@ var {{ $Table }} = qb.Table(
 		{{ (index $root.Fields .).ColumnNameConst }},
 		{{- end }}
 	),{{- end }} {{- range .ForeignKeys }}
-	qb.ForeignKey({{ .Column.ColumnNameConst }}).References({{ .RefTable.Name }}TableName, {{ .RefColumn.ColumnNameConst }}),{{- end}}
+	qb.ForeignKey({{ .Column.ColumnNameConst }}).References({{ .RefTable.Name }}TableName, {{ .RefColumn.ColumnNameConst }}){{- if .OnUpdate }}.OnUpdate("{{ .OnUpdate }}"){{- end}}{{- if .OnDelete }}.OnDelete("{{ .OnDelete }}"){{- end }},{{- end }}
 ){{- range $name, $cols := .Indexes }}.Index(
 	{{- range . }}
 	{{ (index $root.Fields .).ColumnNameConst }},

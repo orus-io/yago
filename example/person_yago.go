@@ -179,7 +179,7 @@ var phoneNumberTable = qb.Table(
 	qb.Column(PhoneNumberPersonIDColumnName, qb.BigInt()).NotNull(),
 	qb.Column(PhoneNumberNameColumnName, qb.Varchar()).NotNull(),
 	qb.Column(PhoneNumberNumberColumnName, qb.Varchar()).NotNull(),
-	qb.ForeignKey(PhoneNumberPersonIDColumnName).References(PersonTableName, PersonIDColumnName),
+	qb.ForeignKey(PhoneNumberPersonIDColumnName).References(PersonTableName, PersonIDColumnName).OnUpdate("CASCADE").OnDelete("CASCADE"),
 )
 
 var phoneNumberType = reflect.TypeOf(PhoneNumber{})
