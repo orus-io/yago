@@ -15,8 +15,12 @@ import (
 const (
 	// SimpleStructTableName is the SimpleStruct associated table name
 	SimpleStructTableName = "simplestruct"
+	// SimpleStructID is the ID field name
+	SimpleStructID = "ID"
 	// SimpleStructIDColumnName is the ID field associated column name
 	SimpleStructIDColumnName = "id"
+	// SimpleStructName is the Name field name
+	SimpleStructName = "Name"
 	// SimpleStructNameColumnName is the Name field associated column name
 	SimpleStructNameColumnName = "name"
 )
@@ -86,16 +90,19 @@ func (SimpleStructMapper) StructType() reflect.Type {
 
 // SQLValues returns values as a map
 // The primary key is included only if having non-default values
-func (mapper SimpleStructMapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
+func (mapper SimpleStructMapper) SQLValues(instance yago.MappedStruct, fields ...string) map[string]interface{} {
 	s, ok := instance.(*SimpleStruct)
 	if !ok {
 		panic("Wrong struct type passed to the mapper")
 	}
+	allValues := len(fields) == 0
 	m := make(map[string]interface{})
 	if s.ID != 0 {
 		m[SimpleStructIDColumnName] = s.ID
 	}
-	m[SimpleStructNameColumnName] = s.Name
+	if allValues || yago.StringListContains(fields, SimpleStructName) {
+		m[SimpleStructNameColumnName] = s.Name
+	}
 	return m
 }
 
@@ -138,10 +145,16 @@ func (mapper SimpleStructMapper) PKeyClause(instance yago.MappedStruct) qb.Claus
 const (
 	// PersonStructTableName is the PersonStruct associated table name
 	PersonStructTableName = "personstruct"
+	// PersonStructID is the ID field name
+	PersonStructID = "ID"
 	// PersonStructIDColumnName is the ID field associated column name
 	PersonStructIDColumnName = "id"
+	// PersonStructFirstName is the FirstName field name
+	PersonStructFirstName = "FirstName"
 	// PersonStructFirstNameColumnName is the FirstName field associated column name
 	PersonStructFirstNameColumnName = "first_name"
+	// PersonStructLastName is the LastName field name
+	PersonStructLastName = "LastName"
 	// PersonStructLastNameColumnName is the LastName field associated column name
 	PersonStructLastNameColumnName = "last_name"
 )
@@ -211,17 +224,22 @@ func (PersonStructMapper) StructType() reflect.Type {
 
 // SQLValues returns values as a map
 // The primary key is included only if having non-default values
-func (mapper PersonStructMapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
+func (mapper PersonStructMapper) SQLValues(instance yago.MappedStruct, fields ...string) map[string]interface{} {
 	s, ok := instance.(*PersonStruct)
 	if !ok {
 		panic("Wrong struct type passed to the mapper")
 	}
+	allValues := len(fields) == 0
 	m := make(map[string]interface{})
 	if s.ID != (uuid.UUID{}) {
 		m[PersonStructIDColumnName] = s.ID
 	}
-	m[PersonStructFirstNameColumnName] = s.FirstName
-	m[PersonStructLastNameColumnName] = s.LastName
+	if allValues || yago.StringListContains(fields, PersonStructFirstName) {
+		m[PersonStructFirstNameColumnName] = s.FirstName
+	}
+	if allValues || yago.StringListContains(fields, PersonStructLastName) {
+		m[PersonStructLastNameColumnName] = s.LastName
+	}
 	return m
 }
 

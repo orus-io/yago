@@ -53,11 +53,11 @@ func (db *DB) Insert(s MappedStruct) {
 }
 
 // Update the struct attributes in DB
-func (db *DB) Update(s MappedStruct) {
+func (db *DB) Update(s MappedStruct, fields ...string) {
 	db.Callbacks.BeforeUpdate.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
 	update := mapper.Table().Update().
-		Values(mapper.SQLValues(s)).
+		Values(mapper.SQLValues(s, fields...)).
 		Where(mapper.PKeyClause(s))
 
 	res, err := db.Engine.Exec(update)

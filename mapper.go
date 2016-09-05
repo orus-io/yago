@@ -17,7 +17,7 @@ type Mapper interface {
 	AutoIncrementPKey() bool
 	LoadAutoIncrementPKeyValue(instance MappedStruct, value int64)
 	PKeyClause(instance MappedStruct) qb.Clause
-	SQLValues(instance MappedStruct) map[string]interface{}
+	SQLValues(instance MappedStruct, fields ...string) map[string]interface{}
 
 	Scan(rows *sql.Rows, instance MappedStruct) error
 }

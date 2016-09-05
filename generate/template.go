@@ -82,6 +82,8 @@ const (
 	// {{ .Name }}TableName is the {{ .Name }} associated table name
 	{{ .Name }}TableName = "{{ .TableName }}"
 {{- range .Fields }}
+	// {{ $root.Name }}{{ .Name }} is the {{ .Name }} field name
+	{{ $root.Name }}{{ .Name }} = "{{ .Name }}"
 	// {{ .ColumnNameConst }} is the {{ .Name }} field associated column name
 	{{ .ColumnNameConst }} = "{{ .ColumnName }}"
 {{- end }}
@@ -163,11 +165,12 @@ func ({{ .Name }}Mapper) StructType() reflect.Type {
 
 // SQLValues returns values as a map
 // The primary key is included only if having non-default values
-func (mapper {{ .Name }}Mapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
+func (mapper {{ .Name }}Mapper) SQLValues(instance yago.MappedStruct, fields ...string) map[string]interface{} {
 	s, ok := instance.(*{{ .Name }})
 	if !ok {
 		panic("Wrong struct type passed to the mapper")
 	}
+	allValues := len(fields) == 0
 	m := make(map[string]interface{})
 	{{- range .PKeyFields }}
 	if s.{{ .Name }} != {{ .EmptyValue }} {
@@ -176,7 +179,9 @@ func (mapper {{ .Name }}Mapper) SQLValues(instance yago.MappedStruct) map[string
 	{{- end }}
 	{{- range .Fields }}
 	{{- if not .Tags.PrimaryKey }}
-	m[{{ .ColumnNameConst }}] = s.{{ .Name }}
+	if allValues || yago.StringListContains(fields, {{ $root.Name }}{{ .Name }}) {
+		m[{{ .ColumnNameConst }}] = s.{{ .Name }}
+	}
 	{{- end }}
 	{{- end }}
 	return m

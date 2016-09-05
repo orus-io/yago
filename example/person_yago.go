@@ -14,14 +14,24 @@ import (
 const (
 	// PersonTableName is the Person associated table name
 	PersonTableName = "person"
+	// PersonID is the ID field name
+	PersonID = "ID"
 	// PersonIDColumnName is the ID field associated column name
 	PersonIDColumnName = "id"
+	// PersonName is the Name field name
+	PersonName = "Name"
 	// PersonNameColumnName is the Name field associated column name
 	PersonNameColumnName = "name"
+	// PersonEmail is the Email field name
+	PersonEmail = "Email"
 	// PersonEmailColumnName is the Email field associated column name
 	PersonEmailColumnName = "email_address"
+	// PersonCreatedAt is the CreatedAt field name
+	PersonCreatedAt = "CreatedAt"
 	// PersonCreatedAtColumnName is the CreatedAt field associated column name
 	PersonCreatedAtColumnName = "created_at"
+	// PersonUpdatedAt is the UpdatedAt field name
+	PersonUpdatedAt = "UpdatedAt"
 	// PersonUpdatedAtColumnName is the UpdatedAt field associated column name
 	PersonUpdatedAtColumnName = "updated_at"
 )
@@ -102,19 +112,28 @@ func (PersonMapper) StructType() reflect.Type {
 
 // SQLValues returns values as a map
 // The primary key is included only if having non-default values
-func (mapper PersonMapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
+func (mapper PersonMapper) SQLValues(instance yago.MappedStruct, fields ...string) map[string]interface{} {
 	s, ok := instance.(*Person)
 	if !ok {
 		panic("Wrong struct type passed to the mapper")
 	}
+	allValues := len(fields) == 0
 	m := make(map[string]interface{})
 	if s.ID != 0 {
 		m[PersonIDColumnName] = s.ID
 	}
-	m[PersonNameColumnName] = s.Name
-	m[PersonEmailColumnName] = s.Email
-	m[PersonCreatedAtColumnName] = s.CreatedAt
-	m[PersonUpdatedAtColumnName] = s.UpdatedAt
+	if allValues || yago.StringListContains(fields, PersonName) {
+		m[PersonNameColumnName] = s.Name
+	}
+	if allValues || yago.StringListContains(fields, PersonEmail) {
+		m[PersonEmailColumnName] = s.Email
+	}
+	if allValues || yago.StringListContains(fields, PersonCreatedAt) {
+		m[PersonCreatedAtColumnName] = s.CreatedAt
+	}
+	if allValues || yago.StringListContains(fields, PersonUpdatedAt) {
+		m[PersonUpdatedAtColumnName] = s.UpdatedAt
+	}
 	return m
 }
 
@@ -163,12 +182,20 @@ func (mapper PersonMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
 const (
 	// PhoneNumberTableName is the PhoneNumber associated table name
 	PhoneNumberTableName = "phonenumber"
+	// PhoneNumberID is the ID field name
+	PhoneNumberID = "ID"
 	// PhoneNumberIDColumnName is the ID field associated column name
 	PhoneNumberIDColumnName = "id"
+	// PhoneNumberPersonID is the PersonID field name
+	PhoneNumberPersonID = "PersonID"
 	// PhoneNumberPersonIDColumnName is the PersonID field associated column name
 	PhoneNumberPersonIDColumnName = "person_id"
+	// PhoneNumberName is the Name field name
+	PhoneNumberName = "Name"
 	// PhoneNumberNameColumnName is the Name field associated column name
 	PhoneNumberNameColumnName = "name"
+	// PhoneNumberNumber is the Number field name
+	PhoneNumberNumber = "Number"
 	// PhoneNumberNumberColumnName is the Number field associated column name
 	PhoneNumberNumberColumnName = "number"
 )
@@ -242,18 +269,25 @@ func (PhoneNumberMapper) StructType() reflect.Type {
 
 // SQLValues returns values as a map
 // The primary key is included only if having non-default values
-func (mapper PhoneNumberMapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
+func (mapper PhoneNumberMapper) SQLValues(instance yago.MappedStruct, fields ...string) map[string]interface{} {
 	s, ok := instance.(*PhoneNumber)
 	if !ok {
 		panic("Wrong struct type passed to the mapper")
 	}
+	allValues := len(fields) == 0
 	m := make(map[string]interface{})
 	if s.ID != 0 {
 		m[PhoneNumberIDColumnName] = s.ID
 	}
-	m[PhoneNumberPersonIDColumnName] = s.PersonID
-	m[PhoneNumberNameColumnName] = s.Name
-	m[PhoneNumberNumberColumnName] = s.Number
+	if allValues || yago.StringListContains(fields, PhoneNumberPersonID) {
+		m[PhoneNumberPersonIDColumnName] = s.PersonID
+	}
+	if allValues || yago.StringListContains(fields, PhoneNumberName) {
+		m[PhoneNumberNameColumnName] = s.Name
+	}
+	if allValues || yago.StringListContains(fields, PhoneNumberNumber) {
+		m[PhoneNumberNumberColumnName] = s.Number
+	}
 	return m
 }
 
