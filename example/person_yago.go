@@ -105,7 +105,7 @@ func (PersonMapper) StructType() reflect.Type {
 func (mapper PersonMapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
 	s, ok := instance.(*Person)
 	if !ok {
-		 panic("Wrong struct type passed to the mapper")
+		panic("Wrong struct type passed to the mapper")
 	}
 	m := make(map[string]interface{})
 	if s.ID != 0 {
@@ -159,7 +159,6 @@ func (PersonMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value
 func (mapper PersonMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
 	return personTable.C(PersonIDColumnName).Eq(instance.(*Person).ID)
 }
-
 
 const (
 	// PhoneNumberTableName is the PhoneNumber associated table name
@@ -246,7 +245,7 @@ func (PhoneNumberMapper) StructType() reflect.Type {
 func (mapper PhoneNumberMapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
 	s, ok := instance.(*PhoneNumber)
 	if !ok {
-		 panic("Wrong struct type passed to the mapper")
+		panic("Wrong struct type passed to the mapper")
 	}
 	m := make(map[string]interface{})
 	if s.ID != 0 {

@@ -71,10 +71,11 @@ import (
 	{{- range $k, $_ := .Imports }}
 	"{{$k}}"
 	{{- end }}
-)`))
+)
+`))
 
-	structTemplate = template.Must(template.New("struct").Parse(`
-{{ $root := . }}{{ $Struct := .Name }}{{ $Table := printf "%s%s" .PrivateBasename "Table" }}
+	structTemplate = template.Must(template.New("struct").Parse(
+		`{{ $root := . }}{{ $Struct := .Name }}{{ $Table := printf "%s%s" .PrivateBasename "Table" }}
 const (
 	// {{ .Name }}TableName is the {{ .Name }} associated table name
 	{{ .Name }}TableName = "{{ .TableName }}"
@@ -163,7 +164,7 @@ func ({{ .Name }}Mapper) StructType() reflect.Type {
 func (mapper {{ .Name }}Mapper) SQLValues(instance yago.MappedStruct) map[string]interface{} {
 	s, ok := instance.(*{{ .Name }})
 	if !ok {
-		 panic("Wrong struct type passed to the mapper")
+		panic("Wrong struct type passed to the mapper")
 	}
 	m := make(map[string]interface{})
 	{{- range .PKeyFields }}
