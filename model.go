@@ -51,9 +51,9 @@ func (f ScalarField) Gt(value interface{}) qb.Clause {
 	return f.Column.Gt(value)
 }
 
-// St returns a < clause
-func (f ScalarField) St(value interface{}) qb.Clause {
-	return f.Column.St(value)
+// Lt returns a < clause
+func (f ScalarField) Lt(value interface{}) qb.Clause {
+	return f.Column.Lt(value)
 }
 
 // Gte returns a >= clause
@@ -61,7 +61,7 @@ func (f ScalarField) Gte(value interface{}) qb.Clause {
 	return f.Column.Gte(value)
 }
 
-// Ste returns a <= clause
-func (f ScalarField) Ste(value interface{}) qb.Clause {
-	return f.Column.Ste(value)
+// Lte returns a <= clause
+func (f ScalarField) Lte(value interface{}) qb.Clause {
+	return f.Column.Lte(value)
 }
