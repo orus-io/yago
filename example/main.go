@@ -30,9 +30,6 @@ func NewModel() *Model {
 func main() {
 	model := NewModel()
 
-	s := yago.Select(model.Meta, &Person{})
-	s.GroupBy()
-
 	engine, err := qb.New("sqlite3", ":memory:")
 	if err != nil {
 		panic(err)
