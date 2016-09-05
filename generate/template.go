@@ -76,8 +76,10 @@ import (
 	structTemplate = template.Must(template.New("struct").Parse(`
 {{ $root := . }}{{ $Struct := .Name }}{{ $Table := printf "%s%s" .PrivateBasename "Table" }}
 const (
+	// {{ .Name }}TableName is the {{ .Name }} associated table name
 	{{ .Name }}TableName = "{{ .TableName }}"
 {{- range .Fields }}
+	// {{ .ColumnNameConst }} is the {{ .Name }} field associated column name
 	{{ .ColumnNameConst }} = "{{ .ColumnName }}"
 {{- end }}
 )

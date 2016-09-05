@@ -13,8 +13,11 @@ import (
 )
 
 const (
+	// SimpleStructTableName is the SimpleStruct associated table name
 	SimpleStructTableName = "simplestruct"
+	// SimpleStructIDColumnName is the ID field associated column name
 	SimpleStructIDColumnName = "id"
+	// SimpleStructNameColumnName is the Name field associated column name
 	SimpleStructNameColumnName = "name"
 )
 
@@ -134,9 +137,13 @@ func (mapper SimpleStructMapper) PKeyClause(instance yago.MappedStruct) qb.Claus
 
 
 const (
+	// PersonStructTableName is the PersonStruct associated table name
 	PersonStructTableName = "personstruct"
+	// PersonStructIDColumnName is the ID field associated column name
 	PersonStructIDColumnName = "id"
+	// PersonStructFirstNameColumnName is the FirstName field associated column name
 	PersonStructFirstNameColumnName = "first_name"
+	// PersonStructLastNameColumnName is the LastName field associated column name
 	PersonStructLastNameColumnName = "last_name"
 )
 
