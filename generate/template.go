@@ -93,7 +93,7 @@ var {{ $Table }} = qb.Table(
 		{{ (index $root.Fields .).ColumnNameConst }},
 		{{- end }}
 	),{{- end }} {{- range .ForeignKeys }}
-	qb.ForeignKey().Ref({{ .Column.ColumnNameConst }}, {{ .RefTable.Name }}TableName, {{ .RefColumn.ColumnNameConst }}),{{- end}}
+	qb.ForeignKey({{ .Column.ColumnNameConst }}).References({{ .RefTable.Name }}TableName, {{ .RefColumn.ColumnNameConst }}),{{- end}}
 ){{- range $name, $cols := .Indexes }}.Index(
 	{{- range . }}
 	{{ (index $root.Fields .).ColumnNameConst }},

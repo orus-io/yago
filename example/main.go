@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/aacanakin/qb"
+	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/orus-io/yago"
 )
@@ -32,7 +33,7 @@ func main() {
 	s := yago.Select(model.Meta, &Person{})
 	s.GroupBy()
 
-	engine, err := qb.NewEngine("sqlite3", ":memory:")
+	engine, err := qb.New("sqlite3", ":memory:")
 	if err != nil {
 		panic(err)
 	}
