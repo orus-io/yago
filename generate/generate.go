@@ -166,6 +166,8 @@ func postPrepare(filedata *FileData, structs map[string]*StructData) {
 				str.PKeyFields = append(str.PKeyFields, &str.Fields[i])
 			}
 		}
+	}
+	for _, str := range structs {
 		for i, f := range str.Fields {
 			if f.Tags.PrimaryKey && str.Fields[i].Type == "uuid.UUID" {
 				filedata.Imports["github.com/m4rw3r/uuid"] = true
