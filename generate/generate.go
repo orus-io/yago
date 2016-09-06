@@ -46,6 +46,8 @@ func getEmptyValue(goType string) string {
 		return "(time.Time{})"
 	} else if goType == "uuid.UUID" {
 		return "(uuid.UUID{})"
+	} else if goType == "uuid.NullUUID" {
+		return "(uuid.NullUUID{})"
 	}
 	panic(fmt.Sprintf("I have no empty value for type '%v'", goType))
 }
@@ -74,7 +76,7 @@ func prepareFieldData(str *StructData, f *FieldData) {
 			f.ColumnModifiers += ".Null()"
 		} else if f.Tags.NotNull {
 			f.ColumnModifiers += ".NotNull()"
-		} else if f.Type[0] == '*' {
+		} else if f.Type[0] == '*' || strings.Contains(f.Type, "Null") {
 			f.ColumnModifiers += ".Null()"
 		} else {
 			f.ColumnModifiers += ".NotNull()"
