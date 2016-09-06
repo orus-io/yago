@@ -65,6 +65,8 @@ func readColumnTags(tag string) (tags ColumnTags) {
 				tags.UniqueIndexes = append(tags.UniqueIndexes, value)
 			} else if name == "fk" {
 				tags.ForeignKeys = append(tags.ForeignKeys, value)
+			} else if name == "type" {
+				tags.Type = value
 			} else {
 				panic(fmt.Sprintf("Invalid tag %v", arg))
 			}
@@ -96,6 +98,8 @@ func getGoType(x ast.Expr) string {
 		return t.String()
 	case *ast.SelectorExpr:
 		return getGoType(t.X) + "." + getGoType(t.Sel)
+	case *ast.ArrayType:
+		return "[]" + getGoType(t.Elt)
 	default:
 		panic(fmt.Sprintf("yago: getGoType: unhandled '%s' (%#v). Please report this bug.", x, x))
 	}
@@ -154,6 +158,9 @@ func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool)
 		}
 		if tags.ColumnName != "" {
 			field.ColumnName = tags.ColumnName
+		}
+		if tags.Type != "" {
+			field.ColumnType = tags.Type
 		}
 		res.Fields = append(res.Fields, field)
 		fieldIndex := len(res.Fields) - 1

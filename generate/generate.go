@@ -9,7 +9,9 @@ import (
 )
 
 func guessColumnType(goType string) string {
-	if goType == "int64" {
+	if goType == "int" {
+		return "qb.Int()"
+	} else if goType == "int64" {
 		return "qb.BigInt()"
 	} else if goType == "string" {
 		return "qb.Varchar()"
