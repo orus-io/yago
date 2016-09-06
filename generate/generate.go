@@ -90,10 +90,45 @@ func prepareStructData(str *StructData, fd FileData) {
 	}
 }
 
-func postPrepare(filedata *FileData, structs map[string]*StructData) {
+func loadEmbedded(path string, structs map[string]*StructData, fd FileData) []*StructData {
+	var newStructs []*StructData
+
+	var missingStructs []string
+	var hasEmbed bool
+
+	for _, str := range structs {
+		for _, name := range str.Embed {
+			hasEmbed = true
+			_, ok := structs[name]
+			if !ok {
+				missingStructs = append(missingStructs, name)
+			}
+		}
+	}
+
+	if !hasEmbed {
+		return []*StructData{}
+	}
+
+	otherStructsByName := make(map[string]*StructData)
+
+	if len(missingStructs) != 0 {
+		otherStructs, err := ParseDir(path)
+		if err != nil {
+			panic(err)
+		}
+		for _, str := range otherStructs {
+			prepareStructData(str, fd)
+			otherStructsByName[str.Name] = str
+		}
+	}
+
 	for _, str := range structs {
 		for _, name := range str.Embed {
 			embedded, ok := structs[name]
+			if !ok {
+				embedded, ok = otherStructsByName[name]
+			}
 			if ok {
 				for index, fields := range embedded.Indexes {
 					if _, ok := str.Indexes[index]; !ok {
@@ -107,15 +142,22 @@ func postPrepare(filedata *FileData, structs map[string]*StructData) {
 					field.FromEmbedded = true
 					str.Fields = append(str.Fields, field)
 				}
+			} else {
+				fmt.Println(
+					"Could not find embedded struct definition for '" + name + "'")
 			}
 		}
+	}
+	return newStructs
+}
+
+func postPrepare(filedata *FileData, structs map[string]*StructData) {
+	for _, str := range structs {
 		for i := range str.Fields {
 			if str.Fields[i].Tags.PrimaryKey {
 				str.PKeyFields = append(str.PKeyFields, &str.Fields[i])
 			}
 		}
-	}
-	for _, str := range structs {
 		for i, f := range str.Fields {
 			if f.Tags.PrimaryKey && str.Fields[i].Type == "uuid.UUID" {
 				filedata.Imports["github.com/m4rw3r/uuid"] = true
@@ -134,7 +176,6 @@ func postPrepare(filedata *FileData, structs map[string]*StructData) {
 					splitted := strings.Split(fkDef, " ")
 					fk = splitted[0]
 					for i, w := range splitted[1 : len(splitted)-1] {
-						fmt.Println(w, splitted[i+2])
 						if strings.ToUpper(w) == "ONUPDATE" {
 							onUpdate = strings.ToUpper(splitted[i+2])
 						}
@@ -197,7 +238,11 @@ func ProcessFile(logger *log.Logger, path string, file string, pack string, outp
 	for _, str := range structs {
 		prepareStructData(str, filedata)
 		structsByName[str.Name] = str
+		if !str.NoTable {
+			filedata.HasTables = true
+		}
 	}
+	loadEmbedded(path, structsByName, filedata)
 	postPrepare(&filedata, structsByName)
 
 	outf, err := os.Create(output)

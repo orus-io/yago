@@ -12,40 +12,36 @@ import (
 )
 
 const (
-	// PersonID is the ID field name
-	PersonID = "ID"
 	// PersonName is the Name field name
 	PersonName = "Name"
+	// PersonNameColumnName is the Name field associated column name
+	PersonNameColumnName = "name"
 	// PersonEmail is the Email field name
 	PersonEmail = "Email"
+	// PersonEmailColumnName is the Email field associated column name
+	PersonEmailColumnName = "email_address"
 	// PersonCreatedAt is the CreatedAt field name
 	PersonCreatedAt = "CreatedAt"
+	// PersonCreatedAtColumnName is the CreatedAt field associated column name
+	PersonCreatedAtColumnName = "created_at"
 	// PersonUpdatedAt is the UpdatedAt field name
 	PersonUpdatedAt = "UpdatedAt"
+	// PersonUpdatedAtColumnName is the UpdatedAt field associated column name
+	PersonUpdatedAtColumnName = "updated_at"
 )
 
 const (
 	// PersonTableName is the Person associated table name
 	PersonTableName = "person"
-	// PersonIDColumnName is the ID field associated column name
-	PersonIDColumnName = "id"
-	// PersonNameColumnName is the Name field associated column name
-	PersonNameColumnName = "name"
-	// PersonEmailColumnName is the Email field associated column name
-	PersonEmailColumnName = "email_address"
-	// PersonCreatedAtColumnName is the CreatedAt field associated column name
-	PersonCreatedAtColumnName = "created_at"
-	// PersonUpdatedAtColumnName is the UpdatedAt field associated column name
-	PersonUpdatedAtColumnName = "updated_at"
 )
 
 var personTable = qb.Table(
 	PersonTableName,
-	qb.Column(PersonIDColumnName, qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
 	qb.Column(PersonNameColumnName, qb.Varchar()).NotNull(),
 	qb.Column(PersonEmailColumnName, qb.Varchar()).Null(),
 	qb.Column(PersonCreatedAtColumnName, qb.Timestamp()).NotNull(),
 	qb.Column(PersonUpdatedAtColumnName, qb.Timestamp()).Null(),
+	qb.Column(BaseIDColumnName, qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
 	qb.UniqueKey(
 		PersonEmailColumnName,
 	),
@@ -65,11 +61,11 @@ func (Person) StructType() reflect.Type {
 // PersonModel
 type PersonModel struct {
 	mapper *PersonMapper
-	ID yago.ScalarField
 	Name yago.ScalarField
 	Email yago.ScalarField
 	CreatedAt yago.ScalarField
 	UpdatedAt yago.ScalarField
+	ID yago.ScalarField
 }
 
 func NewPersonModel(meta *yago.Metadata) PersonModel {
@@ -77,11 +73,11 @@ func NewPersonModel(meta *yago.Metadata) PersonModel {
 	meta.AddMapper(mapper)
 	return PersonModel {
 		mapper: mapper,
-		ID: yago.NewScalarField(mapper.Table().C(PersonIDColumnName)),
 		Name: yago.NewScalarField(mapper.Table().C(PersonNameColumnName)),
 		Email: yago.NewScalarField(mapper.Table().C(PersonEmailColumnName)),
 		CreatedAt: yago.NewScalarField(mapper.Table().C(PersonCreatedAtColumnName)),
 		UpdatedAt: yago.NewScalarField(mapper.Table().C(PersonUpdatedAtColumnName)),
+		ID: yago.NewScalarField(mapper.Table().C(BaseIDColumnName)),
 	}
 }
 
@@ -123,7 +119,7 @@ func (mapper PersonMapper) SQLValues(instance yago.MappedStruct, fields ...strin
 	allValues := len(fields) == 0
 	m := make(map[string]interface{})
 	if s.ID != 0 {
-		m[PersonIDColumnName] = s.ID
+		m[BaseIDColumnName] = s.ID
 	}
 	if allValues || yago.StringListContains(fields, PersonName) {
 		m[PersonNameColumnName] = s.Name
@@ -143,11 +139,11 @@ func (mapper PersonMapper) SQLValues(instance yago.MappedStruct, fields ...strin
 // FieldList returns the list of fields for a select
 func (mapper PersonMapper) FieldList() []qb.Clause {
 	return []qb.Clause{
-		personTable.C(PersonIDColumnName),
 		personTable.C(PersonNameColumnName),
 		personTable.C(PersonEmailColumnName),
 		personTable.C(PersonCreatedAtColumnName),
 		personTable.C(PersonUpdatedAtColumnName),
+		personTable.C(BaseIDColumnName),
 	}
 }
 
@@ -158,61 +154,56 @@ func (mapper PersonMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) erro
 		panic("Wrong struct type passed to the mapper")
 	}
 	return rows.Scan(
-		&s.ID,
 		&s.Name,
 		&s.Email,
 		&s.CreatedAt,
 		&s.UpdatedAt,
+		&s.ID,
 	)
 }
 
 // AutoIncrementPKey return true if a column of the pkey is autoincremented
 func (PersonMapper) AutoIncrementPKey() bool {
-	return true
+	return false
 }
 
 // LoadAutoIncrementPKeyValue set the pkey autoincremented column value
 func (PersonMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value int64) {
-	s := instance.(*Person)
-	s.ID = value
+	panic("Person has no auto increment column in its pkey")
 }
 
 // PKeyClause returns a clause that matches the instance primary key
 func (mapper PersonMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
-	return personTable.C(PersonIDColumnName).Eq(instance.(*Person).ID)
+	return personTable.C(BaseIDColumnName).Eq(instance.(*Person).ID)
 }
 
 const (
-	// PhoneNumberID is the ID field name
-	PhoneNumberID = "ID"
 	// PhoneNumberPersonID is the PersonID field name
 	PhoneNumberPersonID = "PersonID"
+	// PhoneNumberPersonIDColumnName is the PersonID field associated column name
+	PhoneNumberPersonIDColumnName = "person_id"
 	// PhoneNumberName is the Name field name
 	PhoneNumberName = "Name"
+	// PhoneNumberNameColumnName is the Name field associated column name
+	PhoneNumberNameColumnName = "name"
 	// PhoneNumberNumber is the Number field name
 	PhoneNumberNumber = "Number"
+	// PhoneNumberNumberColumnName is the Number field associated column name
+	PhoneNumberNumberColumnName = "number"
 )
 
 const (
 	// PhoneNumberTableName is the PhoneNumber associated table name
 	PhoneNumberTableName = "phonenumber"
-	// PhoneNumberIDColumnName is the ID field associated column name
-	PhoneNumberIDColumnName = "id"
-	// PhoneNumberPersonIDColumnName is the PersonID field associated column name
-	PhoneNumberPersonIDColumnName = "person_id"
-	// PhoneNumberNameColumnName is the Name field associated column name
-	PhoneNumberNameColumnName = "name"
-	// PhoneNumberNumberColumnName is the Number field associated column name
-	PhoneNumberNumberColumnName = "number"
 )
 
 var phoneNumberTable = qb.Table(
 	PhoneNumberTableName,
-	qb.Column(PhoneNumberIDColumnName, qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
 	qb.Column(PhoneNumberPersonIDColumnName, qb.BigInt()).NotNull(),
 	qb.Column(PhoneNumberNameColumnName, qb.Varchar()).NotNull(),
 	qb.Column(PhoneNumberNumberColumnName, qb.Varchar()).NotNull(),
-	qb.ForeignKey(PhoneNumberPersonIDColumnName).References(PersonTableName, PersonIDColumnName).OnUpdate("CASCADE").OnDelete("CASCADE"),
+	qb.Column(BaseIDColumnName, qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
+	qb.ForeignKey(PhoneNumberPersonIDColumnName).References(PersonTableName, BaseIDColumnName).OnUpdate("CASCADE").OnDelete("CASCADE"),
 )
 
 var phoneNumberType = reflect.TypeOf(PhoneNumber{})
@@ -227,10 +218,10 @@ func (PhoneNumber) StructType() reflect.Type {
 // PhoneNumberModel
 type PhoneNumberModel struct {
 	mapper *PhoneNumberMapper
-	ID yago.ScalarField
 	PersonID yago.ScalarField
 	Name yago.ScalarField
 	Number yago.ScalarField
+	ID yago.ScalarField
 }
 
 func NewPhoneNumberModel(meta *yago.Metadata) PhoneNumberModel {
@@ -238,10 +229,10 @@ func NewPhoneNumberModel(meta *yago.Metadata) PhoneNumberModel {
 	meta.AddMapper(mapper)
 	return PhoneNumberModel {
 		mapper: mapper,
-		ID: yago.NewScalarField(mapper.Table().C(PhoneNumberIDColumnName)),
 		PersonID: yago.NewScalarField(mapper.Table().C(PhoneNumberPersonIDColumnName)),
 		Name: yago.NewScalarField(mapper.Table().C(PhoneNumberNameColumnName)),
 		Number: yago.NewScalarField(mapper.Table().C(PhoneNumberNumberColumnName)),
+		ID: yago.NewScalarField(mapper.Table().C(BaseIDColumnName)),
 	}
 }
 
@@ -283,7 +274,7 @@ func (mapper PhoneNumberMapper) SQLValues(instance yago.MappedStruct, fields ...
 	allValues := len(fields) == 0
 	m := make(map[string]interface{})
 	if s.ID != 0 {
-		m[PhoneNumberIDColumnName] = s.ID
+		m[BaseIDColumnName] = s.ID
 	}
 	if allValues || yago.StringListContains(fields, PhoneNumberPersonID) {
 		m[PhoneNumberPersonIDColumnName] = s.PersonID
@@ -300,10 +291,10 @@ func (mapper PhoneNumberMapper) SQLValues(instance yago.MappedStruct, fields ...
 // FieldList returns the list of fields for a select
 func (mapper PhoneNumberMapper) FieldList() []qb.Clause {
 	return []qb.Clause{
-		phoneNumberTable.C(PhoneNumberIDColumnName),
 		phoneNumberTable.C(PhoneNumberPersonIDColumnName),
 		phoneNumberTable.C(PhoneNumberNameColumnName),
 		phoneNumberTable.C(PhoneNumberNumberColumnName),
+		phoneNumberTable.C(BaseIDColumnName),
 	}
 }
 
@@ -314,25 +305,24 @@ func (mapper PhoneNumberMapper) Scan(rows *sql.Rows, instance yago.MappedStruct)
 		panic("Wrong struct type passed to the mapper")
 	}
 	return rows.Scan(
-		&s.ID,
 		&s.PersonID,
 		&s.Name,
 		&s.Number,
+		&s.ID,
 	)
 }
 
 // AutoIncrementPKey return true if a column of the pkey is autoincremented
 func (PhoneNumberMapper) AutoIncrementPKey() bool {
-	return true
+	return false
 }
 
 // LoadAutoIncrementPKeyValue set the pkey autoincremented column value
 func (PhoneNumberMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value int64) {
-	s := instance.(*PhoneNumber)
-	s.ID = value
+	panic("PhoneNumber has no auto increment column in its pkey")
 }
 
 // PKeyClause returns a clause that matches the instance primary key
 func (mapper PhoneNumberMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
-	return phoneNumberTable.C(PhoneNumberIDColumnName).Eq(instance.(*PhoneNumber).ID)
+	return phoneNumberTable.C(BaseIDColumnName).Eq(instance.(*PhoneNumber).ID)
 }

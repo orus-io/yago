@@ -15,17 +15,17 @@ import (
 const (
 	// SimpleStructID is the ID field name
 	SimpleStructID = "ID"
+	// SimpleStructIDColumnName is the ID field associated column name
+	SimpleStructIDColumnName = "id"
 	// SimpleStructName is the Name field name
 	SimpleStructName = "Name"
+	// SimpleStructNameColumnName is the Name field associated column name
+	SimpleStructNameColumnName = "name"
 )
 
 const (
 	// SimpleStructTableName is the SimpleStruct associated table name
 	SimpleStructTableName = "simplestruct"
-	// SimpleStructIDColumnName is the ID field associated column name
-	SimpleStructIDColumnName = "id"
-	// SimpleStructNameColumnName is the Name field associated column name
-	SimpleStructNameColumnName = "name"
 )
 
 var simpleStructTable = qb.Table(
@@ -148,32 +148,32 @@ func (mapper SimpleStructMapper) PKeyClause(instance yago.MappedStruct) qb.Claus
 const (
 	// BaseStructID is the ID field name
 	BaseStructID = "ID"
+	// BaseStructIDColumnName is the ID field associated column name
+	BaseStructIDColumnName = "id"
 	// BaseStructCreatedAt is the CreatedAt field name
 	BaseStructCreatedAt = "CreatedAt"
+	// BaseStructCreatedAtColumnName is the CreatedAt field associated column name
+	BaseStructCreatedAtColumnName = "created_at"
 	// BaseStructUpdatedAt is the UpdatedAt field name
 	BaseStructUpdatedAt = "UpdatedAt"
+	// BaseStructUpdatedAtColumnName is the UpdatedAt field associated column name
+	BaseStructUpdatedAtColumnName = "updated_at"
 )
 
 const (
 	// PersonStructFirstName is the FirstName field name
 	PersonStructFirstName = "FirstName"
+	// PersonStructFirstNameColumnName is the FirstName field associated column name
+	PersonStructFirstNameColumnName = "first_name"
 	// PersonStructLastName is the LastName field name
 	PersonStructLastName = "LastName"
+	// PersonStructLastNameColumnName is the LastName field associated column name
+	PersonStructLastNameColumnName = "last_name"
 )
 
 const (
 	// PersonStructTableName is the PersonStruct associated table name
 	PersonStructTableName = "personstruct"
-	// PersonStructFirstNameColumnName is the FirstName field associated column name
-	PersonStructFirstNameColumnName = "first_name"
-	// PersonStructLastNameColumnName is the LastName field associated column name
-	PersonStructLastNameColumnName = "last_name"
-	// BaseStructIDColumnName is the ID field associated column name
-	BaseStructIDColumnName = "id"
-	// BaseStructCreatedAtColumnName is the CreatedAt field associated column name
-	BaseStructCreatedAtColumnName = "created_at"
-	// BaseStructUpdatedAtColumnName is the UpdatedAt field associated column name
-	BaseStructUpdatedAtColumnName = "updated_at"
 )
 
 var personStructTable = qb.Table(

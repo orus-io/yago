@@ -8,6 +8,8 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"strings"
@@ -104,7 +106,6 @@ func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool)
 	}
 
 	for _, f := range str.Fields.List {
-		fmt.Println(f.Names, f.Type, f.Tag)
 		hasTags := false
 		tags := ColumnTags{}
 		if f.Tag != nil && len(f.Tag.Value) > 2 {
@@ -169,6 +170,33 @@ func parseStructTypeSpecs(ts *ast.TypeSpec, str *ast.StructType, autoattrs bool)
 		}
 	}
 
+	return res, nil
+}
+
+// ParseDir parses all the go files in a directory and returns their mapped structs
+func ParseDir(path string) ([]*StructData, error) {
+	var res []*StructData
+
+	err := filepath.Walk(path, func(fpath string, info os.FileInfo, err error) error {
+		if fpath == path {
+			return nil
+		}
+		if info.IsDir() {
+			return filepath.SkipDir
+		}
+		if filepath.Ext(fpath) != ".go" {
+			return nil
+		}
+		structs, err := ParseFile(fpath)
+		if err != nil {
+			return err
+		}
+		res = append(res, structs...)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
 	return res, nil
 }
 

@@ -6,8 +6,9 @@ import (
 
 // FileData contains top-level infos for templates
 type FileData struct {
-	Package string
-	Imports map[string]bool
+	Package   string
+	Imports   map[string]bool
+	HasTables bool
 }
 
 // ColumnTags contains tags set on the fields
@@ -68,12 +69,14 @@ var (
 // generated with yago. Better NOT to edit!
 
 import (
+	{{- if .HasTables }}
 	"database/sql"
 	"reflect"
 
 	"github.com/aacanakin/qb"
 
 	"github.com/orus-io/yago"
+	{{- end }}
 
 	{{- range $k, $_ := .Imports }}
 	"{{$k}}"
@@ -88,6 +91,8 @@ const (
 	{{- if not .FromEmbedded }}
 	// {{ .NameConst }} is the {{ .Name }} field name
 	{{ .NameConst }} = "{{ .Name }}"
+	// {{ .ColumnNameConst }} is the {{ .Name }} field associated column name
+	{{ .ColumnNameConst }} = "{{ .ColumnName }}"
 	{{- end }}
 {{- end }}
 )
@@ -98,10 +103,6 @@ const (
 const (
 	// {{ .Name }}TableName is the {{ .Name }} associated table name
 	{{ .Name }}TableName = "{{ .TableName }}"
-{{- range .Fields }}
-	// {{ .ColumnNameConst }} is the {{ .Name }} field associated column name
-	{{ .ColumnNameConst }} = "{{ .ColumnName }}"
-{{- end }}
 )
 
 var {{ $Table }} = qb.Table(

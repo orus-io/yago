@@ -11,7 +11,7 @@ import (
 // Person is a person record in the database
 //yago:autoattrs
 type Person struct {
-	ID        int64   `yago:"primary_key,auto_increment"`
+	Base
 	Name      string  `yago:"index"`
 	Email     *string `yago:"email_address,unique_index"`
 	CreatedAt time.Time
@@ -21,7 +21,7 @@ type Person struct {
 // PhoneNumber is a phone number
 //yago:autoattrs
 type PhoneNumber struct {
-	ID       int64 `yago:"primary_key,auto_increment"`
+	Base
 	PersonID int64 `yago:"fk=Person ondelete cascade onupdate cascade"`
 	Name     string
 	Number   string
