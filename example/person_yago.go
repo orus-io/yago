@@ -20,14 +20,6 @@ const (
 	PersonEmail = "Email"
 	// PersonEmailColumnName is the Email field associated column name
 	PersonEmailColumnName = "email_address"
-	// PersonCreatedAt is the CreatedAt field name
-	PersonCreatedAt = "CreatedAt"
-	// PersonCreatedAtColumnName is the CreatedAt field associated column name
-	PersonCreatedAtColumnName = "created_at"
-	// PersonUpdatedAt is the UpdatedAt field name
-	PersonUpdatedAt = "UpdatedAt"
-	// PersonUpdatedAtColumnName is the UpdatedAt field associated column name
-	PersonUpdatedAtColumnName = "updated_at"
 )
 
 const (
@@ -39,9 +31,9 @@ var personTable = qb.Table(
 	PersonTableName,
 	qb.Column(PersonNameColumnName, qb.Varchar()).NotNull(),
 	qb.Column(PersonEmailColumnName, qb.Varchar()).Null(),
-	qb.Column(PersonCreatedAtColumnName, qb.Timestamp()).NotNull(),
-	qb.Column(PersonUpdatedAtColumnName, qb.Timestamp()).Null(),
 	qb.Column(BaseIDColumnName, qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
+	qb.Column(BaseCreatedAtColumnName, qb.Timestamp()).NotNull(),
+	qb.Column(BaseUpdatedAtColumnName, qb.Timestamp()).Null(),
 	qb.UniqueKey(
 		PersonEmailColumnName,
 	),
@@ -63,9 +55,9 @@ type PersonModel struct {
 	mapper *PersonMapper
 	Name yago.ScalarField
 	Email yago.ScalarField
+	ID yago.ScalarField
 	CreatedAt yago.ScalarField
 	UpdatedAt yago.ScalarField
-	ID yago.ScalarField
 }
 
 func NewPersonModel(meta *yago.Metadata) PersonModel {
@@ -75,9 +67,9 @@ func NewPersonModel(meta *yago.Metadata) PersonModel {
 		mapper: mapper,
 		Name: yago.NewScalarField(mapper.Table().C(PersonNameColumnName)),
 		Email: yago.NewScalarField(mapper.Table().C(PersonEmailColumnName)),
-		CreatedAt: yago.NewScalarField(mapper.Table().C(PersonCreatedAtColumnName)),
-		UpdatedAt: yago.NewScalarField(mapper.Table().C(PersonUpdatedAtColumnName)),
 		ID: yago.NewScalarField(mapper.Table().C(BaseIDColumnName)),
+		CreatedAt: yago.NewScalarField(mapper.Table().C(BaseCreatedAtColumnName)),
+		UpdatedAt: yago.NewScalarField(mapper.Table().C(BaseUpdatedAtColumnName)),
 	}
 }
 
@@ -127,11 +119,11 @@ func (mapper PersonMapper) SQLValues(instance yago.MappedStruct, fields ...strin
 	if allValues || yago.StringListContains(fields, PersonEmail) {
 		m[PersonEmailColumnName] = s.Email
 	}
-	if allValues || yago.StringListContains(fields, PersonCreatedAt) {
-		m[PersonCreatedAtColumnName] = s.CreatedAt
+	if allValues || yago.StringListContains(fields, BaseCreatedAt) {
+		m[BaseCreatedAtColumnName] = s.CreatedAt
 	}
-	if allValues || yago.StringListContains(fields, PersonUpdatedAt) {
-		m[PersonUpdatedAtColumnName] = s.UpdatedAt
+	if allValues || yago.StringListContains(fields, BaseUpdatedAt) {
+		m[BaseUpdatedAtColumnName] = s.UpdatedAt
 	}
 	return m
 }
@@ -141,9 +133,9 @@ func (mapper PersonMapper) FieldList() []qb.Clause {
 	return []qb.Clause{
 		personTable.C(PersonNameColumnName),
 		personTable.C(PersonEmailColumnName),
-		personTable.C(PersonCreatedAtColumnName),
-		personTable.C(PersonUpdatedAtColumnName),
 		personTable.C(BaseIDColumnName),
+		personTable.C(BaseCreatedAtColumnName),
+		personTable.C(BaseUpdatedAtColumnName),
 	}
 }
 
@@ -156,9 +148,9 @@ func (mapper PersonMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) erro
 	return rows.Scan(
 		&s.Name,
 		&s.Email,
+		&s.ID,
 		&s.CreatedAt,
 		&s.UpdatedAt,
-		&s.ID,
 	)
 }
 
@@ -203,6 +195,8 @@ var phoneNumberTable = qb.Table(
 	qb.Column(PhoneNumberNameColumnName, qb.Varchar()).NotNull(),
 	qb.Column(PhoneNumberNumberColumnName, qb.Varchar()).NotNull(),
 	qb.Column(BaseIDColumnName, qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
+	qb.Column(BaseCreatedAtColumnName, qb.Timestamp()).NotNull(),
+	qb.Column(BaseUpdatedAtColumnName, qb.Timestamp()).Null(),
 	qb.ForeignKey(PhoneNumberPersonIDColumnName).References(PersonTableName, BaseIDColumnName).OnUpdate("CASCADE").OnDelete("CASCADE"),
 )
 
@@ -222,6 +216,8 @@ type PhoneNumberModel struct {
 	Name yago.ScalarField
 	Number yago.ScalarField
 	ID yago.ScalarField
+	CreatedAt yago.ScalarField
+	UpdatedAt yago.ScalarField
 }
 
 func NewPhoneNumberModel(meta *yago.Metadata) PhoneNumberModel {
@@ -233,6 +229,8 @@ func NewPhoneNumberModel(meta *yago.Metadata) PhoneNumberModel {
 		Name: yago.NewScalarField(mapper.Table().C(PhoneNumberNameColumnName)),
 		Number: yago.NewScalarField(mapper.Table().C(PhoneNumberNumberColumnName)),
 		ID: yago.NewScalarField(mapper.Table().C(BaseIDColumnName)),
+		CreatedAt: yago.NewScalarField(mapper.Table().C(BaseCreatedAtColumnName)),
+		UpdatedAt: yago.NewScalarField(mapper.Table().C(BaseUpdatedAtColumnName)),
 	}
 }
 
@@ -285,6 +283,12 @@ func (mapper PhoneNumberMapper) SQLValues(instance yago.MappedStruct, fields ...
 	if allValues || yago.StringListContains(fields, PhoneNumberNumber) {
 		m[PhoneNumberNumberColumnName] = s.Number
 	}
+	if allValues || yago.StringListContains(fields, BaseCreatedAt) {
+		m[BaseCreatedAtColumnName] = s.CreatedAt
+	}
+	if allValues || yago.StringListContains(fields, BaseUpdatedAt) {
+		m[BaseUpdatedAtColumnName] = s.UpdatedAt
+	}
 	return m
 }
 
@@ -295,6 +299,8 @@ func (mapper PhoneNumberMapper) FieldList() []qb.Clause {
 		phoneNumberTable.C(PhoneNumberNameColumnName),
 		phoneNumberTable.C(PhoneNumberNumberColumnName),
 		phoneNumberTable.C(BaseIDColumnName),
+		phoneNumberTable.C(BaseCreatedAtColumnName),
+		phoneNumberTable.C(BaseUpdatedAtColumnName),
 	}
 }
 
@@ -309,6 +315,8 @@ func (mapper PhoneNumberMapper) Scan(rows *sql.Rows, instance yago.MappedStruct)
 		&s.Name,
 		&s.Number,
 		&s.ID,
+		&s.CreatedAt,
+		&s.UpdatedAt,
 	)
 }
 
