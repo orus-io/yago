@@ -6,7 +6,7 @@ import (
 	"github.com/orus-io/yago"
 )
 
-//go:generate yago
+//go:generate yago --fmt
 
 // Base struct for all model structs
 //yago:notable,autoattrs

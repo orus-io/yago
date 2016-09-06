@@ -8,8 +8,8 @@ import (
 
 	"github.com/aacanakin/qb"
 
-	"github.com/orus-io/yago"
 	"github.com/m4rw3r/uuid"
+	"github.com/orus-io/yago"
 )
 
 const (
@@ -49,17 +49,17 @@ func (SimpleStruct) StructType() reflect.Type {
 // SimpleStructModel
 type SimpleStructModel struct {
 	mapper *SimpleStructMapper
-	ID yago.ScalarField
-	Name yago.ScalarField
+	ID     yago.ScalarField
+	Name   yago.ScalarField
 }
 
 func NewSimpleStructModel(meta *yago.Metadata) SimpleStructModel {
 	mapper := NewSimpleStructMapper()
 	meta.AddMapper(mapper)
-	return SimpleStructModel {
+	return SimpleStructModel{
 		mapper: mapper,
-		ID: yago.NewScalarField(mapper.Table().C(SimpleStructIDColumnName)),
-		Name: yago.NewScalarField(mapper.Table().C(SimpleStructNameColumnName)),
+		ID:     yago.NewScalarField(mapper.Table().C(SimpleStructIDColumnName)),
+		Name:   yago.NewScalarField(mapper.Table().C(SimpleStructNameColumnName)),
 	}
 }
 
@@ -204,11 +204,11 @@ func (PersonStruct) StructType() reflect.Type {
 
 // PersonStructModel
 type PersonStructModel struct {
-	mapper *PersonStructMapper
-	Active yago.ScalarField
+	mapper    *PersonStructMapper
+	Active    yago.ScalarField
 	FirstName yago.ScalarField
-	LastName yago.ScalarField
-	ID yago.ScalarField
+	LastName  yago.ScalarField
+	ID        yago.ScalarField
 	CreatedAt yago.ScalarField
 	UpdatedAt yago.ScalarField
 }
@@ -216,12 +216,12 @@ type PersonStructModel struct {
 func NewPersonStructModel(meta *yago.Metadata) PersonStructModel {
 	mapper := NewPersonStructMapper()
 	meta.AddMapper(mapper)
-	return PersonStructModel {
-		mapper: mapper,
-		Active: yago.NewScalarField(mapper.Table().C(PersonStructActiveColumnName)),
+	return PersonStructModel{
+		mapper:    mapper,
+		Active:    yago.NewScalarField(mapper.Table().C(PersonStructActiveColumnName)),
 		FirstName: yago.NewScalarField(mapper.Table().C(PersonStructFirstNameColumnName)),
-		LastName: yago.NewScalarField(mapper.Table().C(PersonStructLastNameColumnName)),
-		ID: yago.NewScalarField(mapper.Table().C(BaseStructIDColumnName)),
+		LastName:  yago.NewScalarField(mapper.Table().C(PersonStructLastNameColumnName)),
+		ID:        yago.NewScalarField(mapper.Table().C(BaseStructIDColumnName)),
 		CreatedAt: yago.NewScalarField(mapper.Table().C(BaseStructCreatedAtColumnName)),
 		UpdatedAt: yago.NewScalarField(mapper.Table().C(BaseStructUpdatedAtColumnName)),
 	}

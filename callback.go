@@ -138,7 +138,7 @@ func AddCallbackSorted(defs []CallbackDef, def CallbackDef) []CallbackDef {
 	} else {
 		defs = append(
 			defs[0:index],
-			append([]CallbackDef{def}, defs[index:len(defs)]...)...,
+			append([]CallbackDef{def}, defs[index:]...)...,
 		)
 	}
 	return defs

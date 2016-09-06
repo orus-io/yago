@@ -1,8 +1,6 @@
 package main
 
-import ()
-
-//go:generate yago
+//go:generate yago --fmt
 
 // Person is a person record in the database
 //yago:autoattrs

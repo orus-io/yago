@@ -2,9 +2,6 @@ package main
 
 // generated with yago. Better NOT to edit!
 
-import (
-)
-
 const (
 	// BaseID is the ID field name
 	BaseID = "ID"

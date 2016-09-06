@@ -52,10 +52,10 @@ func (Person) StructType() reflect.Type {
 
 // PersonModel
 type PersonModel struct {
-	mapper *PersonMapper
-	Name yago.ScalarField
-	Email yago.ScalarField
-	ID yago.ScalarField
+	mapper    *PersonMapper
+	Name      yago.ScalarField
+	Email     yago.ScalarField
+	ID        yago.ScalarField
 	CreatedAt yago.ScalarField
 	UpdatedAt yago.ScalarField
 }
@@ -63,11 +63,11 @@ type PersonModel struct {
 func NewPersonModel(meta *yago.Metadata) PersonModel {
 	mapper := NewPersonMapper()
 	meta.AddMapper(mapper)
-	return PersonModel {
-		mapper: mapper,
-		Name: yago.NewScalarField(mapper.Table().C(PersonNameColumnName)),
-		Email: yago.NewScalarField(mapper.Table().C(PersonEmailColumnName)),
-		ID: yago.NewScalarField(mapper.Table().C(BaseIDColumnName)),
+	return PersonModel{
+		mapper:    mapper,
+		Name:      yago.NewScalarField(mapper.Table().C(PersonNameColumnName)),
+		Email:     yago.NewScalarField(mapper.Table().C(PersonEmailColumnName)),
+		ID:        yago.NewScalarField(mapper.Table().C(BaseIDColumnName)),
 		CreatedAt: yago.NewScalarField(mapper.Table().C(BaseCreatedAtColumnName)),
 		UpdatedAt: yago.NewScalarField(mapper.Table().C(BaseUpdatedAtColumnName)),
 	}
@@ -211,11 +211,11 @@ func (PhoneNumber) StructType() reflect.Type {
 
 // PhoneNumberModel
 type PhoneNumberModel struct {
-	mapper *PhoneNumberMapper
-	PersonID yago.ScalarField
-	Name yago.ScalarField
-	Number yago.ScalarField
-	ID yago.ScalarField
+	mapper    *PhoneNumberMapper
+	PersonID  yago.ScalarField
+	Name      yago.ScalarField
+	Number    yago.ScalarField
+	ID        yago.ScalarField
 	CreatedAt yago.ScalarField
 	UpdatedAt yago.ScalarField
 }
@@ -223,12 +223,12 @@ type PhoneNumberModel struct {
 func NewPhoneNumberModel(meta *yago.Metadata) PhoneNumberModel {
 	mapper := NewPhoneNumberMapper()
 	meta.AddMapper(mapper)
-	return PhoneNumberModel {
-		mapper: mapper,
-		PersonID: yago.NewScalarField(mapper.Table().C(PhoneNumberPersonIDColumnName)),
-		Name: yago.NewScalarField(mapper.Table().C(PhoneNumberNameColumnName)),
-		Number: yago.NewScalarField(mapper.Table().C(PhoneNumberNumberColumnName)),
-		ID: yago.NewScalarField(mapper.Table().C(BaseIDColumnName)),
+	return PhoneNumberModel{
+		mapper:    mapper,
+		PersonID:  yago.NewScalarField(mapper.Table().C(PhoneNumberPersonIDColumnName)),
+		Name:      yago.NewScalarField(mapper.Table().C(PhoneNumberNameColumnName)),
+		Number:    yago.NewScalarField(mapper.Table().C(PhoneNumberNumberColumnName)),
+		ID:        yago.NewScalarField(mapper.Table().C(BaseIDColumnName)),
 		CreatedAt: yago.NewScalarField(mapper.Table().C(BaseCreatedAtColumnName)),
 		UpdatedAt: yago.NewScalarField(mapper.Table().C(BaseUpdatedAtColumnName)),
 	}

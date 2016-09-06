@@ -9,7 +9,7 @@ import (
 	"github.com/orus-io/yago"
 )
 
-//go:generate yago --package yago_test --output fixtures_yago_test.go
+//go:generate yago --fmt --package yago_test --output fixtures_yago_test.go
 
 //yago:
 type SimpleStruct struct {
