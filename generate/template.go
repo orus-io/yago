@@ -16,6 +16,8 @@ type ColumnTags struct {
 	ColumnName    string
 	PrimaryKey    bool
 	AutoIncrement bool
+	Null          bool
+	NotNull       bool
 	ForeignKeys   []string
 	Indexes       []string
 	UniqueIndexes []string

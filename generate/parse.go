@@ -76,6 +76,10 @@ func readColumnTags(tag string) (tags ColumnTags) {
 			tags.Indexes = append(tags.Indexes, ".")
 		} else if arg == "unique_index" || arg == "unique" {
 			tags.UniqueIndexes = append(tags.UniqueIndexes, ".")
+		} else if arg == "null" {
+			tags.Null = true
+		} else if arg == "notnull" || arg == "not null" {
+			tags.NotNull = true
 		} else if arg == "." {
 		} else {
 			tags.ColumnName = arg

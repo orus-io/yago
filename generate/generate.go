@@ -61,7 +61,11 @@ func prepareFieldData(str *StructData, f *FieldData) {
 			f.ColumnModifiers += ".AutoIncrement()"
 			str.AutoIncrementPKey = f
 		}
-		if f.Type[0] == '*' {
+		if f.Tags.Null {
+			f.ColumnModifiers += ".Null()"
+		} else if f.Tags.NotNull {
+			f.ColumnModifiers += ".NotNull()"
+		} else if f.Type[0] == '*' {
 			f.ColumnModifiers += ".Null()"
 		} else {
 			f.ColumnModifiers += ".NotNull()"

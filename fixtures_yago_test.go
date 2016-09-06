@@ -184,10 +184,13 @@ var personStructTable = qb.Table(
 	PersonStructTableName,
 	qb.Column(PersonStructActiveColumnName, qb.Boolean()).NotNull(),
 	qb.Column(PersonStructFirstNameColumnName, qb.Varchar()).NotNull(),
-	qb.Column(PersonStructLastNameColumnName, qb.Varchar()).NotNull(),
+	qb.Column(PersonStructLastNameColumnName, qb.Varchar()).Null(),
 	qb.Column(BaseStructIDColumnName, qb.UUID()).PrimaryKey().NotNull(),
 	qb.Column(BaseStructCreatedAtColumnName, qb.Timestamp()).NotNull(),
 	qb.Column(BaseStructUpdatedAtColumnName, qb.Timestamp()).NotNull(),
+	qb.UniqueKey(
+		PersonStructFirstNameColumnName,
+	),
 )
 
 var personStructType = reflect.TypeOf(PersonStruct{})

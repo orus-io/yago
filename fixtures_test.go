@@ -29,8 +29,8 @@ type PersonStruct struct {
 	BaseStruct
 
 	Active    bool
-	FirstName string
-	LastName  string
+	FirstName string `yago:"unique"`
+	LastName  string `yago:"null"`
 }
 
 func (s *BaseStruct) BeforeCreate(db *yago.DB) {
