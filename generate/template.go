@@ -48,6 +48,7 @@ type FKData struct {
 
 // StructData describes a struct to be mapped
 type StructData struct {
+	Imported          bool
 	Name              string
 	PrivateBasename   string
 	TableName         string

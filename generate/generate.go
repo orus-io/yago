@@ -121,11 +121,12 @@ func loadEmbedded(path string, structs map[string]*StructData, fd FileData) []*S
 	otherStructsByName := make(map[string]*StructData)
 
 	if len(missingStructs) != 0 {
-		otherStructs, err := ParseDir(path)
+		var err error
+		newStructs, err = ParseDir(path)
 		if err != nil {
 			panic(err)
 		}
-		for _, str := range otherStructs {
+		for _, str := range newStructs {
 			prepareStructData(str, fd)
 			otherStructsByName[str.Name] = str
 		}
@@ -168,6 +169,9 @@ func postPrepare(filedata *FileData, structs map[string]*StructData) {
 		}
 	}
 	for _, str := range structs {
+		if str.Imported {
+			continue
+		}
 		for i, f := range str.Fields {
 			if f.Tags.PrimaryKey && str.Fields[i].Type == "uuid.UUID" {
 				filedata.Imports["github.com/m4rw3r/uuid"] = true
@@ -252,7 +256,13 @@ func ProcessFile(logger *log.Logger, path string, file string, pack string, outp
 			filedata.HasTables = true
 		}
 	}
-	loadEmbedded(path, structsByName, filedata)
+	otherStructs := loadEmbedded(path, structsByName, filedata)
+	for _, str := range otherStructs {
+		if _, ok := structsByName[str.Name]; !ok {
+			str.Imported = true
+			structsByName[str.Name] = str
+		}
+	}
 	postPrepare(&filedata, structsByName)
 
 	outf, err := os.Create(output)
