@@ -110,16 +110,11 @@ func prepareStructData(str *StructData, fd FileData) {
 func loadEmbedded(path string, structs map[string]*StructData, fd FileData) []*StructData {
 	var newStructs []*StructData
 
-	var missingStructs []string
 	var hasEmbed bool
 
 	for _, str := range structs {
-		for _, name := range str.Embed {
+		if len(str.Embed) != 0 {
 			hasEmbed = true
-			_, ok := structs[name]
-			if !ok {
-				missingStructs = append(missingStructs, name)
-			}
 		}
 	}
 
@@ -129,19 +124,23 @@ func loadEmbedded(path string, structs map[string]*StructData, fd FileData) []*S
 
 	otherStructsByName := make(map[string]*StructData)
 
-	if len(missingStructs) != 0 {
-		var err error
-		newStructs, err = ParseDir(path)
-		if err != nil {
-			panic(err)
-		}
-		for _, str := range newStructs {
-			prepareStructData(str, fd)
-			otherStructsByName[str.Name] = str
-		}
+	var err error
+	newStructs, err = ParseDir(path)
+	if err != nil {
+		panic(err)
+	}
+	for _, str := range newStructs {
+		prepareStructData(str, fd)
+		otherStructsByName[str.Name] = str
 	}
 
+	allStructs := []*StructData{}
 	for _, str := range structs {
+		allStructs = append(allStructs, str)
+	}
+	allStructs = append(allStructs, newStructs...)
+
+	for _, str := range allStructs {
 		for _, name := range str.Embed {
 			embedded, ok := structs[name]
 			if !ok {
@@ -175,6 +174,9 @@ func postPrepare(filedata *FileData, structs map[string]*StructData) {
 			if str.Fields[i].Tags.PrimaryKey {
 				str.PKeyFields = append(str.PKeyFields, &str.Fields[i])
 			}
+		}
+		if len(str.PKeyFields) == 0 {
+			panic(fmt.Sprintf("No Primary Key found on %s", str.Name))
 		}
 	}
 	for _, str := range structs {
