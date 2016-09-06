@@ -22,6 +22,7 @@ var RootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.ParseFlags(args)
 		output := cmd.Flag("output").Value.String()
+		fmt := cmd.Flag("fmt").Value.String() == "true"
 
 		wd, err := os.Getwd()
 		if err != nil {
@@ -34,7 +35,7 @@ var RootCmd = &cobra.Command{
 			gopackage = flag.Value.String()
 		}
 
-		err = generate.ProcessFile(logger, wd, gofilename, gopackage, output)
+		err = generate.ProcessFile(logger, wd, gofilename, gopackage, output, fmt)
 		if err != nil {
 			logger.Fatal(err)
 		}
@@ -52,6 +53,7 @@ func Execute() {
 
 func init() {
 	RootCmd.Flags().BoolP("debug", "d", false, "Enable debug logging")
+	RootCmd.Flags().BoolP("fmt", "f", false, "Postprocess the file with gofmt")
 	RootCmd.Flags().StringP("output", "o", "", "Set the output file name")
 	RootCmd.Flags().StringP("package", "p", "", "Force the package")
 }

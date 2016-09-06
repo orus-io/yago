@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -243,7 +244,7 @@ func postPrepare(filedata *FileData, structs map[string]*StructData) {
 
 // ProcessFile processes a go file and generates mapper and mappedstruct
 // interfaces implementations for the yago structs.
-func ProcessFile(logger *log.Logger, path string, file string, pack string, output string) error {
+func ProcessFile(logger *log.Logger, path string, file string, pack string, output string, fmt bool) error {
 
 	ext := filepath.Ext(file)
 	base := strings.TrimSuffix(file, ext)
@@ -281,21 +282,30 @@ func ProcessFile(logger *log.Logger, path string, file string, pack string, outp
 		return err
 	}
 
-	defer outf.Close()
+	{
+		defer outf.Close()
 
-	if err := prologTemplate.Execute(outf, &filedata); err != nil {
-		return err
+		if err := prologTemplate.Execute(outf, &filedata); err != nil {
+			return err
+		}
+
+		for _, str := range structs {
+			if err := structPreambleTemplate.Execute(outf, &str); err != nil {
+				return err
+			}
+			if str.NoTable {
+				continue
+			}
+			if err := structTemplate.Execute(outf, &str); err != nil {
+				return err
+			}
+		}
 	}
 
-	for _, str := range structs {
-		if err := structPreambleTemplate.Execute(outf, &str); err != nil {
-			return err
-		}
-		if str.NoTable {
-			continue
-		}
-		if err := structTemplate.Execute(outf, &str); err != nil {
-			return err
+	if fmt {
+		cmd := exec.Command("gofmt", "-s", "-w", output)
+		if err := cmd.Run(); err != nil {
+			logger.Fatal(err)
 		}
 	}
 
