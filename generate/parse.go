@@ -74,7 +74,7 @@ func readColumnTags(tag string) (tags ColumnTags) {
 			tags.AutoIncrement = true
 		} else if arg == "index" {
 			tags.Indexes = append(tags.Indexes, ".")
-		} else if arg == "unique_index" {
+		} else if arg == "unique_index" || arg == "unique" {
 			tags.UniqueIndexes = append(tags.UniqueIndexes, ".")
 		} else if arg == "." {
 		} else {
