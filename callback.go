@@ -114,7 +114,7 @@ func AddCallbackSorted(defs []CallbackDef, def CallbackDef) []CallbackDef {
 		panic("yago.AddCallbackSorted: No spot candidate for callbacks")
 	}
 
-	// Make sure the spot is consistant with all constraints
+	// Make sure the spot is consistent with all constraints
 	for i, d := range defs {
 		if i < index {
 			if d.after == def.name || def.before == d.name {
