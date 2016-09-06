@@ -38,6 +38,7 @@ type FieldData struct {
 	FromEmbedded    bool
 }
 
+// FKData describe a foreign key
 type FKData struct {
 	Column    *FieldData
 	RefTable  *StructData
@@ -136,7 +137,8 @@ func ({{ .Name }}) StructType() reflect.Type {
 	return {{ .PrivateBasename }}Type
 }
 
-// {{ .Name }}Model
+// {{ .Name }}Model provides direct access to helpers for {{ .Name }}
+// queries
 type {{ .Name }}Model struct {
 	mapper *{{ .Name }}Mapper
 	{{- range .Fields }}
@@ -144,6 +146,7 @@ type {{ .Name }}Model struct {
 	{{- end }}
 }
 
+// New{{ .Name }}Model returns a new {{ .Name }}Model
 func New{{ .Name }}Model(meta *yago.Metadata) {{ .Name }}Model {
 	mapper := New{{ .Name }}Mapper()
 	meta.AddMapper(mapper)
@@ -155,6 +158,7 @@ func New{{ .Name }}Model(meta *yago.Metadata) {{ .Name }}Model {
 	}
 }
 
+// GetMapper returns the associated {{ .Name }}Mapper instance
 func (m {{ .Name }}Model) GetMapper() yago.Mapper {
 	return m.mapper
 }

@@ -46,13 +46,15 @@ func (SimpleStruct) StructType() reflect.Type {
 	return simpleStructType
 }
 
-// SimpleStructModel
+// SimpleStructModel provides direct access to helpers for SimpleStruct
+// queries
 type SimpleStructModel struct {
 	mapper *SimpleStructMapper
 	ID     yago.ScalarField
 	Name   yago.ScalarField
 }
 
+// NewSimpleStructModel returns a new SimpleStructModel
 func NewSimpleStructModel(meta *yago.Metadata) SimpleStructModel {
 	mapper := NewSimpleStructMapper()
 	meta.AddMapper(mapper)
@@ -63,6 +65,7 @@ func NewSimpleStructModel(meta *yago.Metadata) SimpleStructModel {
 	}
 }
 
+// GetMapper returns the associated SimpleStructMapper instance
 func (m SimpleStructModel) GetMapper() yago.Mapper {
 	return m.mapper
 }
@@ -202,7 +205,8 @@ func (PersonStruct) StructType() reflect.Type {
 	return personStructType
 }
 
-// PersonStructModel
+// PersonStructModel provides direct access to helpers for PersonStruct
+// queries
 type PersonStructModel struct {
 	mapper    *PersonStructMapper
 	Active    yago.ScalarField
@@ -213,6 +217,7 @@ type PersonStructModel struct {
 	UpdatedAt yago.ScalarField
 }
 
+// NewPersonStructModel returns a new PersonStructModel
 func NewPersonStructModel(meta *yago.Metadata) PersonStructModel {
 	mapper := NewPersonStructMapper()
 	meta.AddMapper(mapper)
@@ -227,6 +232,7 @@ func NewPersonStructModel(meta *yago.Metadata) PersonStructModel {
 	}
 }
 
+// GetMapper returns the associated PersonStructMapper instance
 func (m PersonStructModel) GetMapper() yago.Mapper {
 	return m.mapper
 }

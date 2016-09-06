@@ -1,25 +1,31 @@
 package yago
 
+// BeforeInsert can be implemented by structs that need a before insert callback
 type BeforeInsert interface {
 	BeforeInsert(db *DB)
 }
 
+// AfterInsert can be implemented by structs that need a after insert callback
 type AfterInsert interface {
 	AfterInsert(db *DB)
 }
 
+// BeforeUpdate can be implemented by structs that need a before update callback
 type BeforeUpdate interface {
 	BeforeUpdate(db *DB)
 }
 
+// AfterUpdate can be implemented by structs that need a after update callback
 type AfterUpdate interface {
 	AfterUpdate(db *DB)
 }
 
+// BeforeDelete can be implemented by structs that need a before delete callback
 type BeforeDelete interface {
 	BeforeDelete(db *DB)
 }
 
+// AfterDelete can be implemented by structs that need a after delete callback
 type AfterDelete interface {
 	AfterDelete(db *DB)
 }

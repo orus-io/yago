@@ -50,7 +50,8 @@ func (Person) StructType() reflect.Type {
 	return personType
 }
 
-// PersonModel
+// PersonModel provides direct access to helpers for Person
+// queries
 type PersonModel struct {
 	mapper    *PersonMapper
 	Name      yago.ScalarField
@@ -60,6 +61,7 @@ type PersonModel struct {
 	UpdatedAt yago.ScalarField
 }
 
+// NewPersonModel returns a new PersonModel
 func NewPersonModel(meta *yago.Metadata) PersonModel {
 	mapper := NewPersonMapper()
 	meta.AddMapper(mapper)
@@ -73,6 +75,7 @@ func NewPersonModel(meta *yago.Metadata) PersonModel {
 	}
 }
 
+// GetMapper returns the associated PersonMapper instance
 func (m PersonModel) GetMapper() yago.Mapper {
 	return m.mapper
 }
@@ -209,7 +212,8 @@ func (PhoneNumber) StructType() reflect.Type {
 	return phoneNumberType
 }
 
-// PhoneNumberModel
+// PhoneNumberModel provides direct access to helpers for PhoneNumber
+// queries
 type PhoneNumberModel struct {
 	mapper    *PhoneNumberMapper
 	PersonID  yago.ScalarField
@@ -220,6 +224,7 @@ type PhoneNumberModel struct {
 	UpdatedAt yago.ScalarField
 }
 
+// NewPhoneNumberModel returns a new PhoneNumberModel
 func NewPhoneNumberModel(meta *yago.Metadata) PhoneNumberModel {
 	mapper := NewPhoneNumberMapper()
 	meta.AddMapper(mapper)
@@ -234,6 +239,7 @@ func NewPhoneNumberModel(meta *yago.Metadata) PhoneNumberModel {
 	}
 }
 
+// GetMapper returns the associated PhoneNumberMapper instance
 func (m PhoneNumberModel) GetMapper() yago.Mapper {
 	return m.mapper
 }
