@@ -8,25 +8,27 @@ import (
 	"strings"
 )
 
-func guessColumnType(goType string) string {
+func guessColumnType(goType string) (string, error) {
 	if goType == "int" {
-		return "qb.Int()"
+		return "qb.Int()", nil
 	} else if goType == "int64" {
-		return "qb.BigInt()"
+		return "qb.BigInt()", nil
 	} else if goType == "string" {
-		return "qb.Varchar()"
+		return "qb.Varchar()", nil
 	} else if goType == "*string" {
-		return "qb.Varchar()"
+		return "qb.Varchar()", nil
 	} else if goType == "bool" {
-		return "qb.Boolean()"
+		return "qb.Boolean()", nil
 	} else if goType == "time.Time" {
-		return "qb.Timestamp()"
+		return "qb.Timestamp()", nil
 	} else if goType == "*time.Time" {
-		return "qb.Timestamp()"
+		return "qb.Timestamp()", nil
 	} else if goType == "uuid.UUID" {
-		return "qb.UUID()"
+		return "qb.UUID()", nil
+	} else if goType == "uuid.NullUUID" {
+		return "qb.UUID()", nil
 	}
-	panic(fmt.Sprintf("Cannot guess column type for go type %s", goType))
+	return "", fmt.Errorf("Cannot guess column type for go type %s", goType)
 }
 
 func makeColumnName(name string) string {
@@ -49,11 +51,16 @@ func getEmptyValue(goType string) string {
 }
 
 func prepareFieldData(str *StructData, f *FieldData) {
+	var err error
 	if f.ColumnName == "" {
 		f.ColumnName = makeColumnName(f.Name)
 	}
 	if f.ColumnType == "" {
-		f.ColumnType = guessColumnType(f.Type)
+		f.ColumnType, err = guessColumnType(f.Type)
+		if err != nil {
+			panic(fmt.Sprintf("Failure on field '%s': Got err '%s'",
+				f.Name, err))
+		}
 	}
 	if f.ColumnModifiers == "" {
 		if f.Tags.PrimaryKey {
