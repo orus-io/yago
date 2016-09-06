@@ -28,6 +28,7 @@ type BaseStruct struct {
 type PersonStruct struct {
 	BaseStruct
 
+	Active    bool
 	FirstName string
 	LastName  string
 }

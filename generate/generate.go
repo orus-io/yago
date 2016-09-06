@@ -15,6 +15,8 @@ func guessColumnType(goType string) string {
 		return "qb.Varchar()"
 	} else if goType == "*string" {
 		return "qb.Varchar()"
+	} else if goType == "bool" {
+		return "qb.Boolean()"
 	} else if goType == "time.Time" {
 		return "qb.Timestamp()"
 	} else if goType == "*time.Time" {
@@ -65,7 +67,7 @@ func prepareFieldData(str *StructData, f *FieldData) {
 			f.ColumnModifiers += ".NotNull()"
 		}
 	}
-	if f.EmptyValue == "" {
+	if f.EmptyValue == "" && f.Tags.PrimaryKey {
 		f.EmptyValue = getEmptyValue(f.Type)
 	}
 	if f.NameConst == "" {

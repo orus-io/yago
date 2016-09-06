@@ -161,6 +161,10 @@ const (
 )
 
 const (
+	// PersonStructActive is the Active field name
+	PersonStructActive = "Active"
+	// PersonStructActiveColumnName is the Active field associated column name
+	PersonStructActiveColumnName = "active"
 	// PersonStructFirstName is the FirstName field name
 	PersonStructFirstName = "FirstName"
 	// PersonStructFirstNameColumnName is the FirstName field associated column name
@@ -178,6 +182,7 @@ const (
 
 var personStructTable = qb.Table(
 	PersonStructTableName,
+	qb.Column(PersonStructActiveColumnName, qb.Boolean()).NotNull(),
 	qb.Column(PersonStructFirstNameColumnName, qb.Varchar()).NotNull(),
 	qb.Column(PersonStructLastNameColumnName, qb.Varchar()).NotNull(),
 	qb.Column(BaseStructIDColumnName, qb.UUID()).PrimaryKey().NotNull(),
@@ -197,6 +202,7 @@ func (PersonStruct) StructType() reflect.Type {
 // PersonStructModel
 type PersonStructModel struct {
 	mapper *PersonStructMapper
+	Active yago.ScalarField
 	FirstName yago.ScalarField
 	LastName yago.ScalarField
 	ID yago.ScalarField
@@ -209,6 +215,7 @@ func NewPersonStructModel(meta *yago.Metadata) PersonStructModel {
 	meta.AddMapper(mapper)
 	return PersonStructModel {
 		mapper: mapper,
+		Active: yago.NewScalarField(mapper.Table().C(PersonStructActiveColumnName)),
 		FirstName: yago.NewScalarField(mapper.Table().C(PersonStructFirstNameColumnName)),
 		LastName: yago.NewScalarField(mapper.Table().C(PersonStructLastNameColumnName)),
 		ID: yago.NewScalarField(mapper.Table().C(BaseStructIDColumnName)),
@@ -257,6 +264,9 @@ func (mapper PersonStructMapper) SQLValues(instance yago.MappedStruct, fields ..
 	if s.ID != (uuid.UUID{}) {
 		m[BaseStructIDColumnName] = s.ID
 	}
+	if allValues || yago.StringListContains(fields, PersonStructActive) {
+		m[PersonStructActiveColumnName] = s.Active
+	}
 	if allValues || yago.StringListContains(fields, PersonStructFirstName) {
 		m[PersonStructFirstNameColumnName] = s.FirstName
 	}
@@ -275,6 +285,7 @@ func (mapper PersonStructMapper) SQLValues(instance yago.MappedStruct, fields ..
 // FieldList returns the list of fields for a select
 func (mapper PersonStructMapper) FieldList() []qb.Clause {
 	return []qb.Clause{
+		personStructTable.C(PersonStructActiveColumnName),
 		personStructTable.C(PersonStructFirstNameColumnName),
 		personStructTable.C(PersonStructLastNameColumnName),
 		personStructTable.C(BaseStructIDColumnName),
@@ -290,6 +301,7 @@ func (mapper PersonStructMapper) Scan(rows *sql.Rows, instance yago.MappedStruct
 		panic("Wrong struct type passed to the mapper")
 	}
 	return rows.Scan(
+		&s.Active,
 		&s.FirstName,
 		&s.LastName,
 		&s.ID,
