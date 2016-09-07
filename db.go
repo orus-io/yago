@@ -25,21 +25,21 @@ type DB struct {
 }
 
 // Insert a struct in the database
-func (db *DB) Insert(s MappedStruct) {
+func (db *DB) Insert(s MappedStruct) error {
 	db.Callbacks.BeforeInsert.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
 	insert := mapper.Table().Insert().Values(mapper.SQLValues(s))
 
 	res, err := db.Engine.Exec(insert)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("yago Insert: Exec failed with '%s'", err)
 	}
 	ra, err := res.RowsAffected()
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("yago Insert: RowsAffected() failed with '%s'", err)
 	}
 	if ra != 1 {
-		panic("Insert failed")
+		return fmt.Errorf("Update Insert. More than 1 row where affected")
 	}
 	if mapper.AutoIncrementPKey() {
 		if pkey, err := res.LastInsertId(); err != nil {
@@ -50,6 +50,7 @@ func (db *DB) Insert(s MappedStruct) {
 	}
 	// TODO get the generated pkey, if any, and set it on the MappedStruct
 	db.Callbacks.AfterInsert.Call(db, s)
+	return nil
 }
 
 // Update the struct attributes in DB
