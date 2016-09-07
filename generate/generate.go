@@ -113,18 +113,6 @@ func prepareStructData(str *StructData, fd FileData) {
 func loadEmbedded(path string, structs map[string]*StructData, fd FileData) []*StructData {
 	var newStructs []*StructData
 
-	var hasEmbed bool
-
-	for _, str := range structs {
-		if len(str.Embed) != 0 {
-			hasEmbed = true
-		}
-	}
-
-	if !hasEmbed {
-		return []*StructData{}
-	}
-
 	otherStructsByName := make(map[string]*StructData)
 
 	var err error
