@@ -100,3 +100,21 @@ func (q Query) One(s MappedStruct) error {
 	}
 	return nil
 }
+
+// Count change the columns to COUNT(*), execute the query and returns
+// the result
+func (q Query) Count() (uint64, error) {
+	// XXX mapper should be able to return a list of pkey fields
+	// XXX When qb supports COUNT(*), use it
+	q.selectStmt = q.selectStmt.Select(qb.Count(q.mapper.Table().All()[0].(qb.ColumnElem)))
+	row, err := q.SQLQueryRow()
+	if err != nil {
+		return 0, err
+	}
+	var count uint64
+	err = row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
