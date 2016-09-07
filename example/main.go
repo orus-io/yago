@@ -71,6 +71,13 @@ func main() {
 	}
 	fmt.Println(p.Name, "created at", p.CreatedAt)
 
+	var all []Person
+	q = db.Query(model.Person)
+	if err := q.All(&all); err != nil {
+		panic(err)
+	}
+	fmt.Println("Loaded all persons:", all)
+
 	p.Name = "Plouf"
 
 	db.Update(p)

@@ -3,6 +3,7 @@ package yago
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
 
 	"github.com/aacanakin/qb"
 )
@@ -92,6 +93,40 @@ func (q Query) One(s MappedStruct) error {
 	}
 
 	err = q.mapper.Scan(rows, s)
+	if err != nil {
+		return err
+	}
+	if rows.Next() {
+		return fmt.Errorf("TooManyResultsError")
+	}
+	return nil
+}
+
+// All load all the structs matching the query
+func (q Query) All(value interface{}) error {
+	rows, err := q.SQLQuery()
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	resultType := q.mapper.StructType()
+
+	results := reflect.Indirect(reflect.ValueOf(value))
+	if results.Kind() != reflect.Slice || results.Type().Elem() != resultType {
+		return fmt.Errorf("yago Query.All(): Expected a []%s, got %v", resultType.Name(), results.Type().Name())
+	}
+
+	// Empty the slice
+	results.Set(reflect.MakeSlice(results.Type(), 0, 0))
+
+	for rows.Next() {
+		elem := reflect.New(resultType).Elem()
+		if err := q.mapper.Scan(rows, elem.Addr().Interface().(MappedStruct)); err != nil {
+			return fmt.Errorf("yago Query.All(): Error while scanning: %s", err)
+		}
+		results.Set(reflect.Append(results, elem))
+	}
 	if err != nil {
 		return err
 	}
