@@ -9,26 +9,32 @@ import (
 	"strings"
 )
 
-// ColumnTypesMap associate column types to go types.
+// TypeConf contains column type and empty value of a go type
+type TypeConf struct {
+	ColumnName string
+	EmptyValue string
+}
+
+// TypesMap associate column types and empty values to go types.
 // It is used to guess the column type at generation time.
-var ColumnTypesMap = map[string]string{
-	"int":           "qb.Int()",
-	"uint":          "qb.Int().Unsigned()",
-	"int64":         "qb.BigInt()",
-	"uint64":        "qb.BigInt().Unsigned()",
-	"string":        "qb.Varchar()",
-	"*string":       "qb.Varchar()",
-	"bool":          "qb.Boolean()",
-	"time.Time":     "qb.Timestamp()",
-	"*time.Time":    "qb.Timestamp()",
-	"uuid.UUID":     "qb.UUID()",
-	"uuid.NullUUID": "qb.UUID()",
+var TypesMap = map[string]TypeConf{
+	"int":           {"qb.Int()", "0"},
+	"uint":          {"qb.Int().Unsigned()", "0"},
+	"int64":         {"qb.BigInt()", "0"},
+	"uint64":        {"qb.BigInt().Unsigned()", "0"},
+	"string":        {"qb.Varchar()", `""`},
+	"*string":       {"qb.Varchar()", "nil"},
+	"bool":          {"qb.Boolean()", "false"},
+	"time.Time":     {"qb.Timestamp()", "(time.Time{})"},
+	"*time.Time":    {"qb.Timestamp()", "nil"},
+	"uuid.UUID":     {"qb.UUID()", "(uuid.UUID{})"},
+	"uuid.NullUUID": {"qb.UUID()", "(uuid.NullUUID{})"},
 }
 
 func guessColumnType(goType string) (string, error) {
-	columnType, ok := ColumnTypesMap[goType]
+	typeConf, ok := TypesMap[goType]
 	if ok {
-		return columnType, nil
+		return typeConf.ColumnName, nil
 	}
 	return "", fmt.Errorf("Cannot guess column type for go type %s", goType)
 }
@@ -37,21 +43,12 @@ func makeColumnName(name string) string {
 	return ToDBName(name)
 }
 
-func getEmptyValue(goType string) string {
-	if goType[0] == '*' {
-		return "nil"
-	} else if goType == "string" {
-		return `""`
-	} else if goType[0:3] == "int" {
-		return "0"
-	} else if goType == "time.Time" {
-		return "(time.Time{})"
-	} else if goType == "uuid.UUID" {
-		return "(uuid.UUID{})"
-	} else if goType == "uuid.NullUUID" {
-		return "(uuid.NullUUID{})"
+func getEmptyValue(goType string) (string, error) {
+	typeConf, ok := TypesMap[goType]
+	if ok {
+		return typeConf.EmptyValue, nil
 	}
-	panic(fmt.Sprintf("I have no empty value for type '%v'", goType))
+	return "", fmt.Errorf("Unknown empty value for type '%v'", goType)
 }
 
 func prepareFieldData(str *StructData, f *FieldData) {
@@ -85,7 +82,11 @@ func prepareFieldData(str *StructData, f *FieldData) {
 		}
 	}
 	if f.EmptyValue == "" && f.Tags.PrimaryKey {
-		f.EmptyValue = getEmptyValue(f.Type)
+		f.EmptyValue, err = getEmptyValue(f.Type)
+		if err != nil {
+			panic(fmt.Sprintf("Failure on field '%s': Got err '%s'",
+				f.Name, err))
+		}
 	}
 	if f.NameConst == "" {
 		f.NameConst = fmt.Sprintf(
