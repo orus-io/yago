@@ -76,14 +76,9 @@ func (db *DB) Update(s MappedStruct, fields ...string) error {
 }
 
 // Query returns a new Query for the struct
-func (db *DB) Query(s MappedStruct) Query {
-	mapper := db.Metadata.GetMapper(s)
-	return db.QueryFromMapper(mapper)
-}
-
-// QueryFromMapper returns a new Query for the mapper
-func (db *DB) QueryFromMapper(m Mapper) Query {
-	return NewQuery(db, m)
+func (db *DB) Query(mp MapperProvider) Query {
+	mapper := mp.GetMapper()
+	return NewQuery(db, mapper)
 }
 
 // Delete a struct from the database

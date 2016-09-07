@@ -172,6 +172,11 @@ func New{{ .Name }}Mapper() *{{ .Name }}Mapper {
 // {{ .Name }}Mapper is the {{ .Name }} mapper
 type {{ .Name }}Mapper struct{}
 
+// GetMapper returns itself
+func (m *{{ .Name }}Mapper) GetMapper() yago.Mapper {
+	return m
+}
+
 // Name returns the mapper name
 func (*{{ .Name }}Mapper) Name() string {
 	return "{{ .File.Package }}/{{ .Name }}"

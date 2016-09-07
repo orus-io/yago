@@ -7,6 +7,11 @@ import (
 	"github.com/aacanakin/qb"
 )
 
+// MapperProvider is implemented by any struct that can provide a single mapper
+type MapperProvider interface {
+	GetMapper() Mapper
+}
+
 // Mapper links a mapped struct and table definition
 type Mapper interface {
 	Name() string

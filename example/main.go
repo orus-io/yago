@@ -52,7 +52,7 @@ func main() {
 	db.Insert(p)
 	fmt.Println("Inserted", p.Name, "got ID", p.ID)
 
-	q := db.Query(&Person{})
+	q := db.Query(model.Person)
 	if err := q.One(p); err == nil {
 		panic("Should get a TooManyResultsError")
 	}
@@ -62,7 +62,7 @@ func main() {
 		panic("Should get a NoResultError")
 	}
 
-	q = db.Query(&Person{})
+	q = db.Query(model.Person)
 	q = q.Where(model.Person.Name.Eq("Titi"))
 
 	p = &Person{}
@@ -75,7 +75,7 @@ func main() {
 
 	db.Update(p)
 
-	q = db.Query(&Person{})
+	q = db.Query(model.Person)
 	q = q.Where(model.Person.Name.Eq("Plouf"))
 
 	p = &Person{}
@@ -87,7 +87,7 @@ func main() {
 	n := PhoneNumber{PersonID: p.ID, Name: "mobile", Number: "06"}
 	db.Insert(&n)
 
-	q = db.Query(&Person{})
+	q = db.Query(model.Person)
 	q = q.LeftJoin(model.PhoneNumber, model.Person.ID, model.PhoneNumber.PersonID)
 	q = q.Where(model.PhoneNumber.Name.Eq("mobile"))
 

@@ -89,6 +89,11 @@ func NewPersonMapper() *PersonMapper {
 // PersonMapper is the Person mapper
 type PersonMapper struct{}
 
+// GetMapper returns itself
+func (m *PersonMapper) GetMapper() yago.Mapper {
+	return m
+}
+
 // Name returns the mapper name
 func (*PersonMapper) Name() string {
 	return "main/Person"
@@ -252,6 +257,11 @@ func NewPhoneNumberMapper() *PhoneNumberMapper {
 
 // PhoneNumberMapper is the PhoneNumber mapper
 type PhoneNumberMapper struct{}
+
+// GetMapper returns itself
+func (m *PhoneNumberMapper) GetMapper() yago.Mapper {
+	return m
+}
 
 // Name returns the mapper name
 func (*PhoneNumberMapper) Name() string {
