@@ -80,8 +80,8 @@ func NewSimpleStructMapper() *SimpleStructMapper {
 type SimpleStructMapper struct{}
 
 // GetMapper returns itself
-func (m *SimpleStructMapper) GetMapper() yago.Mapper {
-	return m
+func (mapper *SimpleStructMapper) GetMapper() yago.Mapper {
+	return mapper
 }
 
 // Name returns the mapper name
@@ -252,8 +252,8 @@ func NewPersonStructMapper() *PersonStructMapper {
 type PersonStructMapper struct{}
 
 // GetMapper returns itself
-func (m *PersonStructMapper) GetMapper() yago.Mapper {
-	return m
+func (mapper *PersonStructMapper) GetMapper() yago.Mapper {
+	return mapper
 }
 
 // Name returns the mapper name

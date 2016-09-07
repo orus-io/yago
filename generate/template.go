@@ -173,8 +173,8 @@ func New{{ .Name }}Mapper() *{{ .Name }}Mapper {
 type {{ .Name }}Mapper struct{}
 
 // GetMapper returns itself
-func (m *{{ .Name }}Mapper) GetMapper() yago.Mapper {
-	return m
+func (mapper *{{ .Name }}Mapper) GetMapper() yago.Mapper {
+	return mapper
 }
 
 // Name returns the mapper name
