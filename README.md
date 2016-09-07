@@ -1,5 +1,7 @@
 # Yet Another Go ORM
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/orus-io/yago)](https://goreportcard.com/report/github.com/orus-io/yago)
+
 Yago is an attempt to create an ORM for Go.
 
 ## Features
