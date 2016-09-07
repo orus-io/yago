@@ -85,6 +85,13 @@ func main() {
 	}
 	fmt.Println("Loaded all persons as pointers:", allP)
 
+	if count, err := db.Query(model.Person).Count(); err != nil || count != 2 {
+		panic(fmt.Sprintf("Count returned (%d, %s)", count, err))
+	}
+	if exists, err := db.Query(model.Person).Exists(); err != nil || exists != true {
+		panic(fmt.Sprintf("Exists returned (%d, %s)", exists, err))
+	}
+
 	p.Name = "Plouf"
 
 	db.Update(p)

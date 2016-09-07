@@ -75,8 +75,8 @@ func (q Query) SQLQuery() (*sql.Rows, error) {
 }
 
 // SQLQueryRow runs the query and expects at most one row in the result
-func (q Query) SQLQueryRow() (*sql.Rows, error) {
-	return q.db.Engine.Query(q.selectStmt)
+func (q Query) SQLQueryRow() *sql.Row {
+	return q.db.Engine.QueryRow(q.selectStmt)
 }
 
 // One returns one and only one struct from the query.
@@ -162,10 +162,16 @@ func (q Query) All(value interface{}) error {
 func (q Query) Count() (uint64, error) {
 	// XXX mapper should be able to return a list of pkey fields
 	// XXX When qb supports COUNT(*), use it
-	q.selectStmt = q.selectStmt.Select(qb.Count(q.mapper.Table().All()[0].(qb.ColumnElem)))
-	row, err := q.SQLQueryRow()
+	q.selectStmt = q.selectStmt.Select(qb.Count(
+		q.mapper.Table().PrimaryCols()[0]),
+	)
+	row, err := q.SQLQuery()
 	if err != nil {
 		return 0, err
+	}
+	defer row.Close()
+	if !row.Next() {
+		panic("No result")
 	}
 	var count uint64
 	err = row.Scan(&count)
@@ -173,4 +179,23 @@ func (q Query) Count() (uint64, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+// Exists return true if any record matches the current query
+func (q Query) Exists() (bool, error) {
+	q.selectStmt = q.selectStmt.Select(qb.SQLText("1")).Limit(0, 1)
+	row, err := q.SQLQuery()
+	if err != nil {
+		return false, err
+	}
+	defer row.Close()
+	if !row.Next() {
+		panic("No result")
+	}
+	var exists bool
+	err = row.Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
 }
