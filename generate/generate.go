@@ -9,25 +9,26 @@ import (
 	"strings"
 )
 
+// ColumnTypesMap associate column types to go types.
+// It is used to guess the column type at generation time.
+var ColumnTypesMap = map[string]string{
+	"int":           "qb.Int()",
+	"uint":          "qb.Int().Unsigned()",
+	"int64":         "qb.BigInt()",
+	"uint64":        "qb.BigInt().Unsigned()",
+	"string":        "qb.Varchar()",
+	"*string":       "qb.Varchar()",
+	"bool":          "qb.Boolean()",
+	"time.Time":     "qb.Timestamp()",
+	"*time.Time":    "qb.Timestamp()",
+	"uuid.UUID":     "qb.UUID()",
+	"uuid.NullUUID": "qb.UUID()",
+}
+
 func guessColumnType(goType string) (string, error) {
-	if goType == "int" {
-		return "qb.Int()", nil
-	} else if goType == "int64" {
-		return "qb.BigInt()", nil
-	} else if goType == "string" {
-		return "qb.Varchar()", nil
-	} else if goType == "*string" {
-		return "qb.Varchar()", nil
-	} else if goType == "bool" {
-		return "qb.Boolean()", nil
-	} else if goType == "time.Time" {
-		return "qb.Timestamp()", nil
-	} else if goType == "*time.Time" {
-		return "qb.Timestamp()", nil
-	} else if goType == "uuid.UUID" {
-		return "qb.UUID()", nil
-	} else if goType == "uuid.NullUUID" {
-		return "qb.UUID()", nil
+	columnType, ok := ColumnTypesMap[goType]
+	if ok {
+		return columnType, nil
 	}
 	return "", fmt.Errorf("Cannot guess column type for go type %s", goType)
 }
