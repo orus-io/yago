@@ -53,7 +53,7 @@ func (db *DB) Insert(s MappedStruct) {
 }
 
 // Update the struct attributes in DB
-func (db *DB) Update(s MappedStruct, fields ...string) {
+func (db *DB) Update(s MappedStruct, fields ...string) error {
 	db.Callbacks.BeforeUpdate.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
 	update := mapper.Table().Update().
@@ -62,16 +62,17 @@ func (db *DB) Update(s MappedStruct, fields ...string) {
 
 	res, err := db.Engine.Exec(update)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("yago Update: Exec failed with '%s'", err)
 	}
 	ra, err := res.RowsAffected()
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("yago Update: RowsAffected() failed with '%s'", err)
 	}
 	if ra != 1 {
-		panic("Update failed")
+		return fmt.Errorf("Update failed. More than 1 row where affected")
 	}
 	db.Callbacks.AfterUpdate.Call(db, s)
+	return nil
 }
 
 // Query returns a new Query for the struct
