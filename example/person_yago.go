@@ -4,6 +4,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"reflect"
 
 	"github.com/aacanakin/qb"
@@ -114,7 +115,10 @@ func (PersonMapper) StructType() reflect.Type {
 func (mapper PersonMapper) SQLValues(instance yago.MappedStruct, fields ...string) map[string]interface{} {
 	s, ok := instance.(*Person)
 	if !ok {
-		panic("Wrong struct type passed to the mapper")
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &Person{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
 	}
 	allValues := len(fields) == 0
 	m := make(map[string]interface{})
@@ -151,7 +155,10 @@ func (mapper PersonMapper) FieldList() []qb.Clause {
 func (mapper PersonMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) error {
 	s, ok := instance.(*Person)
 	if !ok {
-		panic("Wrong struct type passed to the mapper")
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &Person{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
 	}
 	return rows.Scan(
 		&s.Name,
@@ -283,7 +290,10 @@ func (PhoneNumberMapper) StructType() reflect.Type {
 func (mapper PhoneNumberMapper) SQLValues(instance yago.MappedStruct, fields ...string) map[string]interface{} {
 	s, ok := instance.(*PhoneNumber)
 	if !ok {
-		panic("Wrong struct type passed to the mapper")
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &PhoneNumber{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
 	}
 	allValues := len(fields) == 0
 	m := make(map[string]interface{})
@@ -324,7 +334,10 @@ func (mapper PhoneNumberMapper) FieldList() []qb.Clause {
 func (mapper PhoneNumberMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) error {
 	s, ok := instance.(*PhoneNumber)
 	if !ok {
-		panic("Wrong struct type passed to the mapper")
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &PhoneNumber{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
 	}
 	return rows.Scan(
 		&s.PersonID,

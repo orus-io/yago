@@ -4,6 +4,7 @@ package yago_test
 
 import (
 	"database/sql"
+	"fmt"
 	"reflect"
 
 	"github.com/aacanakin/qb"
@@ -104,7 +105,10 @@ func (SimpleStructMapper) StructType() reflect.Type {
 func (mapper SimpleStructMapper) SQLValues(instance yago.MappedStruct, fields ...string) map[string]interface{} {
 	s, ok := instance.(*SimpleStruct)
 	if !ok {
-		panic("Wrong struct type passed to the mapper")
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &SimpleStruct{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
 	}
 	allValues := len(fields) == 0
 	m := make(map[string]interface{})
@@ -129,7 +133,10 @@ func (mapper SimpleStructMapper) FieldList() []qb.Clause {
 func (mapper SimpleStructMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) error {
 	s, ok := instance.(*SimpleStruct)
 	if !ok {
-		panic("Wrong struct type passed to the mapper")
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &SimpleStruct{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
 	}
 	return rows.Scan(
 		&s.ID,
@@ -276,7 +283,10 @@ func (PersonStructMapper) StructType() reflect.Type {
 func (mapper PersonStructMapper) SQLValues(instance yago.MappedStruct, fields ...string) map[string]interface{} {
 	s, ok := instance.(*PersonStruct)
 	if !ok {
-		panic("Wrong struct type passed to the mapper")
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &PersonStruct{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
 	}
 	allValues := len(fields) == 0
 	m := make(map[string]interface{})
@@ -317,7 +327,10 @@ func (mapper PersonStructMapper) FieldList() []qb.Clause {
 func (mapper PersonStructMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) error {
 	s, ok := instance.(*PersonStruct)
 	if !ok {
-		panic("Wrong struct type passed to the mapper")
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &PersonStruct{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
 	}
 	return rows.Scan(
 		&s.Active,

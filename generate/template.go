@@ -76,6 +76,7 @@ var (
 import (
 	{{- if .HasTables }}
 	"database/sql"
+	"fmt"
 	"reflect"
 
 	"github.com/aacanakin/qb"
@@ -197,7 +198,10 @@ func ({{ .Name }}Mapper) StructType() reflect.Type {
 func (mapper {{ .Name }}Mapper) SQLValues(instance yago.MappedStruct, fields ...string) map[string]interface{} {
 	s, ok := instance.(*{{ .Name }})
 	if !ok {
-		panic("Wrong struct type passed to the mapper")
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &{{ .Name }}{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
 	}
 	allValues := len(fields) == 0
 	m := make(map[string]interface{})
@@ -229,7 +233,10 @@ func (mapper {{ .Name }}Mapper) FieldList() []qb.Clause {
 func (mapper {{ .Name }}Mapper) Scan(rows *sql.Rows, instance yago.MappedStruct) error {
 	s, ok := instance.(*{{ .Name }})
 	if !ok {
-		panic("Wrong struct type passed to the mapper")
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &{{ .Name }}{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
 	}
 	return rows.Scan(
 	{{- range $_, $fd := .Fields }}
