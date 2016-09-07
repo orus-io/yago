@@ -78,6 +78,13 @@ func main() {
 	}
 	fmt.Println("Loaded all persons:", all)
 
+	var allP []*Person
+	q = db.Query(model.Person)
+	if err := q.All(&allP); err != nil {
+		panic(err)
+	}
+	fmt.Println("Loaded all persons as pointers:", allP)
+
 	p.Name = "Plouf"
 
 	db.Update(p)

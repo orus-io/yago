@@ -113,8 +113,25 @@ func (q Query) All(value interface{}) error {
 	resultType := q.mapper.StructType()
 
 	results := reflect.Indirect(reflect.ValueOf(value))
-	if results.Kind() != reflect.Slice || results.Type().Elem() != resultType {
-		return fmt.Errorf("yago Query.All(): Expected a []%s, got %v", resultType.Name(), results.Type().Name())
+
+	var (
+		isPtr     bool
+		wrongType bool
+	)
+
+	if results.Kind() != reflect.Slice {
+		wrongType = true
+	} else {
+		elemType := results.Type().Elem()
+		if elemType.Kind() == reflect.Ptr {
+			isPtr = true
+			wrongType = results.Type().Elem().Elem() != resultType
+		} else {
+			wrongType = results.Type().Elem() != resultType
+		}
+	}
+	if wrongType {
+		return fmt.Errorf("yago Query.All(): Expected a []%s, got %v", resultType, results.Type())
 	}
 
 	// Empty the slice
@@ -125,7 +142,11 @@ func (q Query) All(value interface{}) error {
 		if err := q.mapper.Scan(rows, elem.Addr().Interface().(MappedStruct)); err != nil {
 			return fmt.Errorf("yago Query.All(): Error while scanning: %s", err)
 		}
-		results.Set(reflect.Append(results, elem))
+		if isPtr {
+			results.Set(reflect.Append(results, elem.Addr()))
+		} else {
+			results.Set(reflect.Append(results, elem))
+		}
 	}
 	if err != nil {
 		return err
