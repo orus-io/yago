@@ -159,7 +159,7 @@ func (q Query) All(value interface{}) error {
 
 // Count change the columns to COUNT(*), execute the query and returns
 // the result
-func (q Query) Count() (uint64, error) {
+func (q Query) Count(count interface{}) error {
 	// XXX mapper should be able to return a list of pkey fields
 	// XXX When qb supports COUNT(*), use it
 	q.selectStmt = q.selectStmt.Select(qb.Count(
@@ -167,18 +167,18 @@ func (q Query) Count() (uint64, error) {
 	)
 	row, err := q.SQLQuery()
 	if err != nil {
-		return 0, err
+		return err
 	}
 	defer row.Close()
 	if !row.Next() {
 		panic("No result")
 	}
-	var count uint64
-	err = row.Scan(&count)
+
+	err = row.Scan(count)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	return count, nil
+	return nil
 }
 
 // Exists return true if any record matches the current query
