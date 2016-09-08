@@ -69,8 +69,10 @@ func (db *DB) Update(s MappedStruct, fields ...string) error {
 	if err != nil {
 		return fmt.Errorf("yago Update: RowsAffected() failed with '%s'", err)
 	}
-	if ra != 1 {
-		return fmt.Errorf("Update failed. More than 1 row where affected")
+	if ra == 0 {
+		return ErrRecordNotFound
+	} else if ra > 1 {
+		return ErrMultipleRecords
 	}
 	db.Callbacks.AfterUpdate.Call(db, s)
 	return nil
