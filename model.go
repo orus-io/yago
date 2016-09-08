@@ -21,6 +21,11 @@ func NewScalarField(column qb.ColumnElem) ScalarField {
 	}
 }
 
+// Accept calls the underlying column 'Accept'.
+func (f ScalarField) Accept(context *qb.CompilerContext) string {
+	return f.Column.Accept(context)
+}
+
 // Like returns a LIKE clause
 func (f ScalarField) Like(pattern string) qb.Clause {
 	return f.Column.Like(pattern)
