@@ -24,6 +24,12 @@ func NewQuery(db *DB, mapper Mapper) Query {
 	}
 }
 
+// Select redefines the SELECT clauses
+func (q Query) Select(clause ...qb.Clause) Query {
+	q.selectStmt = q.selectStmt.Select(clause...)
+	return q
+}
+
 // Where add filter clauses to the query
 func (q Query) Where(clause qb.Clause) Query {
 	return Query{
