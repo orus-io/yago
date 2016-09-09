@@ -39,40 +39,22 @@ func (q Query) Where(clause qb.Clause) Query {
 	}
 }
 
-// InnerJoinMapper joins a mapper table
-func (q Query) InnerJoinMapper(mapper Mapper, fromCol qb.ColumnElem, col qb.ColumnElem) Query {
-	q.selectStmt = q.selectStmt.InnerJoin(*mapper.Table(), fromCol, col)
-	return q
-}
-
-// LeftJoinMapper joins a mapper table
-func (q Query) LeftJoinMapper(mapper Mapper, fromCol qb.ColumnElem, col qb.ColumnElem) Query {
-	q.selectStmt = q.selectStmt.LeftJoin(*mapper.Table(), fromCol, col)
-	return q
-}
-
-// RightJoinMapper joins a mapper table
-func (q Query) RightJoinMapper(mapper Mapper, fromCol qb.ColumnElem, col qb.ColumnElem) Query {
-	q.selectStmt = q.selectStmt.RightJoin(*mapper.Table(), fromCol, col)
-	return q
-}
-
 // InnerJoin joins a table
-func (q Query) InnerJoin(model Model, fields ...ScalarField) Query {
-	// TODO if fields is empty, find the relation based on foreign keys
-	return q.InnerJoinMapper(model.GetMapper(), fields[0].Column, fields[1].Column)
+func (q Query) InnerJoin(mp MapperProvider, clause ...qb.Clause) Query {
+	q.selectStmt = q.selectStmt.InnerJoin(mp.GetMapper().Table(), clause...)
+	return q
 }
 
 // LeftJoin joins a table
-func (q Query) LeftJoin(model Model, fields ...ScalarField) Query {
-	// TODO if fields is empty, find the relation based on foreign keys
-	return q.LeftJoinMapper(model.GetMapper(), fields[0].Column, fields[1].Column)
+func (q Query) LeftJoin(mp MapperProvider, clause ...qb.Clause) Query {
+	q.selectStmt = q.selectStmt.LeftJoin(mp.GetMapper().Table(), clause...)
+	return q
 }
 
 // RightJoin joins a table
-func (q Query) RightJoin(model Model, fields ...ScalarField) Query {
-	// TODO if fields is empty, find the relation based on foreign keys
-	return q.RightJoinMapper(model.GetMapper(), fields[0].Column, fields[1].Column)
+func (q Query) RightJoin(mp MapperProvider, clause ...qb.Clause) Query {
+	q.selectStmt = q.selectStmt.RightJoin(mp.GetMapper().Table(), clause...)
+	return q
 }
 
 // SQLQuery runs the query
