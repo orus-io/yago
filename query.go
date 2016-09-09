@@ -24,19 +24,35 @@ func NewQuery(db *DB, mapper Mapper) Query {
 	}
 }
 
+// SelectStmt returns the builded SelectStmt
+func (q Query) SelectStmt() qb.SelectStmt {
+	return q.selectStmt
+}
+
 // Select redefines the SELECT clauses
 func (q Query) Select(clause ...qb.Clause) Query {
 	q.selectStmt = q.selectStmt.Select(clause...)
 	return q
 }
 
-// Where add filter clauses to the query
-func (q Query) Where(clause qb.Clause) Query {
+// Where set the filter clause of the query
+func (q Query) Where(clauses ...qb.Clause) Query {
 	return Query{
 		db:         q.db,
 		mapper:     q.mapper,
-		selectStmt: q.selectStmt.Where(clause),
+		selectStmt: q.selectStmt.Where(clauses...),
 	}
+}
+
+// Filter combines the given clauses with the current Where clause of the Query
+func (q Query) Filter(clauses ...qb.Clause) Query {
+	if q.selectStmt.WhereClause == nil {
+		q.selectStmt = q.selectStmt.Where(clauses...)
+	} else {
+		where := q.selectStmt.WhereClause.And(clauses...)
+		q.selectStmt.WhereClause = &where
+	}
+	return q
 }
 
 // InnerJoin joins a table
