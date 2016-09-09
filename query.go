@@ -90,6 +90,11 @@ func (q Query) One(s MappedStruct) error {
 	return nil
 }
 
+// Get returns a record from its primary key values
+func (q Query) Get(s MappedStruct, pkey ...interface{}) error {
+	return q.Where(q.mapper.PKeyClause(pkey)).One(s)
+}
+
 // All load all the structs matching the query
 func (q Query) All(value interface{}) error {
 	rows, err := q.SQLQuery()

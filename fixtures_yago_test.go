@@ -155,9 +155,17 @@ func (SimpleStructMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct,
 	s.ID = value
 }
 
+// PKey returns the instance primary key values
+func (mapper SimpleStructMapper) PKey(instance yago.MappedStruct) (values []interface{}) {
+	str := instance.(*SimpleStruct)
+	values = append(values, str.ID)
+
+	return
+}
+
 // PKeyClause returns a clause that matches the instance primary key
-func (mapper SimpleStructMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
-	return simpleStructTable.C(SimpleStructIDColumnName).Eq(instance.(*SimpleStruct).ID)
+func (mapper SimpleStructMapper) PKeyClause(values []interface{}) qb.Clause {
+	return simpleStructTable.C(SimpleStructIDColumnName).Eq(values[0])
 }
 
 const (
@@ -352,7 +360,15 @@ func (PersonStructMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct,
 	panic("PersonStruct has no auto increment column in its pkey")
 }
 
+// PKey returns the instance primary key values
+func (mapper PersonStructMapper) PKey(instance yago.MappedStruct) (values []interface{}) {
+	str := instance.(*PersonStruct)
+	values = append(values, str.ID)
+
+	return
+}
+
 // PKeyClause returns a clause that matches the instance primary key
-func (mapper PersonStructMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
-	return personStructTable.C(BaseStructIDColumnName).Eq(instance.(*PersonStruct).ID)
+func (mapper PersonStructMapper) PKeyClause(values []interface{}) qb.Clause {
+	return personStructTable.C(BaseStructIDColumnName).Eq(values[0])
 }

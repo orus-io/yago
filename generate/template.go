@@ -264,14 +264,25 @@ func ({{ .Name }}Mapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, 
 	{{- end }}
 }
 
+// PKey returns the instance primary key values
+func (mapper {{ .Name }}Mapper) PKey(instance yago.MappedStruct) (values []interface{}) {
+	str := instance.(*{{ $Struct }})
+
+	{{- range .PKeyFields }}
+	values = append(values, str.{{ .Name }})
+	{{- end }}
+
+	return
+}
+
 // PKeyClause returns a clause that matches the instance primary key
-func (mapper {{ .Name }}Mapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
+func (mapper {{ .Name }}Mapper) PKeyClause(values []interface{}) qb.Clause {
 	{{- if eq 1 (len .PKeyFields) }}
-	return {{ $Table }}.C({{ (index .PKeyFields 0).ColumnNameConst }}).Eq(instance.(*{{ .Name }}).{{ (index .PKeyFields 0).Name }})
+	return {{ $Table }}.C({{ (index .PKeyFields 0).ColumnNameConst }}).Eq(values[0])
 	{{- else }}
 	return qb.And(
-		{{- range .PKeyFields }}
-		{{ $Table }}.C({{ .ColumnNameConst }}).Eq(instance.(*{{ $Struct }}).{{ .Name }}),
+		{{- range $i := .PKeyFields }}
+		{{ $Table }}.C({{ .ColumnNameConst }}).Eq(values[{{ $i }}]),
 		{{- end }}
 	)
 	{{- end }}

@@ -179,9 +179,17 @@ func (PersonMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value
 	panic("Person has no auto increment column in its pkey")
 }
 
+// PKey returns the instance primary key values
+func (mapper PersonMapper) PKey(instance yago.MappedStruct) (values []interface{}) {
+	str := instance.(*Person)
+	values = append(values, str.ID)
+
+	return
+}
+
 // PKeyClause returns a clause that matches the instance primary key
-func (mapper PersonMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
-	return personTable.C(BaseIDColumnName).Eq(instance.(*Person).ID)
+func (mapper PersonMapper) PKeyClause(values []interface{}) qb.Clause {
+	return personTable.C(BaseIDColumnName).Eq(values[0])
 }
 
 const (
@@ -359,7 +367,15 @@ func (PhoneNumberMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, 
 	panic("PhoneNumber has no auto increment column in its pkey")
 }
 
+// PKey returns the instance primary key values
+func (mapper PhoneNumberMapper) PKey(instance yago.MappedStruct) (values []interface{}) {
+	str := instance.(*PhoneNumber)
+	values = append(values, str.ID)
+
+	return
+}
+
 // PKeyClause returns a clause that matches the instance primary key
-func (mapper PhoneNumberMapper) PKeyClause(instance yago.MappedStruct) qb.Clause {
-	return phoneNumberTable.C(BaseIDColumnName).Eq(instance.(*PhoneNumber).ID)
+func (mapper PhoneNumberMapper) PKeyClause(values []interface{}) qb.Clause {
+	return phoneNumberTable.C(BaseIDColumnName).Eq(values[0])
 }

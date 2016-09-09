@@ -11,6 +11,21 @@ import (
 
 //go:generate yago --fmt --package yago_test --output fixtures_yago_test.go
 
+type FixtureModel struct {
+	meta *yago.Metadata
+
+	PersonStruct PersonStructModel
+	SimpleStruct SimpleStructModel
+}
+
+func NewFixtureModel(meta *yago.Metadata) FixtureModel {
+	return FixtureModel{
+		meta:         meta,
+		PersonStruct: NewPersonStructModel(meta),
+		SimpleStruct: NewSimpleStructModel(meta),
+	}
+}
+
 //yago:
 type SimpleStruct struct {
 	ID   int64  `yago:"primary_key,auto_increment"`
@@ -33,7 +48,7 @@ type PersonStruct struct {
 	LastName  string `yago:"null"`
 }
 
-func (s *BaseStruct) BeforeCreate(db *yago.DB) {
+func (s *BaseStruct) BeforeInsert(db *yago.DB) {
 	var err error
 	s.ID, err = uuid.V4()
 	if err != nil {

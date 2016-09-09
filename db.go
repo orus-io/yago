@@ -59,7 +59,7 @@ func (db *DB) Update(s MappedStruct, fields ...string) error {
 	mapper := db.Metadata.GetMapper(s)
 	update := mapper.Table().Update().
 		Values(mapper.SQLValues(s, fields...)).
-		Where(mapper.PKeyClause(s))
+		Where(mapper.PKeyClause(mapper.PKey(s)))
 
 	res, err := db.Engine.Exec(update)
 	if err != nil {
@@ -88,7 +88,7 @@ func (db *DB) Query(mp MapperProvider) Query {
 func (db *DB) Delete(s MappedStruct) error {
 	db.Callbacks.BeforeDelete.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
-	del := mapper.Table().Delete().Where(mapper.PKeyClause(s))
+	del := mapper.Table().Delete().Where(mapper.PKeyClause(mapper.PKey(s)))
 	res, err := db.Engine.Exec(del)
 	if err != nil {
 		return err
