@@ -10,13 +10,13 @@ import (
 
 // Query helps querying structs from the database
 type Query struct {
-	db         *DB
+	db         IDB
 	mapper     Mapper
 	selectStmt qb.SelectStmt
 }
 
 // NewQuery creates a new query
-func NewQuery(db *DB, mapper Mapper) Query {
+func NewQuery(db IDB, mapper Mapper) Query {
 	return Query{
 		db:         db,
 		mapper:     mapper,
@@ -75,12 +75,12 @@ func (q Query) RightJoin(mp MapperProvider, clause ...qb.Clause) Query {
 
 // SQLQuery runs the query
 func (q Query) SQLQuery() (*sql.Rows, error) {
-	return q.db.Engine.Query(q.selectStmt)
+	return q.db.GetEngine().Query(q.selectStmt)
 }
 
 // SQLQueryRow runs the query and expects at most one row in the result
 func (q Query) SQLQueryRow() *sql.Row {
-	return q.db.Engine.QueryRow(q.selectStmt)
+	return q.db.GetEngine().QueryRow(q.selectStmt)
 }
 
 // One returns one and only one struct from the query.
@@ -205,7 +205,9 @@ func (q Query) Count(count interface{}) error {
 
 // Exists return true if any record matches the current query
 func (q Query) Exists() (exists bool, err error) {
-	q.selectStmt = q.selectStmt.Select(qb.SQLText("1")).Limit(0, 1)
+	q.selectStmt = qb.Select(qb.Exists(
+		q.selectStmt.Select(qb.SQLText("1")).Limit(0, 1),
+	))
 	err = q.Scalar(&exists)
 	return
 }
