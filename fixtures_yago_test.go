@@ -26,7 +26,7 @@ const (
 
 const (
 	// SimpleStructTableName is the SimpleStruct associated table name
-	SimpleStructTableName = "simplestruct"
+	SimpleStructTableName = "simple_struct"
 )
 
 var simpleStructTable = qb.Table(
@@ -200,7 +200,7 @@ const (
 
 const (
 	// PersonStructTableName is the PersonStruct associated table name
-	PersonStructTableName = "personstruct"
+	PersonStructTableName = "person_struct"
 )
 
 var personStructTable = qb.Table(

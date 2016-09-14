@@ -18,13 +18,13 @@ type querySQLTests struct {
 func makeQuerySQLTests(db *yago.DB, model FixtureModel) []querySQLTests {
 	return []querySQLTests{
 		querySQLTests{
-			"SELECT X\nFROM personstruct\nWHERE (Y AND Z)",
+			"SELECT X\nFROM person_struct\nWHERE (Y AND Z)",
 			db.Query(model.PersonStruct).Select(qb.SQLText("X")).
 				Filter(qb.SQLText("Y")).
 				Filter(qb.SQLText("Z")),
 		},
 		querySQLTests{
-			"SELECT X\nFROM personstruct\nWHERE (Y AND Z)",
+			"SELECT X\nFROM person_struct\nWHERE (Y AND Z)",
 			db.Query(model.PersonStruct).Select(qb.SQLText("X")).
 				Where(qb.SQLText("Y"), qb.SQLText("Z")),
 		},

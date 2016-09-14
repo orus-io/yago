@@ -249,7 +249,7 @@ func ParseFile(path string) ([]*StructData, error) {
 				continue
 			}
 
-			tablename := strings.ToLower(ts.Name.Name)
+			tablename := ToDBName(ts.Name.Name)
 
 			if args.TableName != "" {
 				tablename = args.TableName

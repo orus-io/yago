@@ -209,7 +209,7 @@ const (
 
 const (
 	// PhoneNumberTableName is the PhoneNumber associated table name
-	PhoneNumberTableName = "phonenumber"
+	PhoneNumberTableName = "phone_number"
 )
 
 var phoneNumberTable = qb.Table(
