@@ -60,9 +60,42 @@ func (db *DB) Delete(s MappedStruct) error {
 	return db.doDelete(db.Engine, s)
 }
 
+func (db *DB) doInsertWithReturning(engine Engine, s MappedStruct) error {
+	mapper := db.Metadata.GetMapper(s)
+
+	insert := mapper.Table().Insert().
+		Values(mapper.SQLValues(s)).
+		Returning(mapper.Table().PrimaryCols()...)
+
+	rows, err := engine.Query(insert)
+	if err != nil {
+		return fmt.Errorf("yago Insert: QueryRow failed with '%s'", err)
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return fmt.Errorf("yago Insert: No row returned by insert")
+	}
+
+	if err := mapper.ScanPKey(rows, s); err != nil {
+		return fmt.Errorf("yago Insert: Error scanning the returned pkey: %s", err)
+	}
+
+	if rows.Next() {
+		return ErrMultipleRecords
+	}
+
+	return nil
+}
+
 func (db *DB) doInsert(engine Engine, s MappedStruct) error {
 	db.Callbacks.BeforeInsert.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
+
+	if mapper.AutoIncrementPKey() && db.Engine.Dialect().Driver() == "postgres" {
+		return db.doInsertWithReturning(engine, s)
+	}
+
 	insert := mapper.Table().Insert().Values(mapper.SQLValues(s))
 
 	res, err := engine.Exec(insert)

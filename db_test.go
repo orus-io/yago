@@ -54,3 +54,14 @@ func TestTx(t *testing.T) {
 		assert.True(t, exists)
 	}
 }
+
+func TestInsertWithReturning(t *testing.T) {
+	db, _, cleanup := initModelWithDriver(t, "postgres")
+	defer cleanup()
+
+	p := SimpleStruct{Name: "Test"}
+	assert.EqualValues(t, 0, p.ID)
+	assert.Nil(t, db.Insert(&p))
+
+	assert.EqualValues(t, 1, p.ID)
+}
