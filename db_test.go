@@ -7,7 +7,8 @@ import (
 )
 
 func TestTx(t *testing.T) {
-	db, model := initModel(t)
+	db, model, cleanup := initModel(t)
+	defer cleanup()
 
 	p := PersonStruct{FirstName: "Malcom"}
 

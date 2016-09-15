@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/aacanakin/qb"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/orus-io/yago"
 
 	"github.com/stretchr/testify/assert"
@@ -31,30 +30,9 @@ func makeQuerySQLTests(db *yago.DB, model FixtureModel) []querySQLTests {
 	}
 }
 
-func asSQL(query yago.Query) string {
-	sql, _ := asSQLBind(query)
-	return sql
-}
-
-func asSQLBind(query yago.Query) (string, []interface{}) {
-	dialect := qb.NewDialect("default")
-	s := query.SelectStmt()
-	ctx := qb.NewCompilerContext(dialect)
-	return s.Accept(ctx), ctx.Binds
-}
-
-func initModel(t *testing.T) (db *yago.DB, model FixtureModel) {
-	engine, err := qb.New("sqlite3", ":memory:")
-	meta := yago.NewMetadata()
-	model = NewFixtureModel(meta)
-	db = yago.New(meta, engine)
-	meta.GetQbMetadata().CreateAll(engine)
-	assert.Nil(t, err)
-	return
-}
-
 func TestGet(t *testing.T) {
-	db, model := initModel(t)
+	db, model, cleanup := initModel(t)
+	defer cleanup()
 	p := PersonStruct{FirstName: "John"}
 	assert.Nil(t, db.Insert(&p))
 	t.Log(p.ID)
@@ -66,7 +44,8 @@ func TestGet(t *testing.T) {
 }
 
 func TestQuerySQL(t *testing.T) {
-	db, model := initModel(t)
+	db, model, cleanup := initModel(t)
+	defer cleanup()
 
 	for _, tt := range makeQuerySQLTests(db, model) {
 		assert.Equal(t,
