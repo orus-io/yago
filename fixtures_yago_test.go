@@ -129,6 +129,20 @@ func (mapper SimpleStructMapper) FieldList() []qb.Clause {
 	}
 }
 
+// ScanPKey scans the primary key only
+func (mapper SimpleStructMapper) ScanPKey(rows *sql.Rows, instance yago.MappedStruct) error {
+	s, ok := instance.(*SimpleStruct)
+	if !ok {
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &SimpleStruct{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
+	}
+	return rows.Scan(
+		&s.ID,
+	)
+}
+
 // Scan a struct
 func (mapper SimpleStructMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) error {
 	s, ok := instance.(*SimpleStruct)
@@ -329,6 +343,20 @@ func (mapper PersonStructMapper) FieldList() []qb.Clause {
 		personStructTable.C(BaseStructCreatedAtColumnName),
 		personStructTable.C(BaseStructUpdatedAtColumnName),
 	}
+}
+
+// ScanPKey scans the primary key only
+func (mapper PersonStructMapper) ScanPKey(rows *sql.Rows, instance yago.MappedStruct) error {
+	s, ok := instance.(*PersonStruct)
+	if !ok {
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &PersonStruct{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
+	}
+	return rows.Scan(
+		&s.ID,
+	)
 }
 
 // Scan a struct

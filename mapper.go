@@ -25,6 +25,7 @@ type Mapper interface {
 	PKey(instance MappedStruct) []interface{}
 	PKeyClause(values []interface{}) qb.Clause
 
+	ScanPKey(rows *sql.Rows, instance MappedStruct) error
 	Scan(rows *sql.Rows, instance MappedStruct) error
 }
 

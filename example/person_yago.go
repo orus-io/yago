@@ -151,6 +151,20 @@ func (mapper PersonMapper) FieldList() []qb.Clause {
 	}
 }
 
+// ScanPKey scans the primary key only
+func (mapper PersonMapper) ScanPKey(rows *sql.Rows, instance yago.MappedStruct) error {
+	s, ok := instance.(*Person)
+	if !ok {
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &Person{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
+	}
+	return rows.Scan(
+		&s.ID,
+	)
+}
+
 // Scan a struct
 func (mapper PersonMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) error {
 	s, ok := instance.(*Person)
@@ -336,6 +350,20 @@ func (mapper PhoneNumberMapper) FieldList() []qb.Clause {
 		phoneNumberTable.C(BaseCreatedAtColumnName),
 		phoneNumberTable.C(BaseUpdatedAtColumnName),
 	}
+}
+
+// ScanPKey scans the primary key only
+func (mapper PhoneNumberMapper) ScanPKey(rows *sql.Rows, instance yago.MappedStruct) error {
+	s, ok := instance.(*PhoneNumber)
+	if !ok {
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &PhoneNumber{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
+	}
+	return rows.Scan(
+		&s.ID,
+	)
 }
 
 // Scan a struct

@@ -229,6 +229,22 @@ func (mapper {{ .Name }}Mapper) FieldList() []qb.Clause {
 	}
 }
 
+// ScanPKey scans the primary key only
+func (mapper {{ .Name }}Mapper) ScanPKey(rows *sql.Rows, instance yago.MappedStruct) error {
+	s, ok := instance.(*{{ .Name }})
+	if !ok {
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &{{ .Name }}{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
+	}
+	return rows.Scan(
+	{{- range .PKeyFields }}
+		&s.{{ .Name }},
+	{{- end }}
+	)
+}
+
 // Scan a struct
 func (mapper {{ .Name }}Mapper) Scan(rows *sql.Rows, instance yago.MappedStruct) error {
 	s, ok := instance.(*{{ .Name }})
