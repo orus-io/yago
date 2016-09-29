@@ -93,7 +93,7 @@ func (q Query) One(s MappedStruct) error {
 	defer rows.Close()
 
 	if !rows.Next() {
-		return fmt.Errorf("NoResultError")
+		return ErrRecordNotFound
 	}
 
 	err = q.mapper.Scan(rows, s)
@@ -101,7 +101,7 @@ func (q Query) One(s MappedStruct) error {
 		return err
 	}
 	if rows.Next() {
-		return fmt.Errorf("TooManyResultsError")
+		return ErrMultipleRecords
 	}
 	return nil
 }
