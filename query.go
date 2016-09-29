@@ -160,9 +160,6 @@ func (q Query) All(value interface{}) error {
 	if err != nil {
 		return err
 	}
-	if rows.Next() {
-		return fmt.Errorf("TooManyResultsError")
-	}
 	return nil
 }
 
