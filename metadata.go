@@ -3,7 +3,7 @@ package yago
 import (
 	"reflect"
 
-	"github.com/aacanakin/qb"
+	"github.com/orus-io/qb"
 )
 
 // Metadata holds the table defs & mappers of a db

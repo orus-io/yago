@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/aacanakin/qb"
+	"github.com/orus-io/qb"
 
 	"github.com/m4rw3r/uuid"
 	"github.com/orus-io/yago"

@@ -116,7 +116,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/aacanakin/qb"
+	"github.com/orus-io/qb"
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/orus-io/yago"

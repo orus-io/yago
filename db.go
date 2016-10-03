@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/aacanakin/qb"
+	"github.com/orus-io/qb"
 )
 
 // IDB is the common interface of DB and Tx

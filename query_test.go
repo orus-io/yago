@@ -3,7 +3,7 @@ package yago_test
 import (
 	"testing"
 
-	"github.com/aacanakin/qb"
+	"github.com/orus-io/qb"
 	"github.com/orus-io/yago"
 
 	"github.com/stretchr/testify/assert"
