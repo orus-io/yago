@@ -73,6 +73,26 @@ func (q Query) RightJoin(mp MapperProvider, clause ...qb.Clause) Query {
 	return q
 }
 
+// OrderBy add a ORDER BY clause
+func (q Query) OrderBy(clauses ...qb.Clause) Query {
+	// Right now qb.selectStmt.OrderBy only accepts ColumnElem
+	var columns []qb.ColumnElem
+	for _, clause := range clauses {
+		scalf, ok := clause.(ScalarField)
+		if ok {
+			columns = append(columns, scalf.Column)
+			continue
+		}
+		col, ok := clause.(qb.ColumnElem)
+		if !ok {
+			panic("OrderBy only accepts ScalarField and qb.ColumnElem arguments")
+		}
+		columns = append(columns, col)
+	}
+	q.selectStmt = q.selectStmt.OrderBy(columns...)
+	return q
+}
+
 // SQLQuery runs the query
 func (q Query) SQLQuery() (*sql.Rows, error) {
 	return q.db.GetEngine().Query(q.selectStmt)

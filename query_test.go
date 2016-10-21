@@ -27,6 +27,11 @@ func makeQuerySQLTests(db *yago.DB, model FixtureModel) []querySQLTests {
 			db.Query(model.PersonStruct).Select(qb.SQLText("X")).
 				Where(qb.SQLText("Y"), qb.SQLText("Z")),
 		},
+		querySQLTests{
+			"SELECT X\nFROM person_struct\nORDER BY last_name ASC",
+			db.Query(model.PersonStruct).Select(qb.SQLText("X")).
+				OrderBy(model.PersonStruct.LastName),
+		},
 	}
 }
 
