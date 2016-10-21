@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/orus-io/qb"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/slicebit/qb"
 
 	"github.com/orus-io/yago"
 )

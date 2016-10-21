@@ -79,7 +79,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/orus-io/qb"
+	"github.com/slicebit/qb"
 
 	"github.com/orus-io/yago"
 	{{- end }}

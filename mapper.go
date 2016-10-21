@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"reflect"
 
-	"github.com/orus-io/qb"
+	"github.com/slicebit/qb"
 )
 
 // MapperProvider is implemented by any struct that can provide a single mapper

@@ -7,7 +7,7 @@ Yago is an attempt to create an ORM for Go.
 ## Features
 
 - SQLAlchemy inspired
-- based on the 'qb' database toolkit (https://github.com/aacanakin/qb),
+- based on the 'qb' database toolkit (https://github.com/slicebit/qb),
 - based on non-empty interface and code generation as 'reform' does
   (https://github.com/go-reform/reform/)
 
@@ -116,7 +116,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/orus-io/qb"
+	"github.com/slicebit/qb"
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/orus-io/yago"

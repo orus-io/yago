@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/orus-io/qb"
+	"github.com/slicebit/qb"
 )
 
 // Query helps querying structs from the database

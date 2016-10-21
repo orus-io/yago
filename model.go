@@ -1,7 +1,7 @@
 package yago
 
 import (
-	"github.com/orus-io/qb"
+	"github.com/slicebit/qb"
 )
 
 // A Model provides handy access to a struct definition.

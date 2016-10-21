@@ -3,8 +3,8 @@ package yago_test
 import (
 	"testing"
 
-	"github.com/orus-io/qb"
 	"github.com/orus-io/yago"
+	"github.com/slicebit/qb"
 
 	"github.com/stretchr/testify/assert"
 )
