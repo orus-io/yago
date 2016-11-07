@@ -93,6 +93,16 @@ func (q Query) OrderBy(clauses ...qb.Clause) Query {
 	return q
 }
 
+// ForUpdate add a FOR UPDATE clause
+func (q Query) ForUpdate(mps ...MapperProvider) Query {
+	var tables []qb.TableElem
+	for _, mp := range mps {
+		tables = append(tables, *mp.GetMapper().Table())
+	}
+	q.selectStmt = q.selectStmt.ForUpdate(tables...)
+	return q
+}
+
 // SQLQuery runs the query
 func (q Query) SQLQuery() (*sql.Rows, error) {
 	return q.db.GetEngine().Query(q.selectStmt)
