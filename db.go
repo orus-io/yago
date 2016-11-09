@@ -164,7 +164,9 @@ func (db *DB) doDelete(engine Engine, s MappedStruct) error {
 	if err != nil {
 		return err
 	}
-	if rowsAffected != 1 {
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	} else if rowsAffected != 1 {
 		return fmt.Errorf("Wrong number of rows affected. Expected 1, got %v", rowsAffected)
 	}
 	db.Callbacks.AfterDelete.Call(db, s)
