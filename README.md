@@ -32,7 +32,7 @@ API, which needs to be ironned first.
 ```bash
 
 go get -u github.com/orus-io/yago
-go install github.com/orus-io/cmd/yago
+go install github.com/orus-io/yago/cmd/yago
 ```
 
 Define your model (for example in model.go):
