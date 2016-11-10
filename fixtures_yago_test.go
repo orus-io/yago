@@ -413,6 +413,10 @@ const (
 	AutoIncChildName = "Name"
 	// AutoIncChildNameColumnName is the Name field associated column name
 	AutoIncChildNameColumnName = "name"
+	// AutoIncChildPerson is the Person field name
+	AutoIncChildPerson = "Person"
+	// AutoIncChildPersonColumnName is the Person field associated column name
+	AutoIncChildPersonColumnName = "person"
 )
 
 const (
@@ -423,7 +427,9 @@ const (
 var autoIncChildTable = qb.Table(
 	AutoIncChildTableName,
 	qb.Column(AutoIncChildNameColumnName, qb.Varchar()).NotNull(),
+	qb.Column(AutoIncChildPersonColumnName, qb.UUID()).NotNull(),
 	qb.Column(AutoIncBaseIDColumnName, qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
+	qb.ForeignKey(AutoIncChildPersonColumnName).References(PersonStructTableName, BaseStructIDColumnName).OnUpdate("CASCADE").OnDelete("SET NULL"),
 )
 
 var autoIncChildType = reflect.TypeOf(AutoIncChild{})
@@ -440,6 +446,7 @@ func (AutoIncChild) StructType() reflect.Type {
 type AutoIncChildModel struct {
 	mapper *AutoIncChildMapper
 	Name   yago.ScalarField
+	Person yago.ScalarField
 	ID     yago.ScalarField
 }
 
@@ -450,6 +457,7 @@ func NewAutoIncChildModel(meta *yago.Metadata) AutoIncChildModel {
 	return AutoIncChildModel{
 		mapper: mapper,
 		Name:   yago.NewScalarField(mapper.Table().C(AutoIncChildNameColumnName)),
+		Person: yago.NewScalarField(mapper.Table().C(AutoIncChildPersonColumnName)),
 		ID:     yago.NewScalarField(mapper.Table().C(AutoIncBaseIDColumnName)),
 	}
 }
@@ -506,6 +514,9 @@ func (mapper AutoIncChildMapper) SQLValues(instance yago.MappedStruct, fields ..
 	if allValues || yago.StringListContains(fields, AutoIncChildName) {
 		m[AutoIncChildNameColumnName] = s.Name
 	}
+	if allValues || yago.StringListContains(fields, AutoIncChildPerson) {
+		m[AutoIncChildPersonColumnName] = s.Person
+	}
 	return m
 }
 
@@ -513,6 +524,7 @@ func (mapper AutoIncChildMapper) SQLValues(instance yago.MappedStruct, fields ..
 func (mapper AutoIncChildMapper) FieldList() []qb.Clause {
 	return []qb.Clause{
 		autoIncChildTable.C(AutoIncChildNameColumnName),
+		autoIncChildTable.C(AutoIncChildPersonColumnName),
 		autoIncChildTable.C(AutoIncBaseIDColumnName),
 	}
 }
@@ -542,6 +554,7 @@ func (mapper AutoIncChildMapper) Scan(rows *sql.Rows, instance yago.MappedStruct
 	}
 	return rows.Scan(
 		&s.Name,
+		&s.Person,
 		&s.ID,
 	)
 }

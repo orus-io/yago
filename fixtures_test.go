@@ -57,7 +57,8 @@ type AutoIncBase struct {
 type AutoIncChild struct {
 	AutoIncBase
 
-	Name string
+	Name   string
+	Person uuid.UUID `yago:"fk=PersonStruct ONDELETE SET NULL ONUPDATE CASCADE"`
 }
 
 func (s *BaseStruct) BeforeInsert(db *yago.DB) {

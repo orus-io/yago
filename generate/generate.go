@@ -158,6 +158,41 @@ func loadEmbedded(path string, structs map[string]*StructData, fd FileData) []*S
 	return newStructs
 }
 
+func parseFkDef(fkDef string) (fk string, onUpdate string, onDelete string) {
+	if strings.Index(fkDef, " ") != -1 {
+		tokens := strings.Split(fkDef, " ")
+		fk = tokens[0]
+		for i := 1; i < len(tokens); {
+			token := tokens[i]
+			var event *string
+			switch strings.ToUpper(token) {
+			case "ONUPDATE":
+				event = &onUpdate
+			case "ONDELETE":
+				event = &onDelete
+			default:
+				panic(fmt.Sprintf("Invalid token in fk definition: %s", token))
+			}
+			i++
+			for i < len(tokens) {
+				token := tokens[i]
+				if strings.ToUpper(token) == "ONUPDATE" || strings.ToUpper(token) == "ONDELETE" {
+					break
+				}
+				if *event != "" {
+					*event += " "
+				}
+				*event += token
+				i++
+			}
+			*event = strings.ToUpper(*event)
+		}
+	} else {
+		fk = fkDef
+	}
+	return
+}
+
 func postPrepare(filedata *FileData, structs map[string]*StructData) {
 	for _, str := range structs {
 		for i := range str.Fields {
@@ -182,28 +217,12 @@ func postPrepare(filedata *FileData, structs map[string]*StructData) {
 			}
 			for _, fkDef := range str.Fields[i].Tags.ForeignKeys {
 				var (
-					fk           string
 					structName   string
 					refFieldName string
 					refStruct    *StructData
 					refField     *FieldData
-					onUpdate     string
-					onDelete     string
 				)
-				if strings.Index(fkDef, " ") != -1 {
-					splitted := strings.Split(fkDef, " ")
-					fk = splitted[0]
-					for i, w := range splitted[1 : len(splitted)-1] {
-						if strings.ToUpper(w) == "ONUPDATE" {
-							onUpdate = strings.ToUpper(splitted[i+2])
-						}
-						if strings.ToUpper(w) == "ONDELETE" {
-							onDelete = strings.ToUpper(splitted[i+2])
-						}
-					}
-				} else {
-					fk = fkDef
-				}
+				fk, onUpdate, onDelete := parseFkDef(fkDef)
 				if strings.Index(fk, ".") != -1 {
 					splitted := strings.Split(fk, ".")
 					structName = splitted[0]
