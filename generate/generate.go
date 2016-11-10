@@ -69,7 +69,6 @@ func prepareFieldData(str *StructData, f *FieldData) {
 		}
 		if f.Tags.AutoIncrement {
 			f.ColumnModifiers += ".AutoIncrement()"
-			str.AutoIncrementPKey = f
 		}
 		if f.Tags.Null {
 			f.ColumnModifiers += ".Null()"
@@ -164,6 +163,9 @@ func postPrepare(filedata *FileData, structs map[string]*StructData) {
 		for i := range str.Fields {
 			if str.Fields[i].Tags.PrimaryKey {
 				str.PKeyFields = append(str.PKeyFields, &str.Fields[i])
+			}
+			if str.Fields[i].Tags.AutoIncrement {
+				str.AutoIncrementPKey = &str.Fields[i]
 			}
 		}
 		if len(str.PKeyFields) == 0 {

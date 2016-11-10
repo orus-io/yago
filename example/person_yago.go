@@ -185,12 +185,13 @@ func (mapper PersonMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) erro
 
 // AutoIncrementPKey return true if a column of the pkey is autoincremented
 func (PersonMapper) AutoIncrementPKey() bool {
-	return false
+	return true
 }
 
 // LoadAutoIncrementPKeyValue set the pkey autoincremented column value
 func (PersonMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value int64) {
-	panic("Person has no auto increment column in its pkey")
+	s := instance.(*Person)
+	s.ID = value
 }
 
 // PKey returns the instance primary key values
@@ -387,12 +388,13 @@ func (mapper PhoneNumberMapper) Scan(rows *sql.Rows, instance yago.MappedStruct)
 
 // AutoIncrementPKey return true if a column of the pkey is autoincremented
 func (PhoneNumberMapper) AutoIncrementPKey() bool {
-	return false
+	return true
 }
 
 // LoadAutoIncrementPKeyValue set the pkey autoincremented column value
 func (PhoneNumberMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value int64) {
-	panic("PhoneNumber has no auto increment column in its pkey")
+	s := instance.(*PhoneNumber)
+	s.ID = value
 }
 
 // PKey returns the instance primary key values
