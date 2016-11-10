@@ -49,3 +49,7 @@ func TestSQLValues(t *testing.T) {
 		assert.Equal(t, tt.expect, tt.m.SQLValues(tt.s, tt.fields...))
 	}
 }
+
+func TestInheritedAutoincPkey(t *testing.T) {
+	assert.True(t, NewAutoIncChildMapper().AutoIncrementPKey())
+}

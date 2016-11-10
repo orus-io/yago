@@ -48,6 +48,18 @@ type PersonStruct struct {
 	LastName  string `yago:"null"`
 }
 
+//yago:notable
+type AutoIncBase struct {
+	ID int64 `yago:"primary_key,auto_increment"`
+}
+
+//yago:autoattrs
+type AutoIncChild struct {
+	AutoIncBase
+
+	Name string
+}
+
 func (s *BaseStruct) BeforeInsert(db *yago.DB) {
 	var err error
 	s.ID, err = uuid.V4()

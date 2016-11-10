@@ -400,3 +400,172 @@ func (mapper PersonStructMapper) PKey(instance yago.MappedStruct) (values []inte
 func (mapper PersonStructMapper) PKeyClause(values []interface{}) qb.Clause {
 	return personStructTable.C(BaseStructIDColumnName).Eq(values[0])
 }
+
+const (
+	// AutoIncBaseID is the ID field name
+	AutoIncBaseID = "ID"
+	// AutoIncBaseIDColumnName is the ID field associated column name
+	AutoIncBaseIDColumnName = "id"
+)
+
+const (
+	// AutoIncChildName is the Name field name
+	AutoIncChildName = "Name"
+	// AutoIncChildNameColumnName is the Name field associated column name
+	AutoIncChildNameColumnName = "name"
+)
+
+const (
+	// AutoIncChildTableName is the AutoIncChild associated table name
+	AutoIncChildTableName = "auto_inc_child"
+)
+
+var autoIncChildTable = qb.Table(
+	AutoIncChildTableName,
+	qb.Column(AutoIncChildNameColumnName, qb.Varchar()).NotNull(),
+	qb.Column(AutoIncBaseIDColumnName, qb.BigInt()).PrimaryKey().AutoIncrement().NotNull(),
+)
+
+var autoIncChildType = reflect.TypeOf(AutoIncChild{})
+
+// StructType returns the reflect.Type of the struct
+// It is used for indexing mappers (and only that I guess, so
+// it could be replaced with a unique identifier).
+func (AutoIncChild) StructType() reflect.Type {
+	return autoIncChildType
+}
+
+// AutoIncChildModel provides direct access to helpers for AutoIncChild
+// queries
+type AutoIncChildModel struct {
+	mapper *AutoIncChildMapper
+	Name   yago.ScalarField
+	ID     yago.ScalarField
+}
+
+// NewAutoIncChildModel returns a new AutoIncChildModel
+func NewAutoIncChildModel(meta *yago.Metadata) AutoIncChildModel {
+	mapper := NewAutoIncChildMapper()
+	meta.AddMapper(mapper)
+	return AutoIncChildModel{
+		mapper: mapper,
+		Name:   yago.NewScalarField(mapper.Table().C(AutoIncChildNameColumnName)),
+		ID:     yago.NewScalarField(mapper.Table().C(AutoIncBaseIDColumnName)),
+	}
+}
+
+// GetMapper returns the associated AutoIncChildMapper instance
+func (m AutoIncChildModel) GetMapper() yago.Mapper {
+	return m.mapper
+}
+
+// NewAutoIncChildMapper initialize a NewAutoIncChildMapper
+func NewAutoIncChildMapper() *AutoIncChildMapper {
+	m := &AutoIncChildMapper{}
+	return m
+}
+
+// AutoIncChildMapper is the AutoIncChild mapper
+type AutoIncChildMapper struct{}
+
+// GetMapper returns itself
+func (mapper *AutoIncChildMapper) GetMapper() yago.Mapper {
+	return mapper
+}
+
+// Name returns the mapper name
+func (*AutoIncChildMapper) Name() string {
+	return "yago_test/AutoIncChild"
+}
+
+// Table returns the mapper table
+func (*AutoIncChildMapper) Table() *qb.TableElem {
+	return &autoIncChildTable
+}
+
+// StructType returns the reflect.Type of the mapped structure
+func (AutoIncChildMapper) StructType() reflect.Type {
+	return autoIncChildType
+}
+
+// SQLValues returns values as a map
+// The primary key is included only if having non-default values
+func (mapper AutoIncChildMapper) SQLValues(instance yago.MappedStruct, fields ...string) map[string]interface{} {
+	s, ok := instance.(*AutoIncChild)
+	if !ok {
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &AutoIncChild{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
+	}
+	allValues := len(fields) == 0
+	m := make(map[string]interface{})
+	if s.ID != 0 {
+		m[AutoIncBaseIDColumnName] = s.ID
+	}
+	if allValues || yago.StringListContains(fields, AutoIncChildName) {
+		m[AutoIncChildNameColumnName] = s.Name
+	}
+	return m
+}
+
+// FieldList returns the list of fields for a select
+func (mapper AutoIncChildMapper) FieldList() []qb.Clause {
+	return []qb.Clause{
+		autoIncChildTable.C(AutoIncChildNameColumnName),
+		autoIncChildTable.C(AutoIncBaseIDColumnName),
+	}
+}
+
+// ScanPKey scans the primary key only
+func (mapper AutoIncChildMapper) ScanPKey(rows *sql.Rows, instance yago.MappedStruct) error {
+	s, ok := instance.(*AutoIncChild)
+	if !ok {
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &AutoIncChild{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
+	}
+	return rows.Scan(
+		&s.ID,
+	)
+}
+
+// Scan a struct
+func (mapper AutoIncChildMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) error {
+	s, ok := instance.(*AutoIncChild)
+	if !ok {
+		panic(fmt.Sprintf(
+			"Wrong struct type passed to the mapper. Expected &AutoIncChild{}, got %s",
+			reflect.TypeOf(instance).Name(),
+		))
+	}
+	return rows.Scan(
+		&s.Name,
+		&s.ID,
+	)
+}
+
+// AutoIncrementPKey return true if a column of the pkey is autoincremented
+func (AutoIncChildMapper) AutoIncrementPKey() bool {
+	return true
+}
+
+// LoadAutoIncrementPKeyValue set the pkey autoincremented column value
+func (AutoIncChildMapper) LoadAutoIncrementPKeyValue(instance yago.MappedStruct, value int64) {
+	s := instance.(*AutoIncChild)
+	s.ID = value
+}
+
+// PKey returns the instance primary key values
+func (mapper AutoIncChildMapper) PKey(instance yago.MappedStruct) (values []interface{}) {
+	str := instance.(*AutoIncChild)
+	values = append(values, str.ID)
+
+	return
+}
+
+// PKeyClause returns a clause that matches the instance primary key
+func (mapper AutoIncChildMapper) PKeyClause(values []interface{}) qb.Clause {
+	return autoIncChildTable.C(AutoIncBaseIDColumnName).Eq(values[0])
+}
