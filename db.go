@@ -88,6 +88,11 @@ func (db *DB) doInsertWithReturning(engine Engine, s MappedStruct) error {
 	return nil
 }
 
+// Close closes the underlying db connection
+func (db *DB) Close() error {
+	return db.Engine.Close()
+}
+
 func (db *DB) doInsert(engine Engine, s MappedStruct) error {
 	db.Callbacks.BeforeInsert.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
