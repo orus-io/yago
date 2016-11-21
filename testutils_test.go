@@ -50,8 +50,13 @@ func initModelWithDriver(t *testing.T, driver string) (db *yago.DB, model Fixtur
 	CleanupDB(t, db, false)
 
 	assert.Nil(t, meta.GetQbMetadata().CreateAll(engine))
-	cleanup = func() { CleanupDB(t, db, true) }
+	cleanup = func() { CleanupFunc(t, db, true) }
 	return
+}
+
+func CleanupFunc(t *testing.T, db *yago.DB, reportErrors bool) {
+	CleanupDB(t, db, reportErrors)
+	db.Close()
 }
 
 func CleanupDB(t *testing.T, db *yago.DB, reportErrors bool) {
