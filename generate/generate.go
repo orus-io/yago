@@ -57,7 +57,11 @@ func prepareFieldData(str *StructData, f *FieldData) {
 		f.ColumnName = makeColumnName(f.Name)
 	}
 	if f.ColumnType == "" {
-		f.ColumnType, err = guessColumnType(f.Type)
+		if f.Tags.TextMarshaled {
+			f.ColumnType, err = guessColumnType("string")
+		} else {
+			f.ColumnType, err = guessColumnType(f.Type)
+		}
 		if err != nil {
 			panic(fmt.Sprintf("Failure on field '%s': Got err '%s'",
 				f.Name, err))

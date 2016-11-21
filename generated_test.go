@@ -41,6 +41,15 @@ var (
 				PersonStructLastNameColumnName: "Reece",
 			},
 		},
+		{
+			NewPersonStructMapper(),
+			&PersonStruct{FirstName: "John", LastName: "Reece", Gender: Male},
+			[]string{PersonStructLastName, PersonStructGender},
+			map[string]interface{}{
+				PersonStructLastNameColumnName: "Reece",
+				PersonStructGenderColumnName:   []byte("male"),
+			},
+		},
 	}
 )
 

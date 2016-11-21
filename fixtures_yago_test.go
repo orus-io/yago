@@ -152,10 +152,13 @@ func (mapper SimpleStructMapper) Scan(rows *sql.Rows, instance yago.MappedStruct
 			reflect.TypeOf(instance).Name(),
 		))
 	}
-	return rows.Scan(
+	if err := rows.Scan(
 		&s.ID,
 		&s.Name,
-	)
+	); err != nil {
+		return err
+	}
+	return nil
 }
 
 // AutoIncrementPKey return true if a column of the pkey is autoincremented
@@ -210,6 +213,10 @@ const (
 	PersonStructLastName = "LastName"
 	// PersonStructLastNameColumnName is the LastName field associated column name
 	PersonStructLastNameColumnName = "last_name"
+	// PersonStructGender is the Gender field name
+	PersonStructGender = "Gender"
+	// PersonStructGenderColumnName is the Gender field associated column name
+	PersonStructGenderColumnName = "gender"
 )
 
 const (
@@ -222,6 +229,7 @@ var personStructTable = qb.Table(
 	qb.Column(PersonStructActiveColumnName, qb.Boolean()).NotNull(),
 	qb.Column(PersonStructFirstNameColumnName, qb.Varchar()).NotNull(),
 	qb.Column(PersonStructLastNameColumnName, qb.Varchar()).Null(),
+	qb.Column(PersonStructGenderColumnName, qb.Varchar()).NotNull(),
 	qb.Column(BaseStructIDColumnName, qb.UUID()).PrimaryKey().NotNull(),
 	qb.Column(BaseStructCreatedAtColumnName, qb.Timestamp()).NotNull(),
 	qb.Column(BaseStructUpdatedAtColumnName, qb.Timestamp()).NotNull(),
@@ -246,6 +254,7 @@ type PersonStructModel struct {
 	Active    yago.ScalarField
 	FirstName yago.ScalarField
 	LastName  yago.ScalarField
+	Gender    yago.MarshaledScalarField
 	ID        yago.ScalarField
 	CreatedAt yago.ScalarField
 	UpdatedAt yago.ScalarField
@@ -260,6 +269,7 @@ func NewPersonStructModel(meta *yago.Metadata) PersonStructModel {
 		Active:    yago.NewScalarField(mapper.Table().C(PersonStructActiveColumnName)),
 		FirstName: yago.NewScalarField(mapper.Table().C(PersonStructFirstNameColumnName)),
 		LastName:  yago.NewScalarField(mapper.Table().C(PersonStructLastNameColumnName)),
+		Gender:    yago.NewMarshaledScalarField(mapper.Table().C(PersonStructGenderColumnName)),
 		ID:        yago.NewScalarField(mapper.Table().C(BaseStructIDColumnName)),
 		CreatedAt: yago.NewScalarField(mapper.Table().C(BaseStructCreatedAtColumnName)),
 		UpdatedAt: yago.NewScalarField(mapper.Table().C(BaseStructUpdatedAtColumnName)),
@@ -324,6 +334,13 @@ func (mapper PersonStructMapper) SQLValues(instance yago.MappedStruct, fields ..
 	if allValues || yago.StringListContains(fields, PersonStructLastName) {
 		m[PersonStructLastNameColumnName] = s.LastName
 	}
+	if allValues || yago.StringListContains(fields, PersonStructGender) {
+		if b, err := s.Gender.MarshalText(); err == nil {
+			m[PersonStructGenderColumnName] = b
+		} else {
+			panic(err)
+		}
+	}
 	if allValues || yago.StringListContains(fields, BaseStructCreatedAt) {
 		m[BaseStructCreatedAtColumnName] = s.CreatedAt
 	}
@@ -339,6 +356,7 @@ func (mapper PersonStructMapper) FieldList() []qb.Clause {
 		personStructTable.C(PersonStructActiveColumnName),
 		personStructTable.C(PersonStructFirstNameColumnName),
 		personStructTable.C(PersonStructLastNameColumnName),
+		personStructTable.C(PersonStructGenderColumnName),
 		personStructTable.C(BaseStructIDColumnName),
 		personStructTable.C(BaseStructCreatedAtColumnName),
 		personStructTable.C(BaseStructUpdatedAtColumnName),
@@ -368,14 +386,22 @@ func (mapper PersonStructMapper) Scan(rows *sql.Rows, instance yago.MappedStruct
 			reflect.TypeOf(instance).Name(),
 		))
 	}
-	return rows.Scan(
+	var GenderText []byte
+	if err := rows.Scan(
 		&s.Active,
 		&s.FirstName,
 		&s.LastName,
+		&GenderText,
 		&s.ID,
 		&s.CreatedAt,
 		&s.UpdatedAt,
-	)
+	); err != nil {
+		return err
+	}
+	if err := s.Gender.UnmarshalText(GenderText); err != nil {
+		return err
+	}
+	return nil
 }
 
 // AutoIncrementPKey return true if a column of the pkey is autoincremented
@@ -552,11 +578,14 @@ func (mapper AutoIncChildMapper) Scan(rows *sql.Rows, instance yago.MappedStruct
 			reflect.TypeOf(instance).Name(),
 		))
 	}
-	return rows.Scan(
+	if err := rows.Scan(
 		&s.Name,
 		&s.Person,
 		&s.ID,
-	)
+	); err != nil {
+		return err
+	}
+	return nil
 }
 
 // AutoIncrementPKey return true if a column of the pkey is autoincremented

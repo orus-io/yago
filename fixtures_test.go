@@ -39,6 +39,42 @@ type BaseStruct struct {
 	UpdatedAt time.Time
 }
 
+// Person is a person gender
+type PersonGender int
+
+const (
+	NoGender PersonGender = iota
+	Male
+	Female
+)
+
+func (g PersonGender) MarshalText() ([]byte, error) {
+	switch g {
+	case NoGender:
+		return []byte("none"), nil
+	case Male:
+		return []byte("male"), nil
+	case Female:
+		return []byte("female"), nil
+	default:
+		return nil, fmt.Errorf("Invalid PersonGender: %d", g)
+	}
+}
+
+func (g *PersonGender) UnmarshalText(text []byte) error {
+	switch string(text) {
+	case "none":
+		*g = NoGender
+	case "male":
+		*g = Male
+	case "female":
+		*g = Female
+	default:
+		return fmt.Errorf("Invalid gender: %s", text)
+	}
+	return nil
+}
+
 //yago:autoattrs
 type PersonStruct struct {
 	BaseStruct
@@ -46,6 +82,8 @@ type PersonStruct struct {
 	Active    bool
 	FirstName string `yago:"unique"`
 	LastName  string `yago:"null"`
+
+	Gender PersonGender `yago:"textmarshaled"`
 }
 
 //yago:notable

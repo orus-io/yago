@@ -174,13 +174,16 @@ func (mapper PersonMapper) Scan(rows *sql.Rows, instance yago.MappedStruct) erro
 			reflect.TypeOf(instance).Name(),
 		))
 	}
-	return rows.Scan(
+	if err := rows.Scan(
 		&s.Name,
 		&s.Email,
 		&s.ID,
 		&s.CreatedAt,
 		&s.UpdatedAt,
-	)
+	); err != nil {
+		return err
+	}
+	return nil
 }
 
 // AutoIncrementPKey return true if a column of the pkey is autoincremented
@@ -376,14 +379,17 @@ func (mapper PhoneNumberMapper) Scan(rows *sql.Rows, instance yago.MappedStruct)
 			reflect.TypeOf(instance).Name(),
 		))
 	}
-	return rows.Scan(
+	if err := rows.Scan(
 		&s.PersonID,
 		&s.Name,
 		&s.Number,
 		&s.ID,
 		&s.CreatedAt,
 		&s.UpdatedAt,
-	)
+	); err != nil {
+		return err
+	}
+	return nil
 }
 
 // AutoIncrementPKey return true if a column of the pkey is autoincremented

@@ -82,6 +82,8 @@ func readColumnTags(tag string) (tags ColumnTags) {
 			tags.Null = true
 		} else if arg == "notnull" || arg == "not null" {
 			tags.NotNull = true
+		} else if arg == "textmarshaled" {
+			tags.TextMarshaled = true
 		} else if arg == "." {
 		} else {
 			tags.ColumnName = arg

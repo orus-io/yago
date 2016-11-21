@@ -22,6 +22,7 @@ type ColumnTags struct {
 	ForeignKeys   []string
 	Indexes       []string
 	UniqueIndexes []string
+	TextMarshaled bool
 }
 
 // FieldData describes a field to be mapped
@@ -143,7 +144,11 @@ func ({{ .Name }}) StructType() reflect.Type {
 type {{ .Name }}Model struct {
 	mapper *{{ .Name }}Mapper
 	{{- range .Fields }}
+	{{- if .Tags.TextMarshaled }}
+	{{ .Name }} yago.MarshaledScalarField
+	{{- else }}
 	{{ .Name }} yago.ScalarField
+	{{- end }}
 	{{- end }}
 }
 
@@ -154,7 +159,11 @@ func New{{ .Name }}Model(meta *yago.Metadata) {{ .Name }}Model {
 	return {{ .Name }}Model {
 		mapper: mapper,
 		{{- range .Fields }}
+		{{- if .Tags.TextMarshaled }}
+		{{ .Name }}: yago.NewMarshaledScalarField(mapper.Table().C({{ .ColumnNameConst }})),
+		{{- else }}
 		{{ .Name }}: yago.NewScalarField(mapper.Table().C({{ .ColumnNameConst }})),
+		{{- end }}
 		{{- end }}
 	}
 }
@@ -213,7 +222,15 @@ func (mapper {{ .Name }}Mapper) SQLValues(instance yago.MappedStruct, fields ...
 	{{- range .Fields }}
 	{{- if not .Tags.PrimaryKey }}
 	if allValues || yago.StringListContains(fields, {{ .NameConst }}) {
+		{{- if .Tags.TextMarshaled }}
+		if b, err := s.{{ .Name }}.MarshalText(); err == nil {
+			m[{{ .ColumnNameConst }}] = b
+		} else {
+			panic(err)
+		}
+		{{- else }}
 		m[{{ .ColumnNameConst }}] = s.{{ .Name }}
+		{{- end }}
 	}
 	{{- end }}
 	{{- end }}
@@ -254,11 +271,31 @@ func (mapper {{ .Name }}Mapper) Scan(rows *sql.Rows, instance yago.MappedStruct)
 			reflect.TypeOf(instance).Name(),
 		))
 	}
-	return rows.Scan(
-	{{- range $_, $fd := .Fields }}
-		&s.{{ $fd.Name }},
+	{{- range .Fields }}
+	    {{- if .Tags.TextMarshaled }}
+	var {{ .Name }}Text []byte
+		{{- end }}
 	{{- end }}
-	)
+	if err := rows.Scan(
+	{{- range .Fields }}
+	    {{- if .Tags.TextMarshaled }}
+		&{{ .Name }}Text,
+		{{- else }}
+		&s.{{ .Name }},
+		{{- end }}
+	{{- end }}
+	); err != nil {
+		return err
+	}
+	
+	{{- range .Fields }}
+	    {{- if .Tags.TextMarshaled }}
+	if err := s.{{ .Name }}.UnmarshalText({{ .Name }}Text); err != nil {
+		return err
+	}
+		{{- end }}
+	{{- end }}
+	return nil
 }
 
 // AutoIncrementPKey return true if a column of the pkey is autoincremented
