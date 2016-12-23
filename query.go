@@ -109,7 +109,7 @@ func (q Query) SQLQuery() (*sql.Rows, error) {
 }
 
 // SQLQueryRow runs the query and expects at most one row in the result
-func (q Query) SQLQueryRow() *sql.Row {
+func (q Query) SQLQueryRow() qb.Row {
 	return q.db.GetEngine().QueryRow(q.selectStmt)
 }
 

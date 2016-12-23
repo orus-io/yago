@@ -21,7 +21,7 @@ type IDB interface {
 type Engine interface {
 	Exec(builder qb.Builder) (sql.Result, error)
 	Query(builder qb.Builder) (*sql.Rows, error)
-	QueryRow(builder qb.Builder) *sql.Row
+	QueryRow(builder qb.Builder) qb.Row
 }
 
 // New initialise a new DB
