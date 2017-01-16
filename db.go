@@ -69,7 +69,7 @@ func (db *DB) doInsertWithReturning(engine Engine, s MappedStruct) error {
 
 	rows, err := engine.Query(insert)
 	if err != nil {
-		return fmt.Errorf("yago Insert: QueryRow failed with '%s'", err)
+		return err
 	}
 	defer rows.Close()
 
@@ -105,7 +105,7 @@ func (db *DB) doInsert(engine Engine, s MappedStruct) error {
 
 	res, err := engine.Exec(insert)
 	if err != nil {
-		return fmt.Errorf("yago Insert: Exec failed with '%s'", err)
+		return err
 	}
 	ra, err := res.RowsAffected()
 	if err != nil {
@@ -135,7 +135,7 @@ func (db *DB) doUpdate(engine Engine, s MappedStruct, fields ...string) error {
 
 	res, err := engine.Exec(update)
 	if err != nil {
-		return fmt.Errorf("yago Update: Exec failed with '%s'", err)
+		return err
 	}
 	ra, err := res.RowsAffected()
 	if err != nil {
