@@ -16,21 +16,26 @@ type querySQLTests struct {
 
 func makeQuerySQLTests(db *yago.DB, model FixtureModel) []querySQLTests {
 	return []querySQLTests{
-		querySQLTests{
+		{
 			"SELECT X\nFROM person_struct\nWHERE (Y AND Z)",
 			db.Query(model.PersonStruct).Select(qb.SQLText("X")).
 				Filter(qb.SQLText("Y")).
 				Filter(qb.SQLText("Z")),
 		},
-		querySQLTests{
+		{
 			"SELECT X\nFROM person_struct\nWHERE (Y AND Z)",
 			db.Query(model.PersonStruct).Select(qb.SQLText("X")).
 				Where(qb.SQLText("Y"), qb.SQLText("Z")),
 		},
-		querySQLTests{
+		{
 			"SELECT X\nFROM person_struct\nORDER BY last_name ASC",
 			db.Query(model.PersonStruct).Select(qb.SQLText("X")).
 				OrderBy(model.PersonStruct.LastName),
+		},
+		{
+			"SELECT X\nFROM person_struct\nORDER BY last_name ASC\nLIMIT 5 OFFSET 0",
+			db.Query(model.PersonStruct).Select(qb.SQLText("X")).
+				OrderBy(model.PersonStruct.LastName).Limit(5, 0),
 		},
 	}
 }

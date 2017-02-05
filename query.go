@@ -141,6 +141,12 @@ func (q Query) Get(s MappedStruct, pkey ...interface{}) error {
 	return q.Where(q.mapper.PKeyClause(pkey)).One(s)
 }
 
+// Limit adds a limit and offset to the current statement
+func (q Query) Limit(limit, offset int) Query {
+	q.selectStmt = q.selectStmt.Limit(offset, limit)
+	return q
+}
+
 // All load all the structs matching the query
 func (q Query) All(value interface{}) error {
 	rows, err := q.SQLQuery()
