@@ -233,7 +233,7 @@ func (q Query) Count(count interface{}) error {
 // Exists return true if any record matches the current query
 func (q Query) Exists() (exists bool, err error) {
 	q.selectStmt = qb.Select(qb.Exists(
-		q.selectStmt.Select(qb.SQLText("1")).Limit(0, 1),
+		q.selectStmt.Select(qb.SQLText("1")).Limit(1),
 	))
 	err = q.Scalar(&exists)
 	return
