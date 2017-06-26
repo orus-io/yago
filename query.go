@@ -93,6 +93,24 @@ func (q Query) OrderBy(clauses ...qb.Clause) Query {
 	return q
 }
 
+// Limit add a LIMIT clause
+func (q Query) Limit(limit int) Query {
+	q.selectStmt = q.selectStmt.Limit(limit)
+	return q
+}
+
+// Offset add a OFFSET clause
+func (q Query) Offset(offset int) Query {
+	q.selectStmt = q.selectStmt.Offset(offset)
+	return q
+}
+
+// LimitOffset add a LIMIT/OFFSET clause
+func (q Query) LimitOffset(limit int, offset int) Query {
+	q.selectStmt = q.selectStmt.LimitOffset(limit, offset)
+	return q
+}
+
 // ForUpdate add a FOR UPDATE clause
 func (q Query) ForUpdate(mps ...MapperProvider) Query {
 	var tables []qb.TableElem
