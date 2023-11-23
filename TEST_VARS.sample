@@ -1,0 +1,1 @@
+export YAGO_TEST_POSTGRES="host=/var/run/postgresql dbname=yago-test"
