@@ -7,9 +7,9 @@ import (
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/orus-io/yago"
-	"github.com/slicebit/qb"
-	_ "github.com/slicebit/qb/dialects/postgres"
-	_ "github.com/slicebit/qb/dialects/sqlite"
+	"github.com/orus-io/qb"
+	_ "github.com/orus-io/qb/dialects/postgres"
+	_ "github.com/orus-io/qb/dialects/sqlite"
 
 	"github.com/stretchr/testify/assert"
 )

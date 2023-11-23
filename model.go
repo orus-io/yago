@@ -3,7 +3,7 @@ package yago
 import (
 	"encoding"
 
-	"github.com/slicebit/qb"
+	"github.com/orus-io/qb"
 )
 
 // A Model provides handy access to a struct definition.

@@ -1,10 +1,11 @@
 package yago
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
-	"github.com/slicebit/qb"
+	"github.com/orus-io/qb"
 )
 
 // IDB is the common interface of DB and Tx
@@ -14,6 +15,10 @@ type IDB interface {
 	Delete(MappedStruct) error
 	Query(MapperProvider) Query
 
+	InsertContext(context.Context, MappedStruct) error
+	UpdateContext(context.Context, MappedStruct, ...string) error
+	DeleteContext(context.Context, MappedStruct) error
+
 	GetEngine() Engine
 }
 
@@ -22,6 +27,10 @@ type Engine interface {
 	Exec(builder qb.Builder) (sql.Result, error)
 	Query(builder qb.Builder) (*sql.Rows, error)
 	QueryRow(builder qb.Builder) qb.Row
+
+	ExecContext(ctx context.Context, builder qb.Builder) (sql.Result, error)
+	QueryContext(ctx context.Context, builder qb.Builder) (*sql.Rows, error)
+	QueryRowContext(ctx context.Context, builder qb.Builder) qb.Row
 }
 
 // New initialise a new DB
@@ -47,27 +56,42 @@ func (db DB) GetEngine() Engine {
 
 // Insert a struct in the database
 func (db *DB) Insert(s MappedStruct) error {
-	return db.doInsert(db.Engine, s)
+	return db.doInsert(context.Background(), db.Engine, s)
+}
+
+// InsertContext a struct in the database
+func (db *DB) InsertContext(ctx context.Context, s MappedStruct) error {
+	return db.doInsert(ctx, db.Engine, s)
 }
 
 // Update the struct attributes in DB
 func (db *DB) Update(s MappedStruct, fields ...string) error {
-	return db.doUpdate(db.Engine, s, fields...)
+	return db.doUpdate(context.Background(), db.Engine, s, fields...)
+}
+
+// UpdateContext the struct attributes in DB
+func (db *DB) UpdateContext(ctx context.Context, s MappedStruct, fields ...string) error {
+	return db.doUpdate(ctx, db.Engine, s, fields...)
 }
 
 // Delete a struct in the database
 func (db *DB) Delete(s MappedStruct) error {
-	return db.doDelete(db.Engine, s)
+	return db.doDelete(context.Background(), db.Engine, s)
 }
 
-func (db *DB) doInsertWithReturning(engine Engine, s MappedStruct) error {
+// Delete a struct in the database
+func (db *DB) DeleteContext(ctx context.Context, s MappedStruct) error {
+	return db.doDelete(ctx, db.Engine, s)
+}
+
+func (db *DB) doInsertWithReturning(ctx context.Context, engine Engine, s MappedStruct) error {
 	mapper := db.Metadata.GetMapper(s)
 
 	insert := mapper.Table().Insert().
 		Values(mapper.SQLValues(s)).
 		Returning(mapper.Table().PrimaryCols()...)
 
-	rows, err := engine.Query(insert)
+	rows, err := engine.QueryContext(ctx, insert)
 	if err != nil {
 		return err
 	}
@@ -93,17 +117,17 @@ func (db *DB) Close() error {
 	return db.Engine.Close()
 }
 
-func (db *DB) doInsert(engine Engine, s MappedStruct) error {
+func (db *DB) doInsert(ctx context.Context, engine Engine, s MappedStruct) error {
 	db.Callbacks.BeforeInsert.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
 
 	if mapper.AutoIncrementPKey() && db.Engine.Dialect().Driver() == "postgres" {
-		return db.doInsertWithReturning(engine, s)
+		return db.doInsertWithReturning(ctx, engine, s)
 	}
 
 	insert := mapper.Table().Insert().Values(mapper.SQLValues(s))
 
-	res, err := engine.Exec(insert)
+	res, err := engine.ExecContext(ctx, insert)
 	if err != nil {
 		return err
 	}
@@ -126,14 +150,14 @@ func (db *DB) doInsert(engine Engine, s MappedStruct) error {
 	return nil
 }
 
-func (db *DB) doUpdate(engine Engine, s MappedStruct, fields ...string) error {
+func (db *DB) doUpdate(ctx context.Context, engine Engine, s MappedStruct, fields ...string) error {
 	db.Callbacks.BeforeUpdate.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
 	update := mapper.Table().Update().
 		Values(mapper.SQLValues(s, fields...)).
 		Where(mapper.PKeyClause(mapper.PKey(s)))
 
-	res, err := engine.Exec(update)
+	res, err := engine.ExecContext(ctx, update)
 	if err != nil {
 		return err
 	}
@@ -157,11 +181,11 @@ func (db *DB) Query(mp MapperProvider) Query {
 }
 
 // Delete a struct from the database
-func (db *DB) doDelete(engine Engine, s MappedStruct) error {
+func (db *DB) doDelete(ctx context.Context, engine Engine, s MappedStruct) error {
 	db.Callbacks.BeforeDelete.Call(db, s)
 	mapper := db.Metadata.GetMapper(s)
 	del := mapper.Table().Delete().Where(mapper.PKeyClause(mapper.PKey(s)))
-	res, err := engine.Exec(del)
+	res, err := engine.ExecContext(ctx, del)
 	if err != nil {
 		return err
 	}
@@ -180,7 +204,12 @@ func (db *DB) doDelete(engine Engine, s MappedStruct) error {
 
 // Begin start a new transaction
 func (db *DB) Begin() (*Tx, error) {
-	tx, err := db.Engine.Begin()
+	return db.BeginContext(context.Background())
+}
+
+// BeginContext start a new transaction
+func (db *DB) BeginContext(ctx context.Context) (*Tx, error) {
+	tx, err := db.Engine.BeginContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -200,18 +229,34 @@ func (tx Tx) GetEngine() Engine {
 
 // Insert a new struct to the database
 func (tx Tx) Insert(s MappedStruct) error {
-	return tx.db.doInsert(tx.tx, s)
+	return tx.db.doInsert(context.Background(), tx.tx, s)
+}
+
+// InsertContext a new struct to the database
+func (tx Tx) InsertContext(ctx context.Context, s MappedStruct) error {
+	return tx.db.doInsert(ctx, tx.tx, s)
 }
 
 // Update write struct values to the database
 // If fields is provided, only theses fields are written
 func (tx Tx) Update(s MappedStruct, fields ...string) error {
-	return tx.db.doUpdate(tx.tx, s, fields...)
+	return tx.db.doUpdate(context.Background(), tx.tx, s, fields...)
+}
+
+// UpdateContext write struct values to the database
+// If fields is provided, only theses fields are written
+func (tx Tx) UpdateContext(ctx context.Context, s MappedStruct, fields ...string) error {
+	return tx.db.doUpdate(ctx, tx.tx, s, fields...)
 }
 
 // Delete drop a struct from the database
 func (tx Tx) Delete(s MappedStruct) error {
-	return tx.db.doDelete(tx.tx, s)
+	return tx.db.doDelete(context.Background(), tx.tx, s)
+}
+
+// DeleteContext drop a struct from the database
+func (tx Tx) DeleteContext(ctx context.Context, s MappedStruct) error {
+	return tx.db.doDelete(ctx, tx.tx, s)
 }
 
 // Query returns a new Query

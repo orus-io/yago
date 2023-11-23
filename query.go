@@ -1,11 +1,12 @@
 package yago
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"reflect"
 
-	"github.com/slicebit/qb"
+	"github.com/orus-io/qb"
 )
 
 // Query helps querying structs from the database
@@ -126,15 +127,31 @@ func (q Query) SQLQuery() (*sql.Rows, error) {
 	return q.db.GetEngine().Query(q.selectStmt)
 }
 
+// SQLQueryContext runs the query
+func (q Query) SQLQueryContext(ctx context.Context) (*sql.Rows, error) {
+	return q.db.GetEngine().QueryContext(ctx, q.selectStmt)
+}
+
 // SQLQueryRow runs the query and expects at most one row in the result
 func (q Query) SQLQueryRow() qb.Row {
 	return q.db.GetEngine().QueryRow(q.selectStmt)
 }
 
+// SQLQueryRowContext runs the query and expects at most one row in the result
+func (q Query) SQLQueryRowContext(ctx context.Context) qb.Row {
+	return q.db.GetEngine().QueryRowContext(ctx, q.selectStmt)
+}
+
 // One returns one and only one struct from the query.
 // If query has no result or more than one, an error is returned
 func (q Query) One(s MappedStruct) error {
-	rows, err := q.SQLQuery()
+	return q.OneContext(context.Background(), s)
+}
+
+// OneContext returns one and only one struct from the query.
+// If query has no result or more than one, an error is returned
+func (q Query) OneContext(ctx context.Context, s MappedStruct) error {
+	rows, err := q.SQLQueryContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -159,9 +176,19 @@ func (q Query) Get(s MappedStruct, pkey ...interface{}) error {
 	return q.Where(q.mapper.PKeyClause(pkey)).One(s)
 }
 
+// GetContext returns a record from its primary key values
+func (q Query) GetContext(ctx context.Context, s MappedStruct, pkey ...interface{}) error {
+	return q.Where(q.mapper.PKeyClause(pkey)).OneContext(ctx, s)
+}
+
 // All load all the structs matching the query
 func (q Query) All(value interface{}) error {
-	rows, err := q.SQLQuery()
+	return q.AllContext(context.Background(), value)
+}
+
+// AllContext load all the structs matching the query
+func (q Query) AllContext(ctx context.Context, value interface{}) error {
+	rows, err := q.SQLQueryContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -213,7 +240,12 @@ func (q Query) All(value interface{}) error {
 
 // Scalar execute the query and retrieve a single value from it
 func (q Query) Scalar(value interface{}) error {
-	rows, err := q.SQLQuery()
+	return q.ScalarContext(context.Background(), value)
+}
+
+// ScalarContext execute the query and retrieve a single value from it
+func (q Query) ScalarContext(ctx context.Context, value interface{}) error {
+	rows, err := q.SQLQueryContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -237,7 +269,12 @@ func (q Query) Scalar(value interface{}) error {
 // Count change the columns to COUNT(*), execute the query and returns
 // the result
 func (q Query) Count(count interface{}) error {
+	return q.CountContext(context.Background(), count)
+}
 
+// CountContext change the columns to COUNT(*), execute the query and returns
+// the result
+func (q Query) CountContext(ctx context.Context, count interface{}) error {
 	// XXX mapper should be able to return a list of pkey fields
 	// XXX When qb supports COUNT(*), use it
 	q.selectStmt = q.selectStmt.Select(qb.Count(
@@ -245,14 +282,19 @@ func (q Query) Count(count interface{}) error {
 	)
 	return q.Select(
 		qb.Count(qb.SQLText("*")),
-	).Scalar(count)
+	).ScalarContext(ctx, count)
 }
 
 // Exists return true if any record matches the current query
 func (q Query) Exists() (exists bool, err error) {
+	return q.ExistsContext(context.Background())
+}
+
+// ExistsContext return true if any record matches the current query
+func (q Query) ExistsContext(ctx context.Context) (exists bool, err error) {
 	q.selectStmt = qb.Select(qb.Exists(
 		q.selectStmt.Select(qb.SQLText("1")).Limit(1),
 	))
-	err = q.Scalar(&exists)
+	err = q.ScalarContext(ctx, &exists)
 	return
 }
